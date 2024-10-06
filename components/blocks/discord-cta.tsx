@@ -15,9 +15,9 @@ const DiscordCta = () => {
             <h1 className='my-6 text-pretty text-3xl font-bold lg:text-4xl'>
               Join our Discord Community
             </h1>
-            <p className='mb-8 max-w-xl text-muted-foreground lg:text-lg'>
-              Make new friends, share your knowledge and learn from the largest
-              unofficial Linux community on Discord.
+            <p className='mb-8 max-w-xl text-balance text-muted-foreground lg:text-lg'>
+              Make new friends, share your knowledge and learn from the biggest
+              Linux community on Discord.
             </p>
             <div className='flex w-full flex-col justify-center gap-2 sm:flex-row lg:justify-start'>
               <Button
@@ -25,14 +25,19 @@ const DiscordCta = () => {
                 className='w-full sm:w-auto'
                 size={'lg'}>
                 <Link className='mr-2 size-4' />
-                Join now
+                <a
+                  href='https://discord.gg/linux'
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  Join now
+                </a>
               </Button>
             </div>
           </div>
           <img
-            src='https://www.shadcnblocks.com/images/block/placeholder-1.svg'
+            src='https://delet3.web.app/assets/svg/welcome-discord.svg'
             alt='placeholder hero'
-            className='max-h-96 w-full rounded-md object-cover'
+            className='max-h-96 w-full rounded-md'
           />
         </div>
       </div>

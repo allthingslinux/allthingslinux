@@ -169,7 +169,7 @@ const Navbar = () => {
                     variant: 'ghost',
                   })
                 )}
-                href='#'>
+                href='https://coc.allthingslinux.com'>
                 Code of Conduct
               </a>
               <a
@@ -180,7 +180,7 @@ const Navbar = () => {
                     variant: 'ghost',
                   })
                 )}
-                href='#'>
+                href='https://blog.atl.tools'>
                 Blog
               </a>
             </div>

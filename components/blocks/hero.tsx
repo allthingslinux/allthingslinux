@@ -213,10 +213,8 @@ const Hero = () => {
                   {line.map((integration) => (
                     <div
                       key={integration.id}
-                      className='size-24 rounded-xl border border-background bg-primary/20 shadow-xl'>
-                      <div className='size-full bg-primary/20 p-4'>
-                        {integration.icon}
-                      </div>
+                      className='size-24 rounded-xl border border-background bg-[#1A1B26]/80'>
+                      <div className='size-full p-4'>{integration.icon}</div>
                     </div>
                   ))}
                 </div>

@@ -28,9 +28,9 @@ export default function Home() {
         <DonateCta />
       </main>
 
-      <footer className='bg-gray-800 text-white py-4'>
+      <footer className='bg-[#1a1b26] text-white py-4'>
         <div className='container mx-auto text-center'>
-          © {new Date().getFullYear()} Your Company. All rights reserved.
+          {new Date().getFullYear()} | All Things Linux
         </div>
       </footer>
     </div>

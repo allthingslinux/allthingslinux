@@ -56,7 +56,7 @@ const Cards = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className='flex flex-col gap-10 rounded-lg border bg-background p-8'>
+              className='flex flex-col gap-10 rounded-lg border bg-[#1A1B26] p-8'>
               <div>
                 {feature.icon}
                 <h3 className='mb-2 mt-6 font-medium text-2xl'>
