@@ -10,27 +10,27 @@ const Stats = () => {
             <p className='text-sm font-medium text-muted-foreground'>
               Reduce your time to hire by
             </p>
-            <p className='pt-4 text-7xl font-semibold lg:pt-10'>4x</p>
+            <p className='pt-4 text-7xl font-semibold lg:pt-10'>5,000+</p>
             <p className='text-2xl font-semibold text-muted-foreground'>
-              quicker
+              members and counting
             </p>
           </div>
           <div className='text-center'>
             <p className='text-sm font-medium text-muted-foreground'>
               Clients have seen a decrease in
             </p>
-            <p className='pt-4 text-7xl font-semibold lg:pt-10'>50%</p>
+            <p className='pt-4 text-7xl font-semibold lg:pt-10'>3.5M+</p>
             <p className='text-2xl font-semibold text-muted-foreground'>
-              in time to hire
+              messages
             </p>
           </div>
           <div className='text-center'>
             <p className='text-sm font-medium text-muted-foreground'>
               The average number of hires per
             </p>
-            <p className='pt-4 text-7xl font-semibold lg:pt-10'>3</p>
+            <p className='pt-4 text-7xl font-semibold lg:pt-10'>500+</p>
             <p className='text-2xl font-semibold text-muted-foreground'>
-              months
+              support threads solved
             </p>
           </div>
         </div>

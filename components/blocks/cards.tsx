@@ -1,48 +1,44 @@
-import {
-  Blocks,
-  ChevronRight,
-  Infinity,
-  Laptop,
-  ListEnd,
-  Zap,
-  ZoomIn,
-} from 'lucide-react';
+import { ChevronRight, Infinity } from 'lucide-react';
+
+import { FaDiscord } from 'react-icons/fa';
+import { TbArticle, TbTool, TbMessages } from 'react-icons/tb';
+import { ImTux } from 'react-icons/im';
 
 const features = [
   {
     title: '.gg/linux',
     description: 'An extremely popular Linux server for any skill level',
-    icon: <ZoomIn className='size-6' />,
-    link: '#',
+    icon: <FaDiscord className='size-6' />,
+    link: 'https://discord.gg/linux',
   },
   {
     title: 'atl.wiki',
     description: 'A Linux wiki designed with beginners in mind',
-    icon: <Blocks className='size-6' />,
-    link: '#',
+    icon: <TbArticle className='size-6' />,
+    link: 'https://atl.wiki',
   },
   {
     title: 'atl.tools',
     description: 'Self-hosted applications for nerds, by nerds',
-    icon: <Laptop className='size-6' />,
-    link: '#',
+    icon: <TbTool className='size-6' />,
+    link: 'https://atl.tools',
   },
   {
     title: 'atl.chat',
     description:
       'Access our community through other platforms like IRC and XMPP',
-    icon: <Zap className='size-6' />,
+    icon: <TbMessages className='size-6' />,
     link: '#',
   },
   {
     title: 'tux',
     description: 'Tux is an all in one Discord bot that powers our community',
-    icon: <ListEnd className='size-6' />,
-    link: '#',
+    icon: <ImTux className='size-6' />,
+    link: 'https://tux.atl.tools',
   },
   {
-    title: '?',
-    description: 'And More to Come...',
+    title: '& more coming soon',
+    description: 'All Things Linux is constantly evolving and looking to grow.',
     icon: <Infinity className='size-6' />,
     link: '#',
   },
@@ -63,15 +59,15 @@ const Cards = () => {
               className='flex flex-col gap-10 rounded-lg border bg-background p-8'>
               <div>
                 {feature.icon}
-                <h3 className='mb-2 mt-6 font-medium'>{feature.title}</h3>
-                <p className='text-sm text-muted-foreground'>
-                  {feature.description}
-                </p>
+                <h3 className='mb-2 mt-6 font-medium text-2xl'>
+                  {feature.title}
+                </h3>
+                <p className='text-muted-foreground'>{feature.description}</p>
               </div>
               <a
                 href={feature.link}
                 className='flex items-center gap-2 text-sm font-medium'>
-                Learn more
+                Visit
                 <ChevronRight className='w-4' />
               </a>
             </div>

@@ -1,143 +1,160 @@
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+
+import arch from '@/public/images/hero/arch.png';
+import gentoo from '@/public/images/hero/gentoo.png';
+import bazzite from '@/public/images/hero/bazzite.png';
+import debian from '@/public/images/hero/debian.png';
+import cachy from '@/public/images/hero/cachy.png';
+import fedora from '@/public/images/hero/fedora.png';
+import mint from '@/public/images/hero/mint.png';
+import nixos from '@/public/images/hero/nixos.png';
+import opensuse from '@/public/images/hero/opensuse.png';
+import popos from '@/public/images/hero/popos.png';
+import redhat from '@/public/images/hero/redhat.png';
+import slackware from '@/public/images/hero/slackware.png';
+import ubuntu from '@/public/images/hero/ubuntu.png';
+import bedrock from '@/public/images/hero/bedrock.png';
+import asahi from '@/public/images/hero/asahi.png';
 
 const integrations = [
   [
     {
-      id: 'integration-1',
+      id: 'arch-1',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-1.svg'
+        <Image
+          src={arch}
+          alt='arch'
         />
       ),
     },
     {
-      id: 'integration-2',
+      id: 'gentoo-2',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-2.svg'
+        <Image
+          src={gentoo}
+          alt='gentoo'
         />
       ),
     },
     {
-      id: 'integration-3',
+      id: 'bazzite-3',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-3.svg'
+        <Image
+          src={bazzite}
+          alt='bazzite'
         />
       ),
     },
     {
-      id: 'integration-4',
+      id: 'debian-4',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-4.svg'
+        <Image
+          src={debian}
+          alt='debian'
         />
       ),
     },
     {
-      id: 'integration-5',
+      id: 'cachy-5',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-5.svg'
-        />
-      ),
-    },
-  ],
-  [
-    {
-      id: 'integration-6',
-      icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-6.svg'
-        />
-      ),
-    },
-    {
-      id: 'integration-7',
-      icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-1.svg'
-        />
-      ),
-    },
-    {
-      id: 'integration-8',
-      icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-2.svg'
-        />
-      ),
-    },
-    {
-      id: 'integration-9',
-      icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-3.svg'
-        />
-      ),
-    },
-    {
-      id: 'integration-10',
-      icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-4.svg'
+        <Image
+          src={cachy}
+          alt='cachy'
         />
       ),
     },
   ],
   [
     {
-      id: 'integration-11',
+      id: 'fedora-6',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-5.svg'
+        <Image
+          src={fedora}
+          alt='fedora'
         />
       ),
     },
     {
-      id: 'integration-12',
+      id: 'mint-7',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-6.svg'
+        <Image
+          src={mint}
+          alt='mint'
         />
       ),
     },
     {
-      id: 'integration-13',
+      id: 'nixos-8',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-1.svg'
+        <Image
+          src={nixos}
+          alt='nixos'
         />
       ),
     },
     {
-      id: 'integration-14',
+      id: 'opensuse-9',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-2.svg'
+        <Image
+          src={opensuse}
+          alt='opensuse'
         />
       ),
     },
     {
-      id: 'integration-15',
+      id: 'popos-10',
       icon: (
-        <img
-          alt='Integration'
-          src='/images/block/block-3.svg'
+        <Image
+          src={popos}
+          alt='popos'
+        />
+      ),
+    },
+  ],
+  [
+    {
+      id: 'redhat-11',
+      icon: (
+        <Image
+          src={redhat}
+          alt='redhat'
+        />
+      ),
+    },
+    {
+      id: 'slackware-12',
+      icon: (
+        <Image
+          src={slackware}
+          alt='slackware'
+        />
+      ),
+    },
+    {
+      id: 'ubuntu-13',
+      icon: (
+        <Image
+          src={ubuntu}
+          alt='ubuntu'
+        />
+      ),
+    },
+    {
+      id: 'bedrock-14',
+      icon: (
+        <Image
+          src={bedrock}
+          alt='bedrock'
+        />
+      ),
+    },
+    {
+      id: 'asahi-15',
+      icon: (
+        <Image
+          src={asahi}
+          alt='asahi'
         />
       ),
     },
@@ -163,7 +180,7 @@ const Hero = () => {
                 fill='none'
                 stroke='hsl(var(--muted))'
                 strokeWidth='1'
-                strokeOpacity={0.5}
+                strokeOpacity={0.2}
               />
             </pattern>
           </defs>
@@ -179,11 +196,11 @@ const Hero = () => {
         <div className='md:-space-x-26 container relative flex flex-col items-start md:flex-row md:items-center'>
           <div className='z-20 -mx-[calc(theme(container.padding))] w-[calc(100%+2*theme(container.padding))] shrink-0 bg-background px-[calc(theme(container.padding))] pt-32 md:w-1/2 md:bg-transparent md:pb-32'>
             <div className='flex flex-col items-start text-left'>
-              <div className='max-w-sm'>
+              <div className='max-w-sm mx-8'>
                 <h1 className='my-6 text-pretty text-4xl font-bold lg:text-6xl'>
                   Your Linux Journey Starts Here
                 </h1>
-                <Button>Join our community</Button>
+                {/* <Button>Join our community</Button> */}
               </div>
             </div>
           </div>
@@ -196,8 +213,8 @@ const Hero = () => {
                   {line.map((integration) => (
                     <div
                       key={integration.id}
-                      className='size-24 rounded-xl border border-background bg-background shadow-xl'>
-                      <div className='size-full bg-muted/20 p-4'>
+                      className='size-24 rounded-xl border border-background bg-primary/20 shadow-xl'>
+                      <div className='size-full bg-primary/20 p-4'>
                         {integration.icon}
                       </div>
                     </div>

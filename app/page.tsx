@@ -21,10 +21,10 @@ export default function Home() {
 
       <main className='flex-grow container mx-auto px-4 py-8 flex flex-col gap-8'>
         <Hero />
-        <Stats />
+        <DiscordCta />
         <Cards />
         <Values />
-        <DiscordCta />
+        <Stats />
         <DonateCta />
       </main>
 
