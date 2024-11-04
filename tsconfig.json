@@ -33,6 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
+    "app/code-of-conduct/page.mdx"
   ],
   "exclude": [
     "node_modules"
