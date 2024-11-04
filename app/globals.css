@@ -17,8 +17,9 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  /* font-family: 'Courier New', Courier, monospace; */
-  font-family: 'Inter', 'BlinkMacSystemFont', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji';
+  font-family: 'Inter', 'BlinkMacSystemFont', '-apple-system', 'Segoe UI',
+    'Roboto', 'Helvetica', 'Arial', 'sans-serif', 'Apple Color Emoji',
+    'Segoe UI Emoji';
 }
 
 @layer utilities {
@@ -54,6 +55,10 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* Shadcnblocks.com */
+    --muted2: 0 0 91%;
+    --muted2-foreground: 240 3.8% 46.1%;
   }
 
   .dark {
@@ -92,4 +97,25 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.carousel-blend::before,
+.carousel-blend::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8rem;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.carousel-blend::before {
+  left: 0;
+  background: linear-gradient(to right, #111827, transparent);
+}
+
+.carousel-blend::after {
+  right: 0;
+  background: linear-gradient(to left, #111827, transparent);
 }
