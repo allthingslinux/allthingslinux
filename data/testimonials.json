@@ -1,0 +1,49 @@
+{
+  "testimonials": [
+    {
+      "name": "Erik",
+      "avatar": "/images/penguins/1.svg",
+      "content": "Friendly community, everyone is generally respectful and fun to talk to. The staff team does a great job at managing the community and maintaining a safe environment for all of us to enjoy. I've had my ups and downs with the server but overall a very welcoming community."
+    },
+    {
+      "name": "Clem",
+      "avatar": "/images/penguins/2.svg",
+      "content": "Honestly the best Linux Server. I feel happy and safe here and it's an active and loving community. It's moderated very nicely and it's a great space to help grow your POSIX knowledge."
+    },
+    {
+      "name": "Unused",
+      "avatar": "/images/penguins/4.svg",
+      "content": "This community has felt from the start like a place where I can just have fun with others, most of the people here are great to talk to, with all our different interests and all, and the community activities we do are great and feel inclusive, such as Saturday Tux Kart and (although unofficial, Gartic Phone)"
+    },
+    {
+      "name": "Frida",
+      "avatar": "/images/penguins/3.svg",
+      "content": "A friendly, positive linux server where like-minded folks share good times, and all the staff seem positive too and aren't power tripping? Sign me up!"
+    },
+    {
+      "name": "Anna",
+      "avatar": "/images/penguins/6.svg",
+      "content": "Gets me out of my garage. I have little to no complaints. Level-headed staff. The only Linux server I've felt has fostered a good community and team. Real care is put into this without turning to an unhealthy amount of attention for a Discord server."
+    },
+    {
+      "name": "Zirix",
+      "avatar": "/images/penguins/2.svg",
+      "content": "I love the server for its diversity—people from all kinds of backgrounds chatting and exchanging ideas. It's a must-join for anyone interested in FLOSS or just good conversation!"
+    },
+    {
+      "name": "Glcoean",
+      "avatar": "/images/penguins/1.svg",
+      "content": "This server is awesome, I actually love this community even if it can be a little weird at times. I learned a lot here and I'm happy that I'm teaching/helping others here too now, I even got gifted nitro for helping someone."
+    },
+    {
+      "name": "Ryna",
+      "avatar": "/images/penguins/5.svg",
+      "content": "Friendly, helpful, diverse, and educated community. Healthy moderation team and active chats. 9/10 because nothing is perfect, but I would say this is close to it."
+    },
+    {
+      "name": "Teknos",
+      "avatar": "/images/penguins/3.svg",
+      "content": "All Things Linux has always been a nice server to be in. Kaizen is a laid-back owner, and the regulars there are very nice. I'm not particularly active, but every time I come by to say hi, I always get greeted back."
+    }
+  ]
+}
