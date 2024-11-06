@@ -88,7 +88,8 @@ const Opportunities = () => {
         },
         {
           title: 'Senior Moderator',
-          description: 'Senior Moderators are responsible for overseeing Moderator actions, resolving complex disputes, and keeping the Moderator team running smoothly with wisdom and support.',
+          description:
+            'Senior Moderators are responsible for overseeing Moderator actions, resolving complex disputes, and keeping the Moderator team running smoothly with wisdom and support.',
           link: '/apply/sr-mod',
         },
         {
@@ -196,7 +197,6 @@ const GetInvolvedHero = () => {
     <section className="relative overflow-hidden py-20">
       <div className="container">
         <div className="mx-auto flex max-w-5xl flex-col items-center">
-
           <GridPattern className="absolute hidden opacity-25 [mask-image:linear-gradient(to_right,white,transparent,transparent,white)] lg:block" />
 
           <div className="z-10 mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">

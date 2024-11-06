@@ -13,8 +13,7 @@ export default function DiscordSkeleton() {
         {/* Skeleton UI effect */}
         <div className="absolute inset-0 z-0">
           <div className="h-full w-full flex flex-col justify-between p-6">
-            
-            {[ ...Array(8) ].map((_, i) => (
+            {[...Array(8)].map((_, i) => (
               <div key={`skeleton-${i}`} className="flex space-x-2">
                 <div
                   className="h-4 bg-[#36393F] rounded-full"
@@ -27,7 +26,6 @@ export default function DiscordSkeleton() {
                   style={{ width: `${Math.random() * 20 + 5}%` }}></div>
               </div>
             ))}
-
           </div>
         </div>
 

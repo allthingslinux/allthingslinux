@@ -83,15 +83,14 @@
 
 // export default Testimonials;
 
-import { cn } from "@/lib/utils";
-import Marquee from "@/components/ui/marquee";
-import { DotPattern } from "@/components/ui/dot-pattern";
-import GridPattern from "@/components/ui/grid-pattern";
+import { cn } from '@/lib/utils';
+import Marquee from '@/components/ui/marquee';
+import { DotPattern } from '@/components/ui/dot-pattern';
+import GridPattern from '@/components/ui/grid-pattern';
 
-import testimonalsData from "@/data/testimonials.json";
+import testimonalsData from '@/data/testimonials.json';
 
 const reviews = testimonalsData.testimonials;
-
 
 const ReviewCard = ({
   avatar,
@@ -105,15 +104,12 @@ const ReviewCard = ({
   return (
     <figure
       className={cn(
-        "relative w-96 cursor-pointer overflow-hidden rounded-xl border p-4 bg-[#16161E]",
-      )}
-    >
+        'relative w-96 cursor-pointer overflow-hidden rounded-xl border p-4 bg-[#16161E]',
+      )}>
       <div className="flex flex-row items-center gap-2 mb-3">
         <img width="32" height="32" alt="" src={avatar} />
         <div className="flex flex-col">
-          <figcaption className="text-sm font-medium">
-            {name}
-          </figcaption>
+          <figcaption className="text-sm font-medium">{name}</figcaption>
         </div>
       </div>
       <q className="mt-2 text-sm">{content}</q>
@@ -121,19 +117,17 @@ const ReviewCard = ({
   );
 };
 
-
 export default function Testimonials() {
   return (
     <div className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-[#1A1B26] md:shadow-xl">
-         <h2 className="mb-10 text-center text-4xl font-semibold">
-           See what our members are saying
-         </h2>
+      <h2 className="mb-10 text-center text-4xl font-semibold">
+        See what our members are saying
+      </h2>
       <Marquee pauseOnHover className="[--duration:20s]">
         {reviews.map((review) => (
           <ReviewCard key={review.name} {...review} />
         ))}
       </Marquee>
-
     </div>
   );
 }
