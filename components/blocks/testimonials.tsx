@@ -123,7 +123,7 @@ export default function Testimonials() {
       <h2 className="mb-10 text-center text-4xl font-semibold">
         See what our members are saying
       </h2>
-      <Marquee pauseOnHover className="[--duration:20s]">
+      <Marquee pauseOnHover className="[--duration:60s]">
         {reviews.map((review) => (
           <ReviewCard key={review.name} {...review} />
         ))}
