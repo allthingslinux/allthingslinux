@@ -25,7 +25,7 @@ export default function Header() {
         <nav className="hidden md:flex flex-1 justify-center gap-4 sm:gap-6 items-center">
           <Link
             className="text-sm font-medium hover:text-slate-200 text-slate-400"
-            href="#">
+            href="/about">
             About
           </Link>
           <Link
@@ -35,19 +35,19 @@ export default function Header() {
           </Link>
           <Link
             className="text-sm font-medium hover:text-slate-200 text-slate-400"
-            href="#">
+            href="https://atl.tools">
             Resources
           </Link>
           <Link
             className="text-sm font-medium hover:text-slate-200 text-slate-400"
-            href="#">
+            href="https://blog.atl.tools">
             Blog
           </Link>
         </nav>
 
         <div className="flex items-center gap-4">
           <Button className="hidden md:flex" variant="secondary">
-            Get Involved
+            <Link href="/get-involved">Get Involved</Link>
           </Button>
 
           <Sheet>
