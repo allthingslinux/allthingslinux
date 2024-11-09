@@ -1,9 +1,9 @@
-import { ArrowDown, ArrowRight } from 'lucide-react';
+import { ArrowDown, Lock } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { GridPattern } from '@/components/ui/grid-pattern';
+import Link from 'next/link';
 
 const Opportunities = () => {
   const opportunities = [
@@ -103,10 +103,10 @@ const Opportunities = () => {
                         {opp.description}
                       </p>
                       <div className="mt-6 flex justify-between gap-4">
-                        <Button variant="outline">
-                          Apply Now
+                        <Button variant="outline" className="w-full bg-tokyonight-brightBlack hover:bg-tokyonight-brightBlack hover:text-white pointer-events-none">
+                          Application opening soon
                           <Link className="ml-2" href={opp.link}>
-                            <ArrowRight />
+                            <Lock className="size-4" />
                           </Link>
                         </Button>
                       </div>
@@ -124,7 +124,7 @@ const Opportunities = () => {
 
 const GetInvolvedHero = () => {
   return (
-    <section className="relative overflow-hidden py-20">
+    <section className="relative overflow-hidden pt-32">
       <div className="container">
         <div className="mx-auto flex max-w-5xl flex-col items-center">
           <GridPattern className="absolute hidden opacity-25 [mask-image:linear-gradient(to_right,white,transparent,transparent,white)] lg:block" />
