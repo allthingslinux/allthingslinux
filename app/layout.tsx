@@ -20,11 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ConfettiLoader />
         <Header />
         {children}
         <AnniversaryBanner />
         <Footer />
+        <ConfettiLoader />
+
       </body>
     </html>
   );
