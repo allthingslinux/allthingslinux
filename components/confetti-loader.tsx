@@ -22,7 +22,7 @@ export function ConfettiLoader() {
   return (
     <Confetti
       ref={confettiRef}
-      className="absolute left-0 top-0 z-0 size-full"
+      className="absolute left-0 top-0 z-auto size-full"
       style={{ pointerEvents: 'none' }}
     />
   );

@@ -21,12 +21,12 @@ export default function Header() {
 
         <nav className="hidden md:flex flex-1 justify-center gap-4 sm:gap-6 items-center">
           <Link
-            className="text-sm font-medium hover:text-slate-200 text-slate-400"
+            className="text-lg font-medium hover:text-white text-gray-500"
             href="/">
             Home
           </Link>
           <Link
-            className="text-sm font-medium hover:text-slate-200 text-slate-400"
+            className="text-lg font-medium hover:text-catppuccin-text text-gray-500"
             href="/about">
             About
           </Link>
@@ -36,12 +36,12 @@ export default function Header() {
             CoC
           </Link>
           <Link
-            className="text-sm font-medium hover:text-slate-200 text-slate-400"
+            className="text-lg font-medium hover:text-catppuccin-text text-gray-500"
             href="https://atl.tools">
             Resources
           </Link>
           <Link
-            className="text-sm font-medium hover:text-slate-200 text-slate-400"
+            className="text-lg font-medium hover:text-catppuccin-text text-gray-500"
             href="https://blog.atl.tools">
             Blog
           </Link>
@@ -68,13 +68,13 @@ export default function Header() {
               </SheetTitle>
               <nav className="flex flex-col gap-10">
                 <Link
-                  className="text-sm font-medium hover:text-slate-200 text-slate-400"
+                  className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
                   href="/">
                   Home
                 </Link>
                 <Link
-                  className="text-sm font-medium hover:text-slate-200 text-slate-400"
-                  href="#">
+                  className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
+                  href="/about">
                   About
                 </Link>
                 <Link
@@ -83,16 +83,18 @@ export default function Header() {
                   CoC
                 </Link>
                 <Link
-                  className="text-sm font-medium hover:text-slate-200 text-slate-400"
-                  href="#">
-                  Resources
+                  className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
+                  href="https://atl.tools">
+                  Tools
                 </Link>
                 <Link
-                  className="text-sm font-medium hover:text-slate-200 text-slate-400"
-                  href="#">
+                  className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
+                  href="https://blog.atl.tools">
                   Blog
                 </Link>
-                <Button variant="outline">Get Involved</Button>
+                <Button variant="outline">
+                  <Link href="/get-involved">Get Involved</Link>
+                </Button>
               </nav>
             </SheetContent>
           </Sheet>
