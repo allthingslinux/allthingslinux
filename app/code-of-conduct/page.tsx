@@ -1,11 +1,28 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 
 export default function CodeOfConduct() {
-    // Read the contents of the README.md file
     const readmePath = path.join(process.cwd(), 'code-of-conduct', 'README.md');
+
+    // Check if the code-of-conduct submodule exists
+    if (!existsSync(readmePath)) {
+        return (
+            <div className="container mx-auto px-4 py-12 prose prose-invert max-w-7xl">
+                <h1>Code of Conduct</h1>
+                <p>The Code of Conduct content is not available. To view it, you need to initialize the git submodule:</p>
+                <pre className="bg-neutral-900/30 p-4 rounded-lg overflow-x-auto">
+                    <code>
+                        git submodule init{'\n'}
+                        git submodule update
+                    </code>
+                </pre>
+            </div>
+        );
+    }
+
+    // Read the contents of the README.md file
     const readmeContent = readFileSync(readmePath, 'utf8');
 
     // Remove header content before "Code of Conduct"
@@ -34,21 +51,21 @@ export default function CodeOfConduct() {
                 remarkPlugins={[remarkGfm]}
                 components={{
                     table: ({ node, ...props }) => (
-                        <div className="overflow-hidden rounded-lg border border-gray-700/50">
+                        <div className="overflow-hidden rounded-lg border border-neutral-700/50">
                             <table {...props} className="w-full border-collapse" />
                         </div>
                     ),
                     thead: ({ node, ...props }) => (
-                        <thead {...props} className="bg-gray-900/30" />
+                        <thead {...props} className="bg-neutral-900/30" />
                     ),
                     th: ({ node, ...props }) => (
-                        <th {...props} className="p-3 text-left text-sm font-semibold text-gray-200" />
+                        <th {...props} className="p-3 text-left text-sm font-semibold text-neutral-200" />
                     ),
                     td: ({ node, ...props }) => (
-                        <td {...props} className="p-3 text-sm text-gray-300 border-t border-gray-700/50" />
+                        <td {...props} className="p-3 text-sm text-neutral-300 border-t border-neutral-700/50" />
                     ),
                     tr: ({ node, ...props }) => (
-                        <tr {...props} className="hover:bg-gray-800/20 transition-colors" />
+                        <tr {...props} className="hover:bg-neutral-800/20 transition-colors" />
                     ),
                 }}
             >
