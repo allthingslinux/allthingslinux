@@ -64,7 +64,6 @@
 
 // export default About;
 
-import React from 'react';
 import Values from '@/components/blocks/values';
 
 const timeline = [
@@ -102,12 +101,9 @@ export default function About() {
   return (
     <>
       <section>
-        <div className="py-24">
+        <div className="py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-6">
             <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-none">
-              <p className="text-base font-semibold leading-7">
-                All Things Linux
-              </p>
               <h1 className="mt-2 text-pretty text-4xl font-semibold tracking-tight sm:text-5xl">
                 About Our Organization
               </h1>

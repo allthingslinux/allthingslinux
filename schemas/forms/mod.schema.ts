@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-// This is a moderator application form
-
 const moderatorApplicationForm = z.object({
   discord_id: z.preprocess((val) => Number(val), z.number()),
   name: z.string().min(1).max(255),

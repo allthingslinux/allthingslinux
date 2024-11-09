@@ -142,8 +142,9 @@ const GetInvolvedHero = () => {
 
               <p className="text-muted-foreground lg:text-xl">
                 All Things Linux is a community-driven project so we are always
-                looking for help with our mission. Whether you are a veteran developer
-                or just starting out, there are plenty of ways to get involved and make a difference.
+                looking for help with our mission. Whether you are a veteran
+                developer or just starting out, there are plenty of ways to get
+                involved and make a difference.
               </p>
             </div>
           </div>

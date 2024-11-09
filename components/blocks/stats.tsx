@@ -5,7 +5,7 @@ const Stats = () => {
     { id: 3, value: '30K+', description: 'voice hours' },
     { id: 4, value: '30+', description: 'staff members trained' },
     { id: 5, value: '400+', description: 'support threads solved' },
-    { id: 6, value: '5+', description: 'projects managed' }
+    { id: 6, value: '5+', description: 'projects managed' },
   ];
 
   return (
@@ -17,8 +17,12 @@ const Stats = () => {
         <div className="grid gap-10 pt-9 md:grid-cols-3 lg:gap-0 lg:pt-15">
           {statsData.map((stat) => (
             <div className="text-center" key={stat.id}>
-              <p className="pt-4 text-6xl font-semibold lg:pt-10">{stat.value}</p>
-              <p className="text-xl font-semibold text-muted-foreground">{stat.description}</p>
+              <p className="pt-4 text-5xl font-semibold lg:pt-10">
+                {stat.value}
+              </p>
+              <p className="text-xl font-semibold text-muted-foreground">
+                {stat.description}
+              </p>
             </div>
           ))}
         </div>

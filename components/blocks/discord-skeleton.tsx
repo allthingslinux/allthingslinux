@@ -1,94 +1,146 @@
-'use client';
-
-import * as React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Hash, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ChevronRight, Hash, Users } from 'lucide-react';
+import Image from 'next/image';
 
 export default function DiscordSkeleton() {
   return (
-    <Card className="w-full max-w-3xl mx-auto bg-[#36393f] text-white shadow-lg overflow-hidden">
-      <div className="relative">
-        {/* Skeleton UI effect */}
-        <div className="absolute inset-0 z-0">
-          <div className="h-full w-full flex flex-col justify-between p-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={`skeleton-${i}`} className="flex space-x-2">
+    <Card className="w-full max-w-3xl mx-auto bg-[#36393f] text-catppuccin-text shadow-lg overflow-hidden">
+      <div className="relative z-10 flex">
+        {/* Mock channel list */}
+        <div className="w-56 bg-[#2f3136] p-4 hidden sm:block">
+          <div>
+            <h3 className="text-[#8e9297] font-semibold mb-2 uppercase text-xs tracking-wide">
+              Text Channels
+            </h3>
+            <div className="space-y-1">
+              {[
+                'announcements',
+                'suggestions',
+                'general',
+                'support',
+                'random',
+                'programming',
+                'bsd/unix',
+                'showcase',
+              ].map((channel) => (
                 <div
-                  className="h-4 bg-[#36393F] rounded-full"
-                  style={{ width: `${Math.random() * 30 + 10}%` }}></div>
-                <div
-                  className="h-4 bg-[#120E1C]/10 rounded-full"
-                  style={{ width: `${Math.random() * 40 + 20}%` }}></div>
-                <div
-                  className="h-4 bg-[#1A1B26]/10 rounded-full"
-                  style={{ width: `${Math.random() * 20 + 5}%` }}></div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Main content */}
-        <div className="relative z-10 flex">
-          {/* Mock channel list */}
-          <div className="w-56 bg-[#2f3136] p-4 hidden sm:block">
-            <div>
-              <h3 className="text-[#8e9297] font-semibold mb-2 uppercase text-xs tracking-wide">
-                Text Channels
-              </h3>
-              <div className="space-y-1">
-                {[
-                  'announcements',
-                  'suggestions',
-                  'general',
-                  'support',
-                  'random',
-                  'programming',
-                  'bsd/unix',
-                  'showcase',
-                ].map((channel) => (
-                  <div
-                    key={channel}
-                    className="flex items-center text-[#8e9297] hover:text-white py-1">
-                    <Hash className="w-4 h-4 mr-2 opacity-70" />
-                    <span className="text-sm">{channel}</span>
-                  </div>
-                ))}
-                <div className="flex items-center text-[#8e9297] hover:text-white cursor-pointer mt-3">
-                  <ChevronRight className="w-4 h-4 mr-1" />
-                  <span className="text-sm">plus many more!</span>
+                  key={channel}
+                  className="flex items-center text-[#8e9297] hover:text-catppuccin-text py-1">
+                  <Hash className="w-4 h-4 mr-2 opacity-70" />
+                  <span className="text-sm">{channel}</span>
                 </div>
+              ))}
+              <div className="flex items-center text-[#8e9297] hover:text-white cursor-pointer mt-3">
+                <ChevronRight className="w-4 h-4 mr-1" />
+                <span className="text-sm">plus many more!</span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Central content */}
-          <div className="flex-grow p-4 flex items-center justify-center">
-            <CardContent className="text-center w-full max-w-xs">
+        {/* Central content */}
+        <div className="flex-grow p-4">
+          <div className="relative">
+            {/* Skeleton messages in the background */}
+            <div className="absolute inset-0 space-y-4">
+              {/* Section 1 - Short messages */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <Skeleton className="w-10 h-10 rounded-full bg-[#2f3136]" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[120px] bg-[#2f3136]" />
+                    <Skeleton className="h-4 w-[180px] bg-[#2f3136]" />
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <Skeleton className="w-10 h-10 rounded-full bg-[#2f3136]" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[140px] bg-[#2f3136]" />
+                    <Skeleton className="h-4 w-[160px] bg-[#2f3136]" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2 - Code block-like message */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <Skeleton className="w-10 h-10 rounded-full bg-[#2f3136]" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-[160px] bg-[#2f3136]" />
+                    <Skeleton className="h-24 w-full bg-[#2f3136]" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3 - Long message */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <Skeleton className="w-10 h-10 rounded-full bg-[#2f3136]" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[180px] bg-[#2f3136]" />
+                    <Skeleton className="h-4 w-[320px] bg-[#2f3136]" />
+                    <Skeleton className="h-4 w-[280px] bg-[#2f3136]" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4 - Short message */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <Skeleton className="w-10 h-10 rounded-full bg-[#2f3136]" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[140px] bg-[#2f3136]" />
+                    <Skeleton className="h-4 w-[200px] bg-[#2f3136]" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 5 - Image-like message */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <Skeleton className="w-10 h-10 rounded-full bg-[#2f3136]" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[160px] bg-[#2f3136]" />
+                    <Skeleton className="h-32 w-48 bg-[#2f3136]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main content */}
+            <CardContent className="text-center w-full max-w-xs mx-auto relative z-10">
               <div className="flex flex-col items-center space-y-4 mb-8">
-                <div className="bg-[#2F3136] p-3 rounded-full w-16 h-16 flex items-center justify-center">
-                  <img
-                    src="images/tux.gif"
-                    alt="Discord Logo"
+                <div className="bg-catppuccin-base rounded-full w-16 h-16 flex items-center justify-center">
+                  <Image
+                    src="/images/tux.gif"
+                    alt="Tux the penguin"
+                    width={40}
+                    height={40}
                     className="w-10 h-10"
                   />
                 </div>
+
                 <div>
-                  <h2 className="text-2xl font-bold">All Things Linux</h2>
-                  <p className="text-[#b9bbbe]">discord.gg/linux</p>
+                  <h2 className="text-2xl font-bold text-catppuccin-text pb-4">
+                    All Things Linux
+                  </h2>
+                  <p className="text-catppuccin-subtext0">discord.gg/linux</p>
                 </div>
               </div>
-              <div className="mb-6 flex items-center justify-center space-x-2 text-[#b9bbbe]">
+
+              <div className="mb-6 flex items-center justify-center space-x-2 text-catppuccin-text">
                 <Users className="w-5 h-5" />
                 <Badge
                   variant="outline"
-                  className="bg-[#3ba55c] text-white px-2 py-1 rounded-full text-xs">
+                  className="bg-tokyonight-yellow text-catppuccin-text px-2 py-1 rounded-full text-xs">
                   1,337+ online
                 </Badge>
               </div>
-              <Button className="w-full bg-[#5865F2] hover:bg-[#EB459E] text-white transition-colors text-sm font-semibold py-6 rounded">
-                Join the Server
+              <Button className="w-full bg-[#5865F2] hover:bg-[#EB459E] text-white transition-colors font-semibold py-5 mt-3 rounded-2xl">
+                Join Server
               </Button>
             </CardContent>
           </div>

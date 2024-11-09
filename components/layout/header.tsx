@@ -1,8 +1,5 @@
-'use client';
-
-import * as React from 'react';
-import Link from 'next/link';
 import { Menu } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +11,7 @@ import {
 
 export default function Header() {
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className="container mx-auto px-4 py-12">
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between">
         <div className="flex items-center">
           <Link className="text-2xl font-bold" href="/">
@@ -23,6 +20,11 @@ export default function Header() {
         </div>
 
         <nav className="hidden md:flex flex-1 justify-center gap-4 sm:gap-6 items-center">
+          <Link
+            className="text-sm font-medium hover:text-slate-200 text-slate-400"
+            href="/">
+            Home
+          </Link>
           <Link
             className="text-sm font-medium hover:text-slate-200 text-slate-400"
             href="/about">
@@ -65,6 +67,11 @@ export default function Header() {
                 Explore
               </SheetTitle>
               <nav className="flex flex-col gap-8">
+                <Link
+                  className="text-sm font-medium hover:text-slate-200 text-slate-400"
+                  href="/">
+                  Home
+                </Link>
                 <Link
                   className="text-sm font-medium hover:text-slate-200 text-slate-400"
                   href="#">

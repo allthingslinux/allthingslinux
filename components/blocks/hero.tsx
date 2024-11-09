@@ -2,25 +2,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 'use client';
 
-import Image from 'next/image';
-
-import arch from '@/public/images/hero/arch.png';
-import gentoo from '@/public/images/hero/gentoo.png';
-import bazzite from '@/public/images/hero/bazzite.png';
-import debian from '@/public/images/hero/debian.png';
-import cachy from '@/public/images/hero/cachy.png';
-import fedora from '@/public/images/hero/fedora.png';
-import mint from '@/public/images/hero/mint.png';
-import nixos from '@/public/images/hero/nixos.png';
-import opensuse from '@/public/images/hero/opensuse.png';
-import popos from '@/public/images/hero/popos.png';
-import redhat from '@/public/images/hero/redhat.png';
-import slackware from '@/public/images/hero/slackware.png';
-import ubuntu from '@/public/images/hero/ubuntu.png';
-import bedrock from '@/public/images/hero/bedrock.png';
-import asahi from '@/public/images/hero/asahi.png';
-
-import { Button } from '@/components/ui/button';
 import DiscordSkeleton from './discord-skeleton';
 
 // const integrations = [
@@ -151,22 +132,20 @@ import DiscordSkeleton from './discord-skeleton';
 // };
 
 // export default Hero;
-import WidgetBot from '@widgetbot/react-embed';
-import RetroGrid from '@/components/ui/retro-grid';
 
 const Hero = () => {
   return (
     <section className="pb-32">
       <div className="container flex flex-col items-center text-center">
-        <h1 className="my-6 text-pretty text-4xl font-bold lg:text-6xl">
-          Let's build the future of Linux together
+        <h1 className="mb-12 text-6xl font-bold lg:text-7xl">
+          Let&apos;s build the future of Linux together
         </h1>
-        <p className="mb-2 max-w-3xl text-muted-foreground lg:text-2xl">
+        <p className="max-w-3xl text-catppuccin-text/80 lg:text-2xl text-xl">
           Make new friends, share your knowledge and learn from the biggest
           Linux community on Discord.
         </p>
       </div>
-      <div className="mt-12 aspect-video text-clip sm:mt-32 md:aspect-auto md:h-[420px]">
+      <div className="aspect-video text-clip sm:mt-16 md:aspect-auto md:h-[420px]">
         <div className="relative mx-auto flex max-w-3xl flex-col">
           {/* Left icons */}
           <div className="absolute right-[calc(100%+63px)] top-0 hidden size-[64px] rounded-2xl bg-[#4FAEC3] ring-1 ring-inset ring-accent-foreground/10 md:block">
@@ -255,7 +234,7 @@ const Hero = () => {
             />
           </div>
           {/* Hero images */}
-          <div className="container mx-auto">
+          <div className="container mx-auto mt-12">
             <DiscordSkeleton />
           </div>
         </div>

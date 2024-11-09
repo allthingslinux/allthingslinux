@@ -1,5 +1,5 @@
-import { FaDiscord, FaGithub } from 'react-icons/fa';
 import { BsOpencollective } from 'react-icons/bs';
+import { FaDiscord, FaGithub } from 'react-icons/fa';
 
 interface NavigationItem {
   name: string;
@@ -42,12 +42,10 @@ const navigation: Navigation = {
     },
   ],
 };
-      // horizontal border at the top of the footer but not fully edge to edge
 
 export default function Footer() {
   return (
-
-    <footer className="mt-32">
+    <footer>
       <div className="border-t border-slate-800 max-w-5xl mx-auto px-6 lg:px-8"></div>
 
       <div className="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">

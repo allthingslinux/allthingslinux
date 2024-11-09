@@ -7,7 +7,7 @@ import {
   TbWritingSign,
 } from 'react-icons/tb';
 
-import { PiLinuxLogoBold } from "react-icons/pi";
+import { PiLinuxLogoBold } from 'react-icons/pi';
 
 const projects = [
   {
@@ -58,17 +58,17 @@ const Projects = () => {
   return (
     <section className="py-32">
       <div className="container">
-        <div className="flex flex-col justify-between gap-6 md:flex-row">
-          <h2 className="text-3xl font-medium md:w-1/2">Explore our Network</h2>
+        <div className="flex flex-col justify-between gap-6 md:flex-col lg:flex-row">
+          <h2 className="text-2xl font-medium md:w-1/2">Explore our Network</h2>
 
-          <p className="text-lg">
+          <p className="lg:text-lg">
             As our organization grows, we will continue to develop new and
             exciting projects via collaboration with our community. We have a
             lot of projects in the works and are always looking for help!
           </p>
         </div>
 
-        <div className="mt-20 grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-20 grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project, index) => (
             <Card key={index} className="bg-catppuccin-mantle p-8">
               <div className="flex items-center justify-center mb-4">

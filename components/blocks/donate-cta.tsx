@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 
 import { BsOpencollective } from 'react-icons/bs';
 
-const DonateCta = () => {
+export default function DonateCta() {
   return (
     <section className="py-32">
       <div
@@ -37,6 +37,4 @@ const DonateCta = () => {
       </div>
     </section>
   );
-};
-
-export default DonateCta;
+}

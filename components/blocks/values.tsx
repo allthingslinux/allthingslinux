@@ -1,16 +1,15 @@
 import { Card } from '@/components/ui/card';
 import {
-  Users,
-  Heart,
-  Users2,
-  GitFork,
-  LifeBuoy,
-  GraduationCap,
-  Shield,
-  Lock,
-  FileText,
-  LinkIcon,
   ArrowUpRight,
+  FileText,
+  GitFork,
+  GraduationCap,
+  Heart,
+  LifeBuoy,
+  Lock,
+  Shield,
+  Users,
+  Users2,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -43,7 +42,7 @@ const valuesList = [
       'Our community thrives on collaboration, fostering creative teamwork and open-source contributions. We engage in collaborative projects, including our code of conduct, wiki, Discord bot, and self-hosted tools, all aimed at enhancing the community experience.',
     icon: GitFork,
   },
-     {
+  {
     id: 9,
     title: 'Code of Conduct',
     description:
@@ -98,38 +97,40 @@ export default function Values() {
             const isCodeOfConduct = value.id === 9;
 
             return (
-                <Card
-                  key={value.id}
-                  className={`relative rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 ${
-                    isCodeOfConduct
-                      ? 'bg-blue-900/50 text-white border-cyan-300'
-                      : 'bg-slate-900 border-slate-800'
-                  } hover:shadow-xl hover:translate-y-2`}
-                >
-                  {isCodeOfConduct ? (
-                    <Link href='/code-of-conduct' passHref>
-                      <div className="relative p-6 space-y-4 rounded-lg z-10 block">
-                        <div className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-500/50`}>
-                          <FileText className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold">
-                          {value.title} <ArrowUpRight className="w-4 h-4 inline-block" />  
-                        </h3>
-                        <p className="text-slate-300">{value.description}</p>
-                      </div>
-                    </Link>
-                  ) : (
+              <Card
+                key={value.id}
+                className={`relative rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 ${
+                  isCodeOfConduct
+                    ? 'bg-blue-900/50 text-white border-cyan-300'
+                    : 'bg-slate-900 border-slate-800'
+                } hover:shadow-xl hover:translate-y-2`}>
+                {isCodeOfConduct ? (
+                  <Link href="/code-of-conduct" passHref>
                     <div className="relative p-6 space-y-4 rounded-lg z-10 block">
-                      <div className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-900/50`}>
-                        <Icon className="w-6 h-6 text-cyan-400" />
+                      <div
+                        className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-500/50`}>
+                        <FileText className="w-6 h-6 text-white" />
                       </div>
-                      <h3 className="text-xl font-bold text-cyan-400">
-                        {value.title}
+                      <h3 className="text-xl font-bold">
+                        {value.title}{' '}
+                        <ArrowUpRight className="w-4 h-4 inline-block" />
                       </h3>
                       <p className="text-slate-300">{value.description}</p>
                     </div>
-                  )}
-                </Card>
+                  </Link>
+                ) : (
+                  <div className="relative p-6 space-y-4 rounded-lg z-10 block">
+                    <div
+                      className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-900/50`}>
+                      <Icon className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-cyan-400">
+                      {value.title}
+                    </h3>
+                    <p className="text-slate-300">{value.description}</p>
+                  </div>
+                )}
+              </Card>
             );
           })}
         </div>
