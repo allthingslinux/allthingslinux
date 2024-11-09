@@ -73,7 +73,7 @@ export default function Footer() {
           ))}
         </div>
         <p className="mt-10 text-center text-sm/6 text-gray-400">
-          &copy; 2024 All Things Linux - All rights reserved.
+          &copy; 2024 All Things Linux • Made with ❤️ • All Rights Reserved.
         </p>
       </div>
     </footer>

@@ -103,7 +103,9 @@ const Opportunities = () => {
                         {opp.description}
                       </p>
                       <div className="mt-6 flex justify-between gap-4">
-                        <Button variant="outline" className="w-full bg-tokyonight-brightBlack hover:bg-tokyonight-brightBlack hover:text-white pointer-events-none">
+                        <Button
+                          variant="outline"
+                          className="w-full bg-tokyonight-brightBlack hover:bg-tokyonight-brightBlack hover:text-white pointer-events-none">
                           Application opening soon
                           <Link className="ml-2" href={opp.link}>
                             <Lock className="size-4" />

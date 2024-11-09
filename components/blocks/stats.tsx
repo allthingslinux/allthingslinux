@@ -10,14 +10,14 @@ const Stats = () => {
 
   return (
     <section className="py-32 bg-catppuccin-mantle">
-      <div className="container">
+      <div className="">
         <h2 className="text-center text-3xl font-semibold lg:text-5xl">
           Stats and Achievements
         </h2>
-        <div className="grid gap-10 pt-9 md:grid-cols-3 lg:gap-0 lg:pt-15">
+        <div className="grid gap-10 pt-9 sm:grid-cols-2 md:grid-cols-3 lg:gap-0 lg:pt-15">
           {statsData.map((stat) => (
             <div className="text-center" key={stat.id}>
-              <p className="pt-4 text-5xl font-semibold lg:pt-10">
+              <p className="pt-4 text-5xl font-semibold lg:pt-10 text-catppuccin-text">
                 {stat.value}
               </p>
               <p className="text-xl font-semibold text-muted-foreground">

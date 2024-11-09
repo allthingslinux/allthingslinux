@@ -141,8 +141,8 @@ export default function DiscordSkeleton() {
                 </Badge>
               </div>
               <Link href="https://discord.gg/linux" passHref>
-              <Button className="w-full bg-[#5865F2] hover:bg-[#EB459E] text-white transition-colors font-semibold py-5 mt-3 rounded-2xl">
-                Join Server
+                <Button className="w-full bg-[#5865F2] hover:bg-[#EB459E] text-white transition-colors font-semibold py-5 mt-3 rounded-2xl">
+                  Join Server
                 </Button>
               </Link>
             </CardContent>
