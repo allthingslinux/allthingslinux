@@ -29,17 +29,17 @@ const ReviewCard = ({
   return (
     <figure
       className={cn(
-        'relative w-96 cursor-pointer overflow-hidden rounded-xl border p-4 bg-catppuccin-crust',
+        'relative w-[32rem] cursor-pointer overflow-hidden rounded-2xl border p-4 bg-catppuccin-crust',
       )}>
-      <div className="flex flex-row items-center gap-2 mb-3">
-        <Avatar className="size-9 rounded-full ring-1 ring-input">
+      <div className="flex flex-row items-center gap-4 mb-4">
+        <Avatar className="size-9 rounded-full">
           <AvatarImage src={avatar} alt={name} />
         </Avatar>
         <div className="flex flex-col">
-          <figcaption className="text-sm font-medium">{name}</figcaption>
+          <figcaption className="font-medium">{name}</figcaption>
         </div>
       </div>
-      <q className="mt-2 text-sm">{content}</q>
+      <q className="text-sm text-balance tracking-tight">{content}</q>
     </figure>
   );
 };

@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button';
+import { LinkIcon } from 'lucide-react';
+import Link from 'next/link';
 
 import { BsOpencollective } from 'react-icons/bs';
 
@@ -10,7 +12,7 @@ export default function DonateCta() {
         style={{
           backgroundImage: 'url("https://i.imgur.com/wjG5n5m.png")',
         }}>
-        <div className="absolute inset-0 bg-black opacity-40"></div>
+        <div className="absolute inset-0 bg-catppuccin-crust opacity-40"></div>
         <div className="relative flex w-full flex-col gap-16 p-8 md:rounded-xl lg:flex-row lg:items-center lg:p-16">
           <div className="flex-1">
             <BsOpencollective className="size-12 mb-8" />
@@ -22,14 +24,15 @@ export default function DonateCta() {
               donations and out of pocket funds. Your donations help us keep the
               lights on and provide more services to the community.
             </p>
-            <div className="mt-4">
+            <div className="mt-8">
+
               <Button variant="outline">
-                <a
-                  href="https://opencollective.com/allthingslinux"
-                  target="_blank"
-                  rel="noopener noreferrer">
-                  Visit our Open Collective
-                </a>
+                 <LinkIcon />
+
+                <Link href="https://opencollective.com/allthingslinux">
+
+                  Show your support with a donation
+                </Link>
               </Button>
             </div>
           </div>

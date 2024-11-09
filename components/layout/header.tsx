@@ -33,7 +33,7 @@ export default function Header() {
           <Link
             className="text-sm font-medium hover:text-slate-200 text-slate-400"
             href="#">
-            Code of Conduct
+            CoC
           </Link>
           <Link
             className="text-sm font-medium hover:text-slate-200 text-slate-400"
@@ -63,10 +63,10 @@ export default function Header() {
             <SheetContent
               side="right"
               className="bg-slate-950 text-slate-50 w-64">
-              <SheetTitle className="text-xl font-bold mb-5">
+              <SheetTitle className="text-xl font-bold mb-8">
                 Explore
               </SheetTitle>
-              <nav className="flex flex-col gap-8">
+              <nav className="flex flex-col gap-10">
                 <Link
                   className="text-sm font-medium hover:text-slate-200 text-slate-400"
                   href="/">
@@ -80,7 +80,7 @@ export default function Header() {
                 <Link
                   className="text-sm font-medium hover:text-slate-200 text-slate-400"
                   href="#">
-                  Code of Conduct
+                  CoC
                 </Link>
                 <Link
                   className="text-sm font-medium hover:text-slate-200 text-slate-400"
@@ -92,7 +92,7 @@ export default function Header() {
                   href="#">
                   Blog
                 </Link>
-                <Button variant="secondary">Get Involved</Button>
+                <Button variant="outline">Get Involved</Button>
               </nav>
             </SheetContent>
           </Sheet>

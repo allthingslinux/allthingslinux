@@ -17,12 +17,12 @@ interface Navigation {
 
 const navigation: Navigation = {
   main: [
-    { name: 'Home', href: '#' },
-    { name: 'About', href: '#' },
-    { name: 'Code of Conduct', href: '#' },
-    { name: 'Resources', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Get Involved', href: '#' },
+    { name: 'Home', href: '/home' },
+    { name: 'About', href: '/about' },
+    { name: 'CoC', href: 'https://github.com/allthingslinux/code-of-conduct' },
+    { name: 'Resources', href: 'https://atl.tools' },
+    { name: 'Blog', href: 'https://blog.atl.tools' },
+    { name: 'Get Involved', href: '/get-involved' },
   ],
   social: [
     {
