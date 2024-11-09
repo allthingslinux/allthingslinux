@@ -32,7 +32,7 @@ export default function Header() {
           </Link>
           <Link
             className="text-sm font-medium hover:text-slate-200 text-slate-400"
-            href="#">
+            href="/code-of-conduct">
             CoC
           </Link>
           <Link
@@ -79,7 +79,7 @@ export default function Header() {
                 </Link>
                 <Link
                   className="text-sm font-medium hover:text-slate-200 text-slate-400"
-                  href="#">
+                  href="/code-of-conduct">
                   CoC
                 </Link>
                 <Link
