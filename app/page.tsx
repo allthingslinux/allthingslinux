@@ -10,7 +10,7 @@ export default function Home() {
     <>
       <div className="min-h-screen flex flex-col">
         <main>
-          <div className="flex-grow mx-auto px-4 py-8 flex flex-col gap-8">
+          <div className="flex-grow mx-auto px-4 py-8 flex flex-col gap-8 container">
             <Hero />
             <Testimonials />
             <Projects />
