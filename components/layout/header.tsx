@@ -32,7 +32,7 @@ export default function Header() {
           </Link>
           <Link
             className="text-lg font-medium hover:text-catppuccin-text text-gray-500"
-            href="https://github.com/allthingslinux/code-of-conduct">
+            href="/code-of-conduct">
             CoC
           </Link>
           <Link
@@ -79,7 +79,7 @@ export default function Header() {
                 </Link>
                 <Link
                   className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
-                  href="https://github.com/allthingslinux/code-of-conduct">
+                  href="/code-of-conduct">
                   CoC
                 </Link>
                 <Link
