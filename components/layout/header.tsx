@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import Link from 'next/link';
 
@@ -10,6 +13,10 @@ import {
 } from '@/components/ui/sheet';
 
 export default function Header() {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const closeSheet = () => setIsSheetOpen(false);
+
   return (
     <div className="container mx-auto px-4 py-12">
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between">
@@ -52,7 +59,7 @@ export default function Header() {
             <Link href="/get-involved">Get Involved</Link>
           </Button>
 
-          <Sheet>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
                 <Menu className="h-5 w-5" />
@@ -69,31 +76,38 @@ export default function Header() {
               <nav className="flex flex-col gap-10">
                 <Link
                   className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
-                  href="/">
+                  href="/"
+                  onClick={closeSheet}>
                   Home
                 </Link>
                 <Link
                   className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
-                  href="/about">
+                  href="/about"
+                  onClick={closeSheet}>
                   About
                 </Link>
                 <Link
                   className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
-                  href="/code-of-conduct">
+                  href="/code-of-conduct"
+                  onClick={closeSheet}>
                   CoC
                 </Link>
                 <Link
                   className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
-                  href="https://atl.tools">
+                  href="https://atl.tools"
+                  onClick={closeSheet}>
                   Tools
                 </Link>
                 <Link
                   className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
-                  href="https://blog.atl.tools">
+                  href="https://blog.atl.tools"
+                  onClick={closeSheet}>
                   Blog
                 </Link>
                 <Button variant="outline">
-                  <Link href="/get-involved">Get Involved</Link>
+                  <Link href="/get-involved" onClick={closeSheet}>
+                    Get Involved
+                  </Link>
                 </Button>
               </nav>
             </SheetContent>
