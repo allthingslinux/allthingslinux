@@ -17,7 +17,7 @@ interface Navigation {
 
 const navigation: Navigation = {
   main: [
-    { name: 'Home', href: '/home' },
+    { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'CoC', href: '/code-of-conduct' },
     { name: 'Resources', href: 'https://atl.tools' },
