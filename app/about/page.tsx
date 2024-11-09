@@ -9,9 +9,9 @@ export default function About() {
             <h1 className="mt-2 text-pretty text-4xl font-semibold tracking-tight sm:text-5xl">
               About Our Organization
             </h1>
-            <div className="mt-10 grid max-w-3xl grid-cols-1 gap-14 text-base leading-7 lg:max-w-none lg:grid-cols-2">
+            <div className="mt-10 grid max-w-7xl grid-cols-1 gap-14 text-base leading-7 lg:max-w-none lg:grid-cols-2">
               <div>
-                <p className="text-justify">
+                <p className="text-balance">
                   We are a vibrant and inclusive organization dedicated to
                   promoting the spirit and growth of Linux. We are a diverse
                   community of over 5,000 enthusiasts, passionate about
@@ -20,7 +20,7 @@ export default function About() {
                   educational resources that enrich the Linux ecosystem and
                   enhance user experiences.
                 </p>
-                <p className="mt-8 text-justify">
+                <p className="mt-8 text-balance">
                   At the core of All Things Linux is our unwavering values and
                   code of conduct, ensuring that everyone—regardless of their
                   background or skill level—feels welcome to engage in
@@ -32,7 +32,7 @@ export default function About() {
                 </p>
               </div>
               <div>
-                <p className="text-justify">
+                <p className="text-balance">
                   As we transition into a 501(c)(3) nonprofit organization,
                   transparency and accountability remain fundamental to our
                   operations. We build trust through accessible logs, metrics,
@@ -40,7 +40,7 @@ export default function About() {
                   processes, fostering strong and supportive relationships among
                   our members.
                 </p>
-                <p className="mt-8 text-justify">
+                <p className="mt-8 text-balance">
                   Our ongoing development includes collaborative initiatives
                   such as Discord bots, wikis, and self-hosted tools, forming a
                   comprehensive educational framework enriched by our collective
