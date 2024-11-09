@@ -50,7 +50,7 @@ export default function Testimonials() {
       <h2 className="mb-10 text-center text-2xl md:text-4xl lg:text-5xl font-semibold">
         See what our members are saying
       </h2>
-      <Marquee pauseOnHover className="[--duration:60s]">
+      <Marquee pauseOnHover className="[--duration:90s]">
         {reviews.map((review, index) => (
           <ReviewCard
             key={review.name}

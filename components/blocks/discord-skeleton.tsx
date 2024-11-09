@@ -133,10 +133,10 @@ export default function DiscordSkeleton() {
               </div>
 
               <div className="mb-6 flex items-center justify-center space-x-2 text-catppuccin-text">
-                <Users className="w-5 h-5" />
+                <Users className="w-5 h-5 text-catppuccin-text" />
                 <Badge
                   variant="outline"
-                  className="bg-tokyonight-yellow text-catppuccin-text px-2 py-1 rounded-full text-xs">
+                  className="bg-[#43b581]/60 text-catppuccin-text font-semibold px-4 py-1 rounded-full border-0 text-xs">
                   1,337+ online
                 </Badge>
               </div>
