@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Hash, Users } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function DiscordSkeleton() {
   return (
@@ -139,9 +140,11 @@ export default function DiscordSkeleton() {
                   1,337+ online
                 </Badge>
               </div>
+              <Link href="https://discord.gg/linux" passHref>
               <Button className="w-full bg-[#5865F2] hover:bg-[#EB459E] text-white transition-colors font-semibold py-5 mt-3 rounded-2xl">
                 Join Server
-              </Button>
+                </Button>
+              </Link>
             </CardContent>
           </div>
         </div>
