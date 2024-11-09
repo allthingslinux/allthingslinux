@@ -17,7 +17,7 @@ export default function Header() {
     <div className="container mx-auto px-4 py-4">
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between">
         <div className="flex items-center">
-          <Link className="text-2xl font-bold" href="#">
+          <Link className="text-2xl font-bold" href="/">
             All Things Linux
           </Link>
         </div>

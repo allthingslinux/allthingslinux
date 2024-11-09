@@ -75,7 +75,6 @@ const config = {
           brightRed: '#f7768e',
           brightWhite: '#c0caf5',
           brightYellow: '#e0af68',
-          cursorColor: '#c0caf5',
           cyan: '#7dcfff',
           foreground: '#c0caf5',
           green: '#9ece6a',

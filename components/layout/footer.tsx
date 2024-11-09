@@ -42,10 +42,14 @@ const navigation: Navigation = {
     },
   ],
 };
+      // horizontal border at the top of the footer but not fully edge to edge
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900">
+
+    <footer className="mt-32">
+      <div className="border-t border-slate-800 max-w-5xl mx-auto px-6 lg:px-8"></div>
+
       <div className="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
         <nav
           aria-label="Footer"

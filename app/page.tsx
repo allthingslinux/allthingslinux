@@ -1,7 +1,7 @@
-import Hero from '@/components/blocks/hero';
-import Stats from '@/components/blocks/stats';
-import Cards from '@/components/blocks/cards';
 import DonateCta from '@/components/blocks/donate-cta';
+import Hero from '@/components/blocks/hero';
+import Projects from '@/components/blocks/projects';
+import Stats from '@/components/blocks/stats';
 import Testimonials from '@/components/blocks/testimonials';
 
 export default function Home() {
@@ -10,7 +10,7 @@ export default function Home() {
       <main className="flex-grow mx-auto px-4 py-8 flex flex-col gap-8 container">
         <Hero />
         <Testimonials />
-        <Cards />
+        <Projects />
         <Stats />
         <DonateCta />
       </main>

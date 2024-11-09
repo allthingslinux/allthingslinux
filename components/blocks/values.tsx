@@ -95,7 +95,6 @@ export default function Values() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {valuesList.map((value) => {
             const Icon = value.icon;
-            
             const isCodeOfConduct = value.id === 9;
 
             return (
