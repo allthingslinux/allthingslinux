@@ -19,7 +19,7 @@ const navigation: Navigation = {
   main: [
     { name: 'Home', href: '/home' },
     { name: 'About', href: '/about' },
-    { name: 'CoC', href: 'https://github.com/allthingslinux/code-of-conduct' },
+    { name: 'CoC', href: '/code-of-conduct' },
     { name: 'Resources', href: 'https://atl.tools' },
     { name: 'Blog', href: 'https://blog.atl.tools' },
     { name: 'Get Involved', href: '/get-involved' },
@@ -27,17 +27,17 @@ const navigation: Navigation = {
   social: [
     {
       name: 'Discord',
-      href: '#',
+      href: 'https://discord.gg/linux',
       icon: (props) => <FaDiscord {...props} />,
     },
     {
       name: 'Open Collective',
-      href: '#',
+      href: 'https://opencollective.com/allthingslinux',
       icon: (props) => <BsOpencollective {...props} />,
     },
     {
       name: 'GitHub',
-      href: '#',
+      href: 'https://github.com/allthingslinux',
       icon: (props) => <FaGithub {...props} />,
     },
   ],
