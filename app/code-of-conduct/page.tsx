@@ -2,6 +2,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
+import React from 'react';
 
 export default function CodeOfConduct() {
     const readmePath = path.join(process.cwd(), 'code-of-conduct', 'README.md');
@@ -50,6 +51,78 @@ export default function CodeOfConduct() {
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
+                    h1: ({ node, ...props }) => {
+                        const children = React.Children.toArray(props.children);
+                        const text = children.length > 0 && typeof children[0] === 'string' ? children[0] : '';
+                        const id = text.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                            <h1 id={id} {...props}>
+                                <a href={`#${id}`} className="no-underline hover:underline">
+                                    {props.children}
+                                </a>
+                            </h1>
+                        );
+                    },
+                    h2: ({ node, ...props }) => {
+                        const children = React.Children.toArray(props.children);
+                        const text = children.length > 0 && typeof children[0] === 'string' ? children[0] : '';
+                        const id = text.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                            <h2 id={id} {...props}>
+                                <a href={`#${id}`} className="no-underline hover:underline">
+                                    {props.children}
+                                </a>
+                            </h2>
+                        );
+                    },
+                    h3: ({ node, ...props }) => {
+                        const children = React.Children.toArray(props.children);
+                        const text = children.length > 0 && typeof children[0] === 'string' ? children[0] : '';
+                        const id = text.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                            <h3 id={id} {...props}>
+                                <a href={`#${id}`} className="no-underline hover:underline">
+                                    {props.children}
+                                </a>
+                            </h3>
+                        );
+                    },
+                    h4: ({ node, ...props }) => {
+                        const children = React.Children.toArray(props.children);
+                        const text = children.length > 0 && typeof children[0] === 'string' ? children[0] : '';
+                        const id = text.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                            <h4 id={id} {...props}>
+                                <a href={`#${id}`} className="no-underline hover:underline">
+                                    {props.children}
+                                </a>
+                            </h4>
+                        );
+                    },
+                    h5: ({ node, ...props }) => {
+                        const children = React.Children.toArray(props.children);
+                        const text = children.length > 0 && typeof children[0] === 'string' ? children[0] : '';
+                        const id = text.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                            <h5 id={id} {...props}>
+                                <a href={`#${id}`} className="no-underline hover:underline">
+                                    {props.children}
+                                </a>
+                            </h5>
+                        );
+                    },
+                    h6: ({ node, ...props }) => {
+                        const children = React.Children.toArray(props.children);
+                        const text = children.length > 0 && typeof children[0] === 'string' ? children[0] : '';
+                        const id = text.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                            <h6 id={id} {...props}>
+                                <a href={`#${id}`} className="no-underline hover:underline">
+                                    {props.children}
+                                </a>
+                            </h6>
+                        );
+                    },
                     table: ({ node, ...props }) => (
                         <div className="overflow-hidden rounded-lg border border-neutral-700/50">
                             <table {...props} className="w-full border-collapse" />
