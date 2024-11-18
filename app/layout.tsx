@@ -22,9 +22,9 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
-        <AnniversaryBanner />
+        # <AnniversaryBanner />
         <Footer />
-        <ConfettiLoader />
+        # <ConfettiLoader />
 
       </body>
     </html>
