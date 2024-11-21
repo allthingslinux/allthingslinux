@@ -1,39 +1,40 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
-import Marquee from '@/components/ui/marquee'
-import { cn } from '@/lib/utils'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import Marquee from '@/components/ui/marquee';
+import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-import testimonalsData from '@/data/testimonials.json'
+import testimonalsData from '@/data/testimonials.json';
 
-const reviews = testimonalsData.testimonials
+const reviews = testimonalsData.testimonials;
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  return array
-}
+  return array;
+};
 
-const avatars = shuffleArray(Array.from({ length: 15 }, (_, i) => i + 1))
+const avatars = shuffleArray(Array.from({ length: 15 }, (_, i) => i + 1));
 
 const ReviewCard = ({
   avatar,
   name,
   content,
 }: {
-  avatar: string
-  name: string
-  content: string
+  avatar: string;
+  name: string;
+  content: string;
 }) => {
   return (
-    <figure className={cn(
-      'relative w-full sm:w-[24rem] cursor-pointer overflow-hidden rounded-2xl border p-4 bg-catppuccin-crust'
-    )}>
+    <figure
+      className={cn(
+        'relative w-full sm:w-[24rem] cursor-pointer overflow-hidden rounded-2xl border p-4 bg-catppuccin-crust',
+      )}>
       <div className="flex flex-row items-center gap-4 mb-4">
         <Avatar className="size-9 rounded-full">
           <AvatarImage src={avatar} alt={name} />
@@ -44,34 +45,34 @@ const ReviewCard = ({
       </div>
       <q className="text-sm text-balance tracking-tight">{content}</q>
     </figure>
-  )
-}
+  );
+};
 
 export default function Testimonials() {
-  const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
-  const [isMobile, setIsMobile] = useState(false)
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkIsMobile = () => setIsMobile(window.innerWidth < 640)
-    checkIsMobile()
-    window.addEventListener('resize', checkIsMobile)
-    return () => window.removeEventListener('resize', checkIsMobile)
-  }, [])
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 640);
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const handlePrevReview = () => {
-    setCurrentReviewIndex((prevIndex) => 
-      prevIndex === 0 ? reviews.length - 1 : prevIndex - 1
-    )
-  }
+    setCurrentReviewIndex((prevIndex) =>
+      prevIndex === 0 ? reviews.length - 1 : prevIndex - 1,
+    );
+  };
 
   const handleNextReview = () => {
-    setCurrentReviewIndex((prevIndex) => 
-      prevIndex === reviews.length - 1 ? 0 : prevIndex + 1
-    )
-  }
+    setCurrentReviewIndex((prevIndex) =>
+      prevIndex === reviews.length - 1 ? 0 : prevIndex + 1,
+    );
+  };
 
   return (
-    <div className="relative flex min-h-[300px] md:min-h-[400px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-catppuccin-mantle p-4 md:shadow-xl">
+    <div className="relative flex min-h-[300px] md:min-h-[400px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-catppuccin-mantle p-8 md:shadow-xl">
       <h2 className="mb-6 text-center text-3xl md:text-4xl lg:text-4xl font-semibold">
         See what our members are saying
       </h2>
@@ -103,5 +104,5 @@ export default function Testimonials() {
         </Marquee>
       )}
     </div>
-  )
+  );
 }

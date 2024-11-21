@@ -33,12 +33,11 @@ export default function About() {
               </div>
               <div>
                 <p className="text-balance">
-                  As we transition into a 501(c)(3) nonprofit organization,
-                  transparency and accountability remain fundamental to our
-                  operations. We build trust through accessible logs, metrics,
-                  open dialogue, and regular community-driven decision-making
-                  processes, fostering strong and supportive relationships among
-                  our members.
+                  As a new 501(c)(3) nonprofit organization, transparency and
+                  accountability remain fundamental to our operations. We build
+                  trust through accessible logs, metrics, open dialogue, and
+                  regular community-driven decision-making processes, fostering
+                  strong and supportive relationships among our members.
                 </p>
                 <p className="mt-8 text-balance">
                   Our ongoing development includes collaborative initiatives

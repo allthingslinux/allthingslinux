@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
@@ -45,12 +45,17 @@ export default function Header() {
           <Link
             className="text-lg font-medium hover:text-catppuccin-text text-gray-500"
             href="https://atl.tools">
-            Resources
+            Tools
           </Link>
           <Link
             className="text-lg font-medium hover:text-catppuccin-text text-gray-500"
             href="https://blog.atl.tools">
             Blog
+          </Link>
+          <Link
+            className="text-lg font-medium hover:text-catppuccin-text text-gray-500"
+            href="https://atl.wiki">
+            Wiki
           </Link>
         </nav>
 
@@ -103,6 +108,12 @@ export default function Header() {
                   href="https://blog.atl.tools"
                   onClick={closeSheet}>
                   Blog
+                </Link>
+                <Link
+                  className="text-sm font-medium hover:text-catppuccin-text text-gray-500"
+                  href="https://atl.wiki"
+                  onClick={closeSheet}>
+                  Wiki
                 </Link>
                 <Button variant="outline">
                   <Link href="/get-involved" onClick={closeSheet}>
