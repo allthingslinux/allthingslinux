@@ -20,8 +20,9 @@ const navigation: Navigation = {
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'CoC', href: '/code-of-conduct' },
-    { name: 'Resources', href: 'https://atl.tools' },
+    { name: 'Tools', href: 'https://atl.tools' },
     { name: 'Blog', href: 'https://blog.atl.tools' },
+    { name: 'Wiki', href: 'https://atl.wiki' },
     { name: 'Get Involved', href: '/get-involved' },
   ],
   social: [
