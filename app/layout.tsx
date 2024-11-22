@@ -7,7 +7,7 @@ import Header from '@/components/layout/header';
 
 export const metadata: Metadata = {
   title: 'All Things Linux',
-  // description: ''
+  description: 'All Things Linux is a 501(c)(3) non-profit organization with a mission to empower the Linux ecosystem through education, collaboration, and support.'
 };
 
 export default function RootLayout({

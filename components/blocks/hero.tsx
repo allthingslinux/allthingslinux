@@ -13,7 +13,7 @@ const Hero = () => {
         </h1>
         <p className="max-w-4xl text-catppuccin-text/90 lg:text-2xl text-xl pb-4">
           All Things Linux is a 501(c)(3) non-profit organization with a mission
-          to empower the Linux community through education, collaboration, and
+          to empower the Linux ecosystem through education, collaboration, and
           support.
         </p>
       </div>
