@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 
 import './globals.css';
 
-import AnniversaryBanner from '@/components/blocks/anniversary-banner';
-import { ConfettiLoader } from '@/components/confetti-loader';
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
 

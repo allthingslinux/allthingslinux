@@ -8,7 +8,7 @@ const Hero = () => {
   return (
     <section className="pb-32">
       <div className="container flex flex-col items-center text-center">
-        <h1 className="mb-12 text-6xl font-bold lg:text-7xl">
+        <h1 className="mb-12 text-6xl font-bold lg:text-7xl  text-center">
           Let&apos;s build the future of Linux together
         </h1>
         <p className="max-w-4xl text-catppuccin-text/90 lg:text-2xl text-xl pb-4">
