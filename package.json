@@ -28,7 +28,7 @@
     "@types/canvas-confetti": "^1.6.4",
     "@types/mdx": "^2.0.13",
     "canvas-confetti": "^1.9.3",
-    "class-variance-authority": "0.7.0",
+    "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "embla-carousel-auto-scroll": "^8.3.1",
     "embla-carousel-react": "^8.3.1",
