@@ -2,6 +2,11 @@
   "name": "allthingslinux.com",
   "version": "0.1.0",
   "private": true,
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
+  },
   "scripts": {
     "dev": "next dev",
     "turbo": "next dev --turbo",
@@ -27,6 +32,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@types/canvas-confetti": "^1.6.4",
     "@types/mdx": "^2.0.13",
+    "@types/path-browserify": "^1.0.3",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "0.7.0",
     "clsx": "2.1.1",
@@ -35,8 +41,10 @@
     "eslint-plugin-tailwindcss": "^3.17.5",
     "framer-motion": "^11.11.17",
     "github-markdown-css": "^5.8.0",
+    "gray-matter": "^4.0.3",
     "lucide-react": "0.460.0",
     "next": "15.0.3",
+    "path-browserify": "^1.0.1",
     "prettier-eslint": "16.3.0",
     "react": "18",
     "react-dom": "18",

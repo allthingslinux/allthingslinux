@@ -16,7 +16,7 @@ const navItems = [
   { name: 'About', href: '/about' },
   { name: 'CoC', href: '/code-of-conduct' },
   { name: 'Tools', href: 'https://atl.tools' },
-  { name: 'Blog', href: 'https://blog.atl.tools' },
+  { name: 'Blog', href: '/blog' },
   { name: 'Wiki', href: 'https://atl.wiki' },
 ];
 
