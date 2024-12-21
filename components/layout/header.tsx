@@ -24,7 +24,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="py-10">
+    <nav className="my-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex h-16 items-center px-4">
           {/* Left section - Logo */}
@@ -54,7 +54,6 @@ export default function Header() {
               <Link href="/get-involved" passHref>
                 <Button variant="secondary">Get Involved</Button>
               </Link>
-
             </div>
 
             {/* Mobile menu */}
