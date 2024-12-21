@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { BsOpencollective } from 'react-icons/bs';
 import { FaDiscord, FaGithub } from 'react-icons/fa';
 
