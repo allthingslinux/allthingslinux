@@ -19,12 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <GoogleTagManager gtmId="GTM-KK56FB5V" />
       <body>
         <Header />
         {children}
         <Footer />
       </body>
-      <GoogleTagManager gtmId="GTM-KK56FB5V" />
     </html>
   );
 }
