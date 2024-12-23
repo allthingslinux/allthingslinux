@@ -24,7 +24,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="my-6">
+    <nav className="py-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex h-16 items-center px-4">
           {/* Left section - Logo */}
