@@ -40,7 +40,7 @@ export async function getPostSlugs() {
 }
 
 export async function getPostBySlug(slug: string, fields: string[] = []) {
-  const realSlug = slug.replace(/\.md$/, '');
+  const realSlug = slug.replace(/\.mdx$/, '');
   const fullPath = join(postsDirectory, `${realSlug}.mdx`);
 
   log('Processing post slug', { slug, fullPath });
@@ -63,16 +63,29 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
     });
 
     log('Post file read successfully', { slug });
-    log('File contents', fileContents);
 
     const { data, content } = matter(fileContents);
     log('Frontmatter parsed successfully', data);
-    log('Post content', content);
+
+    // if data.date doesnt exist check if the file is called in the format of "xx-xx-xx" with a possible (2)/(3)
+    // if it is, set the date to the file name and if its a duplicate (with (2)) set the date just a little bit later
+    // TODO: this is a temporary solution until we have a better way to handle this
+    if (!data.date) {
+      const date = realSlug.split('-').slice(0, 3).join('-');
+      data.date = date;
+    }
+
+    // convert date to unix timestamp
+    data.date = new Date(data.date).getTime();
+
+    log('Post slug processed successfully', { slug, data });
 
     return {
       slug: realSlug,
-      content,
+      title: data.title || realSlug,
       date: data.date,
+      content,
+      dateformatted: new Date(data.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), // FIXME: what the fuck is this
       ...data,
     };
   } catch (error) {

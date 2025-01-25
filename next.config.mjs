@@ -1,6 +1,8 @@
 // @ts-check
 import createMDX from '@next/mdx';
 import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -21,7 +23,7 @@ if (process.env.NODE_ENV === 'development') {
 const withMDX = createMDX({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [],
+    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
     rehypePlugins: [],
   },
 });

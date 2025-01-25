@@ -27,7 +27,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/code-of-conduct/page.tsx"
   ],
   "exclude": ["node_modules"]
 }
