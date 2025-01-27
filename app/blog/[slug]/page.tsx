@@ -16,7 +16,7 @@ export default async function Page({
       <h1 className="text-6xl font-bold mb-2">{title}</h1>
       <p className="text-gray-500">{post.dateformatted}</p>
     </div>
-    <div className="prose prose-invert">
+    <div className="prose prose-invert max-w-7xl">
       <Post />
     </div>
   </div>

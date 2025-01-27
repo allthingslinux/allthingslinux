@@ -10,10 +10,10 @@ export default async function BlogListPage() {
       <h1 className="text-4xl font-bold mb-6">Blog Posts</h1>
       <div className="space-y-6">
         {posts.map((post) => {
-          // Generate an excerpt if not provided
-          const excerpt = post.content
-            ? post.content.slice(0, 150).replace(/\n/g, ' ') + '...'
-            : 'No description available.';
+          // Generate an excerpt 
+          const excerpt = post.description.split(' ').length > 20
+            ? `${post.description.split(' ').slice(0, 20).join(' ')}...`
+            : post.description;
 
           return (
             <div key={post.slug} className="border-b pb-4">

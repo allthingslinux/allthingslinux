@@ -46,6 +46,7 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
   log('Processing post slug', { slug, fullPath });
 
   try {
+    // Check if the file exists
     const fileExists = await new Promise<boolean>((resolve) => {
       fs.access(fullPath, fs.constants.F_OK, (err) => resolve(!err));
     });
@@ -55,6 +56,7 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
       throw new Error(`Post not found: ${fullPath}`);
     }
 
+    // Read file contents
     const fileContents = await new Promise<string>((resolve, reject) => {
       fs.readFile(fullPath, 'utf8', (err, data) => {
         if (err) reject(err);
@@ -64,28 +66,41 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
 
     log('Post file read successfully', { slug });
 
+    // Parse frontmatter and content
     const { data, content } = matter(fileContents);
     log('Frontmatter parsed successfully', data);
 
-    // if data.date doesnt exist check if the file is called in the format of "xx-xx-xx" with a possible (2)/(3)
-    // if it is, set the date to the file name and if its a duplicate (with (2)) set the date just a little bit later
-    // TODO: this is a temporary solution until we have a better way to handle this
-    if (!data.date) {
-      const date = realSlug.split('-').slice(0, 3).join('-');
-      data.date = date;
+    // Ensure the date is processed correctly from Unix timestamp
+    let parsedDate: Date | null = null;
+
+    if (data.date) {
+      try {
+        // Convert timestamp to milliseconds if necessary
+        const timestamp = typeof data.date === 'number' ? data.date : parseInt(data.date, 10);
+        parsedDate = new Date(timestamp * 1000); // Multiply by 1000 to convert seconds to milliseconds
+
+        if (isNaN(parsedDate.getTime())) {
+          log('Invalid Unix timestamp in frontmatter', { date: data.date });
+          parsedDate = null;
+        }
+      } catch (error) {
+        log('Error parsing Unix timestamp in frontmatter', { date: data.date, error });
+        parsedDate = null;
+      }
     }
 
-    // convert date to unix timestamp
-    data.date = new Date(data.date).getTime();
+    // Use a fallback date if parsing fails
+    const finalDate = parsedDate || new Date('2000-01-01'); // Example fallback: Jan 1, 2000
 
-    log('Post slug processed successfully', { slug, data });
+    log('Date processed successfully', finalDate);
 
     return {
       slug: realSlug,
       title: data.title || realSlug,
-      date: data.date,
+      date: finalDate,
+      description: data.description || content,
       content,
-      dateformatted: new Date(data.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), // FIXME: what the fuck is this
+      dateformatted: finalDate.toDateString(),
       ...data,
     };
   } catch (error) {
@@ -98,6 +113,8 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
   }
 }
 
+
+
 export async function getAllPosts(fields: string[] = []) {
   log('Starting to fetch all posts');
   try {
@@ -109,7 +126,7 @@ export async function getAllPosts(fields: string[] = []) {
     );
 
     const sortedPosts = posts.sort((post1, post2) => (post1.date > post2.date ? -1 : 1));
-    log('Posts sorted successfully', sortedPosts);
+    //log('Posts sorted successfully', sortedPosts);
 
     return sortedPosts;
   } catch (error) {
