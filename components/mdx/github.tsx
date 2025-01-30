@@ -3,10 +3,8 @@ import { cn } from '@/lib/utils';
 import {
   GitPullRequest,
   GitCommit,
-  User,
   GitFork,
   CircleDot,
-  ArrowRight,
   GitBranch,
 } from 'lucide-react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
