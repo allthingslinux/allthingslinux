@@ -18,7 +18,8 @@ const Privacy = () => {
     <a
       href="https://www.iubenda.com/privacy-policy/97069484"
       className="iubenda-black no-brand iubenda-noiframe iubenda-embed iubenda-noiframe"
-      title="Privacy Policy">
+      title="Privacy Policy"
+    >
       Privacy Policy
     </a>
   );
@@ -40,7 +41,8 @@ const Cookies = () => {
     <a
       href="https://www.iubenda.com/privacy-policy/97069484/cookie-policy"
       className="iubenda-black no-brand iubenda-noiframe iubenda-embed iubenda-noiframe"
-      title="Cookie Policy">
+      title="Cookie Policy"
+    >
       Cookie Policy
     </a>
   );
@@ -62,7 +64,8 @@ const Terms = () => {
     <a
       href="https://www.iubenda.com/terms-and-conditions/97069484"
       className="iubenda-black no-brand iubenda-noiframe iubenda-embed iubenda-noiframe"
-      title="Terms and Conditions">
+      title="Terms and Conditions"
+    >
       Terms & Conditions
     </a>
   );

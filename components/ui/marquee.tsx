@@ -7,7 +7,8 @@ interface MarqueeProps {
   children?: React.ReactNode;
   vertical?: boolean;
   repeat?: number;
-  [key: string]: any;
+  style?: React.CSSProperties;
+  'aria-label'?: string;
 }
 
 export default function Marquee({
@@ -23,7 +24,7 @@ export default function Marquee({
     <div
       {...props}
       className={cn(
-        'group flex overflow-hidden p-2 [--duration:40s] [--gap:1rem] [gap:var(--gap)]',
+        'flex overflow-hidden p-2 gap-4',
         {
           'flex-row': !vertical,
           'flex-col': vertical,
@@ -35,10 +36,9 @@ export default function Marquee({
         .map((_, i) => (
           <div
             key={i}
-            className={cn('flex shrink-0 justify-around [gap:var(--gap)]', {
-              'animate-marquee flex-row': !vertical,
-              'animate-marquee-vertical flex-col': vertical,
-              'group-hover:[animation-play-state:paused]': pauseOnHover,
+            className={cn('flex shrink-0 justify-around gap-4', {
+              'animate-marquee flex-row hover:[animation-play-state:paused]': !vertical,
+              'animate-marquee-vertical flex-col hover:[animation-play-state:paused]': vertical,
               '[animation-direction:reverse]': reverse,
             })}>
             {children}

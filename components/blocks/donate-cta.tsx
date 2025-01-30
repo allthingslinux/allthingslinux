@@ -11,7 +11,8 @@ export default function DonateCta() {
         className="container relative overflow-hidden rounded-lg bg-cover bg-center"
         style={{
           backgroundImage: 'url("https://i.imgur.com/wjG5n5m.png")',
-        }}>
+        }}
+      >
         <div className="absolute inset-0 bg-catppuccin-crust opacity-40"></div>
         <div className="relative flex w-full flex-col py-8 sm:p-3 md:p-6 md:rounded-xl lg:flex-row lg:items-center lg:p-16">
           <div className="flex-1">

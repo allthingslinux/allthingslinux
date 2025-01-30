@@ -2,139 +2,93 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import matter from 'gray-matter';
 import fs from 'fs';
-import { join } from 'path-browserify';
+import path from 'path';
+import { format, parseISO } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const postsDirectory = join(process.cwd(), 'markdown');
-
-// Logging helper function
-function log(message: string, data?: unknown) {
-  console.log(`[LOG]: ${message}`, data ? data : '');
+// Helper function to capitalize category names
+function formatCategoryName(category: string): string {
+  // Handle special cases like "ATL" or specific formatting
+  return category
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
-export async function getPostSlugs() {
-  log('Attempting to read post slugs from directory', postsDirectory);
-  try {
-    const files = await new Promise<string[]>((resolve, reject) => {
-      fs.readdir(postsDirectory, (err, files) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(files);
-        }
-      });
-    });
-    log('Post slugs retrieved successfully', files);
-    return files;
-  } catch (error) {
-    log('Error reading post slugs', error);
-    if (error instanceof Error) {
-      throw new Error(`Failed to read posts directory: ${error.message}`);
-    } else {
-      throw new Error('Failed to read posts directory: Unknown error');
-    }
-  }
+export interface Post {
+  slug: string;
+  title: string;
+  description: string;
+  author: string;
+  date: string;
+  dateFormatted: string;
+  category: string;
+  content: string;
 }
 
-export async function getPostBySlug(slug: string, fields: string[] = []) {
-  const realSlug = slug.replace(/\.mdx$/, '');
-  const fullPath = join(postsDirectory, `${realSlug}.mdx`);
+export async function getAllPosts(): Promise<Post[]> {
+  const postsDirectory = path.join(process.cwd(), 'content/blog');
+  const posts: Post[] = [];
 
-  log('Processing post slug', { slug, fullPath });
+  // Function to read posts from a directory
+  const readPostsFromDir = (dir: string) => {
+    const files = fs.readdirSync(dir, { withFileTypes: true });
 
-  try {
-    // Check if the file exists
-    const fileExists = await new Promise<boolean>((resolve) => {
-      fs.access(fullPath, fs.constants.F_OK, (err) => resolve(!err));
-    });
+    for (const file of files) {
+      const fullPath = path.join(dir, file.name);
 
-    if (!fileExists) {
-      log('Post file not found', { slug, fullPath });
-      throw new Error(`Post not found: ${fullPath}`);
-    }
-
-    // Read file contents
-    const fileContents = await new Promise<string>((resolve, reject) => {
-      fs.readFile(fullPath, 'utf8', (err, data) => {
-        if (err) reject(err);
-        else resolve(data);
-      });
-    });
-
-    log('Post file read successfully', { slug });
-
-    // Parse frontmatter and content
-    const { data, content } = matter(fileContents);
-    log('Frontmatter parsed successfully', data);
-
-    // Ensure the date is processed correctly from Unix timestamp
-    let parsedDate: Date | null = null;
-
-    if (data.date) {
-      try {
-        // Convert timestamp to milliseconds if necessary
-        const timestamp = typeof data.date === 'number' ? data.date : parseInt(data.date, 10);
-        parsedDate = new Date(timestamp * 1000); // Multiply by 1000 to convert seconds to milliseconds
-
-        if (isNaN(parsedDate.getTime())) {
-          log('Invalid Unix timestamp in frontmatter', { date: data.date });
-          parsedDate = null;
-        }
-      } catch (error) {
-        log('Error parsing Unix timestamp in frontmatter', { date: data.date, error });
-        parsedDate = null;
+      if (file.isDirectory()) {
+        // Recursively read posts from subdirectories
+        readPostsFromDir(fullPath);
+        continue;
       }
+
+      if (!file.name.endsWith('.mdx')) continue;
+
+      const fileContents = fs.readFileSync(fullPath, 'utf8');
+      const { data, content } = matter(fileContents);
+
+      // Get category from directory structure or frontmatter
+      const categoryFromPath = path
+        .relative(postsDirectory, dir)
+        .split(path.sep)[0];
+      const rawCategory = data.category || categoryFromPath || 'Uncategorized';
+      const category = formatCategoryName(rawCategory);
+
+      // Safely handle the date
+      let postDate: Date;
+      try {
+        // Try to parse the date string
+        postDate = data.date ? parseISO(data.date) : new Date();
+      } catch (e) {
+        // If parsing fails, use current date
+        console.warn(
+          `Invalid date in ${file.name}, using current date instead ${e}`
+        );
+        postDate = new Date();
+      }
+
+      posts.push({
+        slug: file.name.replace(/\.mdx$/, ''),
+        title: data.title || file.name.replace(/\.mdx$/, '').replace(/-/g, ' '),
+        description: data.description || '',
+        date: postDate.toISOString(),
+        dateFormatted: format(postDate, 'MMMM d, yyyy'),
+        author: data.author || 'All Things Linux',
+        category,
+        content,
+      });
     }
+  };
 
-    // Use a fallback date if parsing fails
-    const finalDate = parsedDate || new Date('2000-01-01'); // Example fallback: Jan 1, 2000
+  // Start reading from the root posts directory
+  readPostsFromDir(postsDirectory);
 
-    log('Date processed successfully', finalDate);
-
-    return {
-      slug: realSlug,
-      title: data.title || realSlug,
-      date: finalDate,
-      description: data.description || content,
-      content,
-      dateformatted: finalDate.toDateString(),
-      ...data,
-    };
-  } catch (error) {
-    log('Error processing post slug', { slug, error });
-    if (error instanceof Error) {
-      throw new Error(`Error processing post slug "${slug}": ${error.message}`);
-    } else {
-      throw new Error(`Error processing post slug "${slug}": Unknown error`);
-    }
-  }
-}
-
-
-
-export async function getAllPosts(fields: string[] = []) {
-  log('Starting to fetch all posts');
-  try {
-    const slugs = await getPostSlugs();
-    log('Slugs fetched successfully', slugs);
-
-    const posts = await Promise.all(
-      slugs.map(async (slug) => await getPostBySlug(slug, fields))
-    );
-
-    const sortedPosts = posts.sort((post1, post2) => (post1.date > post2.date ? -1 : 1));
-    //log('Posts sorted successfully', sortedPosts);
-
-    return sortedPosts;
-  } catch (error) {
-    log('Error fetching all posts', error);
-    if (error instanceof Error) {
-      throw new Error(`Error fetching all posts: ${error.message}`);
-    } else {
-      throw new Error('Error fetching all posts: Unknown error');
-    }
-  }
+  // Sort posts by date
+  return posts.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 }

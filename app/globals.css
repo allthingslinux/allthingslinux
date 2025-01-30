@@ -1,91 +1,377 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-  --background: #11111b;
-  --foreground: #cdd6f4;
+@custom-variant dark (&:is(.dark *));
+
+
+/* GitHub Alert Colors - Light Mode */
+.markdown-alert {
+  --color-border-default: #d0d7de;
+  --color-accent-fg: #0969da;
+  --color-accent-emphasis: #0969da;
+  --color-danger-fg: #d1242f;
+  --color-danger-emphasis: #cf222e;
+  --color-attention-fg: #9a6700;
+  --color-attention-emphasis: #9a6700;
+  --color-done-fg: #8250df;
+  --color-done-emphasis: #8250df;
+  --color-success-fg: #1a7f37;
+  --color-success-emphasis: #1f883d;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #11111b;
-    --foreground: #cdd6f4;
+  .markdown-alert {
+    --color-border-default: #30363d;
+    --color-accent-fg: #58a6ff;
+    --color-accent-emphasis: #1f6feb;
+    --color-danger-fg: #f85149;
+    --color-danger-emphasis: #da3633;
+    --color-attention-fg: #d29922;
+    --color-attention-emphasis: #9e6a03;
+    --color-done-fg: #a371f7;
+    --color-done-emphasis: #8957e5;
+    --color-success-fg: #3fb950;
+    --color-success-emphasis: #238636;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: 'Inter', 'BlinkMacSystemFont', '-apple-system', 'Segoe UI',
-    'Roboto', 'Helvetica', 'Arial', 'sans-serif', 'Apple Color Emoji',
-    'Segoe UI Emoji';
+/* GitHub Alert Base Styles */
+.markdown-alert {
+  padding: 8px 16px;
+  margin: 16px 0;
+  border-left: .25em solid var(--color-border-default);
+  background-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+}
+
+.markdown-alert > :last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-alert p {
+  margin: 0 !important;
+  line-height: 1.5;
+  color: inherit;
+}
+
+.markdown-alert p + p {
+  margin-top: 8px !important;
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  margin-bottom: 8px !important;
+}
+
+.markdown-alert .markdown-alert-title::before {
+  content: "";
+  display: block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Alert Types */
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-accent-emphasis) !important;
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-accent-fg) !important;
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-success-emphasis) !important;
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-success-fg) !important;
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-done-emphasis) !important;
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-done-fg) !important;
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-attention-emphasis) !important;
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-attention-fg) !important;
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-danger-emphasis) !important;
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-danger-fg) !important;
+}
+
+/* Alert Icons */
+.markdown-alert.markdown-alert-note .markdown-alert-title::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3E%3Cpath fill='%2358a6ff' d='M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3E%3Cpath fill='%233fb950' d='M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.695 8.695 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.75.75 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75ZM5.75 12a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3E%3Cpath fill='%23a371f7' d='M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3E%3Cpath fill='%23d29922' d='M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3E%3Cpath fill='%23f85149' d='M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono: SFMono-Regular, ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-muted2: hsl(var(--muted2));
+  --color-muted2-foreground: hsl(var(--muted2-foreground));
+
+  --color-tokyonight-background: #1a1b26;
+  --color-tokyonight-black: #15161e;
+  --color-tokyonight-blue: #7aa2f7;
+  --color-tokyonight-bright-black: #414868;
+  --color-tokyonight-bright-blue: #7aa2f7;
+  --color-tokyonight-bright-cyan: #7dcfff;
+  --color-tokyonight-bright-green: #9ece6a;
+  --color-tokyonight-bright-purple: #9d7cd8;
+  --color-tokyonight-bright-red: #f7768e;
+  --color-tokyonight-bright-white: #c0caf5;
+  --color-tokyonight-bright-yellow: #e0af68;
+  --color-tokyonight-cyan: #7dcfff;
+  --color-tokyonight-foreground: #c0caf5;
+  --color-tokyonight-green: #9ece6a;
+  --color-tokyonight-purple: #bb9af7;
+  --color-tokyonight-red: #f7768e;
+  --color-tokyonight-selection-background: #283457;
+  --color-tokyonight-white: #a9b1d6;
+  --color-tokyonight-yellow: #e0af68;
+
+  --color-catppuccin-rosewater: #f5e0dc;
+  --color-catppuccin-flamingo: #f2cdcd;
+  --color-catppuccin-pink: #f5c2e7;
+  --color-catppuccin-mauve: #cba6f7;
+  --color-catppuccin-red: #f38ba8;
+  --color-catppuccin-maroon: #eba0ac;
+  --color-catppuccin-peach: #fab387;
+  --color-catppuccin-yellow: #f9e2af;
+  --color-catppuccin-green: #a6e3a1;
+  --color-catppuccin-teal: #94e2d5;
+  --color-catppuccin-sky: #89dceb;
+  --color-catppuccin-sapphire: #74c7ec;
+  --color-catppuccin-blue: #89b4fa;
+  --color-catppuccin-lavender: #b4befe;
+  --color-catppuccin-text: #cdd6f4;
+  --color-catppuccin-subtext1: #bac2de;
+  --color-catppuccin-subtext0: #a6adc8;
+  --color-catppuccin-overlay2: #9399b2;
+  --color-catppuccin-overlay1: #7f849c;
+  --color-catppuccin-overlay0: #6c7086;
+  --color-catppuccin-surface2: #585b70;
+  --color-catppuccin-surface1: #45475a;
+  --color-catppuccin-surface0: #313244;
+  --color-catppuccin-base: #1e1e2e;
+  --color-catppuccin-mantle: #181825;
+  --color-catppuccin-crust: #11111b;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in-out: fade-in-out 4s ease-in-out;
+  --animate-progress: progress 8s linear;
+  --animate-marquee: marquee var(--marquee-duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--marquee-duration) linear infinite;
+  --animate-grid: grid 15s linear infinite;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+    }
+
+    20% {
+      opacity: 1;
+    }
+
+    80% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes progress {
+    from {
+      width: 0%;
+    }
+
+    to {
+      width: 100%;
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes grid {
+    0% {
+      transform: translateY(-50%);
+    }
+
+    100% {
+      transform: translateY(0);
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+
+  @media (width >=--theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+
+  @media (width >=1400px) {
+    max-width: 1400px;
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-@layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-
-    /* Shadcnblocks.com */
-    --muted2: 0 0 91%;
-    --muted2-foreground: 240 3.8% 46.1%;
+    --background: #11111b;
+    --foreground: #cdd6f4;
+    --duration: 40s;
+    --marquee-duration: 300s;
+    --marquee-gap: 1rem;
+    --play-state: running;
   }
 
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #11111b;
+      --foreground: #cdd6f4;
+    }
+  }
+
+  body {
+    color: var(--foreground);
+    background: var(--background);
+  }
+
+  .hover\:pause:hover {
+    animation-play-state: paused;
   }
 }
 

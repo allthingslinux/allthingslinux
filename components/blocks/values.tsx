@@ -103,12 +103,14 @@ export default function Values() {
                   isCodeOfConduct
                     ? 'bg-blue-900/50 text-white border-cyan-300'
                     : 'bg-slate-900 border-slate-800'
-                } hover:shadow-xl hover:translate-y-2`}>
+                } hover:shadow-xl hover:translate-y-2`}
+              >
                 {isCodeOfConduct ? (
                   <Link href="/code-of-conduct" passHref>
                     <div className="relative p-6 space-y-4 rounded-lg z-10 block">
                       <div
-                        className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-500/50`}>
+                        className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-500/50`}
+                      >
                         <FileText className="w-6 h-6 text-white" />
                       </div>
                       <h3 className="text-xl font-bold">
@@ -121,7 +123,8 @@ export default function Values() {
                 ) : (
                   <div className="relative p-6 space-y-4 rounded-lg z-10 block">
                     <div
-                      className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-900/50`}>
+                      className={`inline-flex items-center justify-center p-2 rounded-lg bg-blue-900/50`}
+                    >
                       <Icon className="w-6 h-6 text-cyan-400" />
                     </div>
                     <h3 className="text-xl font-bold text-cyan-400">
