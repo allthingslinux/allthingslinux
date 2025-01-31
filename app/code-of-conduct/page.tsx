@@ -169,7 +169,8 @@ export default function CodeOfConduct() {
               className="hover:bg-neutral-800/20 transition-colors"
             />
           ),
-        }}>
+        }}
+      >
         {cleanedContent}
       </ReactMarkdown>
     </div>

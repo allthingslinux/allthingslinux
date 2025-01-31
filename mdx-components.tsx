@@ -1,5 +1,6 @@
 import React from 'react';
 import type { MDXComponents } from 'mdx/types';
+import Image from 'next/image';
 import { createHeadingComponent } from '@/components/mdx/headings';
 import {
   Link,
@@ -17,7 +18,6 @@ import {
   TableCell,
 } from '@/components/mdx/table';
 import { Pre, InlineCode } from '@/components/mdx/code';
-import { Image } from '@/components/mdx/media';
 import { TaskList, TaskListItem } from '@/components/mdx/task-list';
 import { Alert } from '@/components/mdx/alert';
 
@@ -93,7 +93,7 @@ export const components: MDXComponents = {
   ),
   pre: Pre,
   code: InlineCode,
-  img: Image,
+  Image,
   Alert,
 };
 
@@ -108,6 +108,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     li: ListItem,
     blockquote: Blockquote,
     hr: HorizontalRule,
+    Image,
     ...components,
   };
 }

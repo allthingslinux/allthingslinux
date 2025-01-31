@@ -55,6 +55,7 @@ export async function getAllPosts(): Promise<Post[]> {
       const categoryFromPath = path
         .relative(postsDirectory, dir)
         .split(path.sep)[0];
+
       const rawCategory = data.category || categoryFromPath || 'Uncategorized';
       const category = formatCategoryName(rawCategory);
 

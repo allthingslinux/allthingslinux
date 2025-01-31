@@ -1,9 +1,9 @@
 ---
-title: 'MDX Features Demo'
-description: 'A comprehensive showcase of all MDX features available in our blog'
+title: 'Official Blog Release'
+description: 'A comprehensive showcase of all MDX features available in our new blog'
 author: 'All Things Linux'
-date: '2024-03-28'
-category: 'Documentation'
+date: '2025-01-31'
+category: 'Announcements'
 ---
 
 import { Alert } from '@/components/mdx/alert';
@@ -65,36 +65,20 @@ You can use `inline code` for short code snippets or technical terms.
 
 ### Code Block with Filename
 
-```python filename="hello.py"
+```python filename=hello.py {1-3}
 def greet(name: str) -> str:
     """A simple greeting function"""
     return f"Hello, {name}!"
-
-# Call the function
-result = greet("Linux User")
-print(result)
 ```
 
 ### TypeScript Example
 
-```typescript filename="types.ts"
-interface User {
-  id: string;
-  name: string;
-  preferences: {
-    theme: 'light' | 'dark';
-    notifications: boolean;
-  };
+```typescript {1,3-4} showLineNumbers
+function example() {
+  const x = 1;
+  // This line is highlighted
+  return x + 2; // This line is also highlighted
 }
-
-const currentUser: User = {
-  id: '123',
-  name: 'John Doe',
-  preferences: {
-    theme: 'dark',
-    notifications: true,
-  },
-};
 ```
 
 ### Highlighted Lines

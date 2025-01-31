@@ -6,7 +6,7 @@ export default async function BlogPage() {
 
   // Get unique categories from posts
   const categories = [
-    'All Articles',
+    'All Posts',
     ...Array.from(new Set(posts.map((post) => post.category))),
   ];
 
