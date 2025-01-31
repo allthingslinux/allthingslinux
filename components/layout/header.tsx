@@ -15,9 +15,9 @@ const navItems = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'CoC', href: '/code-of-conduct' },
-  { name: 'Tools', href: 'https://atl.tools' },
   { name: 'Blog', href: '/blog' },
   { name: 'Wiki', href: 'https://atl.wiki' },
+  { name: 'Tools', href: 'https://atl.tools' },
 ];
 
 export default function Header() {

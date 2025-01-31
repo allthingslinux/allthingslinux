@@ -1,0 +1,209 @@
+---
+title: 'Official Blog Release'
+description: 'A comprehensive showcase of all MDX features available in our new blog'
+author: 'All Things Linux'
+date: '2025-01-31'
+category: 'News'
+---
+
+import { Alert } from '@/components/mdx/alert';
+
+# Complete MDX Features Guide
+
+Welcome to our comprehensive guide to MDX features! This post demonstrates all the available formatting and styling options you can use in your blog posts.
+
+## Text Formatting
+
+You can make text **bold**, _italic_, or **_both_**. You can also use ~~strikethrough~~ for deleted text.
+
+## Links and References
+
+- External link: [MDX Documentation](https://mdxjs.com/)
+- Internal link: [Back to Blog](/blog)
+
+## Lists
+
+### Unordered List
+
+- First item
+- Second item
+  - Nested item 1
+  - Nested item 2
+- Third item
+
+### Ordered List
+
+1. First step
+2. Second step
+   1. Sub-step A
+   2. Sub-step B
+3. Third step
+
+## Tables
+
+### Basic Table
+
+| Feature        | Supported | Notes                    |     |
+| -------------- | --------- | ------------------------ | --- |
+| Tables         | ✅        | Basic markdown tables    |     |
+| Code Blocks    | ✅        | With syntax highlighting |     |
+| Math Equations | ❌        | Not yet implemented      |     |
+| Diagrams       | ❌        | Future addition          |     |
+
+### Table with Alignment
+
+| Left         |  Center  |         Right |     |
+| :----------- | :------: | ------------: | --- |
+| Content      | Content  |       Content |     |
+| Left-aligned | Centered | Right-aligned |     |
+
+## Code Examples
+
+### Inline Code
+
+You can use `inline code` for short code snippets or technical terms.
+
+### Code Block with Filename
+
+```python filename=hello.py {1-3}
+def greet(name: str) -> str:
+    """A simple greeting function"""
+    return f"Hello, {name}!"
+```
+
+### TypeScript Example
+
+```typescript {1,3-4} showLineNumbers
+function example() {
+  const x = 1;
+  // This line is highlighted
+  return x + 2; // This line is also highlighted
+}
+```
+
+### Highlighted Lines
+
+```javascript {3,5-7} filename="example.js"
+function calculateTotal(items) {
+  return (
+    items
+      .filter((item) => item.inStock) // Only in-stock items
+      .map((item) => item.price)
+      // Calculate total with tax
+      .reduce((total, price) => {
+        return total + price * 1.2; // 20% tax
+      }, 0)
+  );
+}
+```
+
+## Blockquotes
+
+> This is a blockquote. Perfect for highlighting important information or quotes.
+>
+> You can have multiple paragraphs in blockquotes.
+>
+> — _Source Attribution_
+
+## GitHub-style Alerts
+
+You can use GitHub-style alerts to highlight important information:
+
+<Alert type="note">
+  This is a note alert. Use it to highlight information that users should take
+  into account, even when skimming.
+</Alert>
+
+<Alert type="tip">
+  This is a tip alert. Perfect for optional information to help users be more
+  successful.
+</Alert>
+
+<Alert type="important">
+  This is an important alert. Use it for crucial information necessary for users
+  to succeed.
+</Alert>
+
+<Alert type="warning">
+  This is a warning alert. Critical content demanding immediate user attention
+  due to potential risks.
+</Alert>
+
+<Alert type="caution">
+  This is a caution alert. Use it to advise about negative potential
+  consequences of an action.
+</Alert>
+
+## Task Lists
+
+- [x] Support basic Markdown
+- [x] Add code highlighting
+- [x] Add table support
+- [ ] Add math equations
+- [ ] Add diagrams
+
+## Tips & Notes
+
+> 💡 **Pro Tip:** You can combine different MDX features to create rich, interactive content.
+
+---
+
+## Advanced Features
+
+### Custom Components
+
+You can use React components directly in your MDX:
+
+```jsx filename="example.tsx"
+<CodeBlock
+  language="typescript"
+  filename="example.tsx"
+  code={`
+    const greeting = "Hello, World!";
+    console.log(greeting);
+  `}
+  highlightLines={[2]}
+/>
+```
+
+### Keyboard Shortcuts
+
+Use `Ctrl + C` to copy and `Ctrl + V` to paste.
+
+## GitHub References
+
+You can automatically link to GitHub issues, commits, and users:
+
+### Issues and Pull Requests
+
+- Issue reference: #1
+- Pull request: [#1](https://github.com/allthingslinux/allthingslinux/pull/1)
+- Issue in another repo: allthingslinux/tux#1
+
+### Commits
+
+- Short commit: [37095db](https://github.com/allthingslinux/allthingslinux/commit/37095db)
+- Commit range: [37095db...d1f9088](https://github.com/allthingslinux/allthingslinux/compare/37095db...d1f9088)
+- Commit in another repo: [allthingslinux/tux@5c6f6f7](https://github.com/allthingslinux/tux/commit/5c6f6f7)
+
+### Branches
+
+- Main branch: [allthingslinux/allthingslinux:main](https://github.com/allthingslinux/allthingslinux/tree/main)
+- Feature branch: [allthingslinux/allthingslinux:feature/mdx-components](https://github.com/allthingslinux/allthingslinux/tree/feature/mdx-components)
+- Branch in another repo: [allthingslinux/tux:develop](https://github.com/allthingslinux/tux/tree/develop)
+
+### Users and Organizations
+
+- User mention: [@kzndotsh](https://github.com/kzndotsh)
+- Organization: [@allthingslinux](https://github.com/orgs/allthingslinux)
+- Full profile: [@kzndotsh](https://github.com/kzndotsh)
+
+These references will be automatically converted to links with avatars pointing to the correct GitHub pages.
+
+## Final Notes
+
+This concludes our MDX features demo. Remember that you can combine all these elements to create engaging and informative blog posts. For more information, check out the [MDX documentation](https://mdxjs.com/).
+
+---
+
+_Last updated: March 28, 2024_

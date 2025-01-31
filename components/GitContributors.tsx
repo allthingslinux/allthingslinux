@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { execSync } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 
 interface Contributor {
   name: string;
@@ -15,11 +16,27 @@ async function getFileContributors(filePath: string): Promise<Contributor[]> {
     // Get the absolute path to the file
     const fullPath = path.resolve(process.cwd(), filePath);
 
+    // Check if file exists
+    if (!fs.existsSync(fullPath)) {
+      console.error(`File not found: ${fullPath}`);
+      return [];
+    }
+
+    console.log(`Getting contributors for file: ${fullPath}`);
+
     // Get git log for the specific file
-    const gitLog = execSync(
-      `git log --pretty=format:"%an|%ae" --follow "${fullPath}" | sort | uniq -c | sort -nr`,
-      { encoding: 'utf-8' }
-    );
+    const gitCommand = `git log --pretty=format:"%an|%ae" --follow "${fullPath}" | sort | uniq -c | sort -nr`;
+    console.log(`Executing git command: ${gitCommand}`);
+
+    const gitLog = execSync(gitCommand, {
+      encoding: 'utf-8',
+      cwd: process.cwd(), // Ensure we're in the right directory
+    });
+
+    if (!gitLog.trim()) {
+      console.log('No git history found for file');
+      return [];
+    }
 
     // Parse the git log output
     const contributors = gitLog
@@ -27,7 +44,10 @@ async function getFileContributors(filePath: string): Promise<Contributor[]> {
       .split('\n')
       .map((line) => {
         const match = line.match(/^\s*(\d+)\s+(.+?)\|(.+)$/);
-        if (!match) return null;
+        if (!match) {
+          console.log(`Could not parse line: ${line}`);
+          return null;
+        }
 
         const [, commits, name, email] = match;
 
@@ -46,17 +66,24 @@ async function getFileContributors(filePath: string): Promise<Contributor[]> {
       })
       .filter((c): c is Contributor => c !== null);
 
+    console.log(`Found ${contributors.length} contributors`);
     return contributors;
   } catch (error) {
     console.error('Error getting contributors:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return [];
   }
 }
 
 export async function GitContributors({ filePath }: { filePath: string }) {
+  console.log('GitContributors component called with path:', filePath);
   const contributors = await getFileContributors(filePath);
 
   if (contributors.length === 0) {
+    console.log('No contributors found, returning null');
     return null;
   }
 

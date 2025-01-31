@@ -13,6 +13,8 @@ const baseStyles = {
   h2: 'mt-10 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0',
   h3: 'mt-8 scroll-m-20 text-2xl font-semibold tracking-tight',
   h4: 'mt-8 scroll-m-20 text-xl font-semibold tracking-tight',
+  h5: 'mt-8 scroll-m-20 text-base font-semibold tracking-tight',
+  h6: 'mt-8 scroll-m-20 text-base font-semibold tracking-tight',
 } as const;
 
 export const createHeadingComponent = (level: keyof typeof baseStyles) => {

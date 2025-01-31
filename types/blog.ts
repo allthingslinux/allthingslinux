@@ -6,6 +6,7 @@ export interface Post {
   dateFormatted: string;
   date: string;
   category: string;
+  categorySlug: string;
   content: string;
   image?: string; // Optional featured image URL
 }

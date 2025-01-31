@@ -9,9 +9,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Helper function to format category for URLs
+export function formatCategorySlug(category: string): string {
+  return category.toLowerCase().replace(/ /g, '-');
+}
+
 // Helper function to capitalize category names
 function formatCategoryName(category: string): string {
-  // Handle special cases like "ATL" or specific formatting
+  if (category === 'atl') return 'ATL';
   return category
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -26,6 +31,7 @@ export interface Post {
   date: string;
   dateFormatted: string;
   category: string;
+  categorySlug: string;
   content: string;
 }
 
@@ -58,6 +64,7 @@ export async function getAllPosts(): Promise<Post[]> {
 
       const rawCategory = data.category || categoryFromPath || 'Uncategorized';
       const category = formatCategoryName(rawCategory);
+      const categorySlug = formatCategorySlug(category);
 
       // Safely handle the date
       let postDate: Date;
@@ -80,6 +87,7 @@ export async function getAllPosts(): Promise<Post[]> {
         dateFormatted: format(postDate, 'MMMM d, yyyy'),
         author: data.author || 'All Things Linux',
         category,
+        categorySlug,
         content,
       });
     }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 
 import { BsOpencollective } from 'react-icons/bs';
 import { FaDiscord, FaGithub } from 'react-icons/fa';
@@ -24,9 +24,9 @@ const navigation: Navigation = {
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'CoC', href: '/code-of-conduct' },
-    { name: 'Tools', href: 'https://atl.tools' },
     { name: 'Blog', href: 'https://blog.atl.tools' },
     { name: 'Wiki', href: 'https://atl.wiki' },
+    { name: 'Tools', href: 'https://atl.tools' },
     { name: 'Get Involved', href: '/get-involved' },
   ],
   social: [
