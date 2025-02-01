@@ -61,15 +61,11 @@ export default async function BlogPost({
     notFound();
   }
 
-  // Extract year from slug (e.g., dec-2024-rollup -> 2024)
-  const yearMatch = slug.match(/\d{4}/);
-  const year = yearMatch ? yearMatch[0] : '2024'; // Default to 2024 if no year found
-
-  // Remove frontmatter from content
+  // Remove unused year extraction
   const content = post.content.replace(/^---[\s\S]*?---/, '').trim();
 
   return (
-    <section className="py-20">
+    <section className="py-20 min-h-[calc(100vh-4rem)]">
       <div className="container max-w-3xl">
         {/* Header */}
         <header className="mb-16">
@@ -96,7 +92,10 @@ export default async function BlogPost({
 
             <div className="flex items-center gap-3 border-b pb-8">
               <Avatar className="size-10 rounded-full">
-                <AvatarImage src="/favicon.ico" alt={post.author} />
+                <AvatarImage
+                  src="https://i.imgur.com/hiskNWW.png"
+                  alt={post.author}
+                />
               </Avatar>
               <div>
                 <h2 className="font-semibold text-lg">{post.author}</h2>
@@ -130,7 +129,7 @@ export default async function BlogPost({
           <hr className="my-8" />
           <h2 className="text-2xl font-bold pb-4">Contributors</h2>
           <GitContributors
-            filePath={`content/blog/${post.category === 'Announcements' ? `announcements/${year}` : post.category.toLowerCase()}/${slug}.mdx`}
+            filePath={`content/blog/${post.categorySlug}/${slug}.mdx`}
           />
         </article>
       </div>

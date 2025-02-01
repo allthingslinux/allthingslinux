@@ -39,19 +39,21 @@ export function GitHubLink({
       if (repo) {
         const [org, repoName] = repo.split('/');
         displayText = (
-          <span className="flex items-center gap-1.5">
-            <span className="text-blue-300">{org}</span>
+          <span className="flex flex-wrap items-center gap-1.5">
+            <span className="text-blue-300 text-xs sm:text-sm">{org}</span>
             <span className="text-muted-foreground">/</span>
-            <span className="text-blue-300">{repoName}</span>
+            <span className="text-blue-300 text-xs sm:text-sm">{repoName}</span>
             <span className="text-muted-foreground">#</span>
-            <span className="text-blue-400 font-mono">
+            <span className="text-blue-400 font-mono text-xs sm:text-sm">
               {reference.replace('#', '')}
             </span>
           </span>
         );
       } else {
         displayText = (
-          <span className="text-blue-400 font-mono">{reference}</span>
+          <span className="text-blue-400 font-mono text-xs sm:text-sm">
+            {reference}
+          </span>
         );
       }
       break;
@@ -61,19 +63,21 @@ export function GitHubLink({
       if (repo) {
         const [org, repoName] = repo.split('/');
         displayText = (
-          <span className="flex items-center gap-1.5">
-            <span className="text-blue-300">{org}</span>
+          <span className="flex flex-wrap items-center gap-1.5">
+            <span className="text-blue-300 text-xs sm:text-sm">{org}</span>
             <span className="text-muted-foreground">/</span>
-            <span className="text-blue-300">{repoName}</span>
+            <span className="text-blue-300 text-xs sm:text-sm">{repoName}</span>
             <span className="text-muted-foreground">#</span>
-            <span className="text-blue-400 font-mono">
+            <span className="text-blue-400 font-mono text-xs sm:text-sm">
               {reference.replace('#', '')}
             </span>
           </span>
         );
       } else {
         displayText = (
-          <span className="text-blue-400 font-mono">{reference}</span>
+          <span className="text-blue-400 font-mono text-xs sm:text-sm">
+            {reference}
+          </span>
         );
       }
       break;
@@ -83,16 +87,35 @@ export function GitHubLink({
       if (repo) {
         const [org, repoName] = repo.split('/');
         displayText = (
-          <span className="flex items-center gap-1.5">
-            <span className="text-blue-300">{org}</span>
-            <span className="text-muted-foreground">/</span>
-            <span className="text-blue-300">{repoName}</span>
-            <span className="text-muted-foreground">:</span>
-            <span className="text-purple-400">{reference}</span>
+          <span className="flex flex-wrap items-center gap-1.5">
+            {repo !== 'allthingslinux/allthingslinux' ? (
+              <>
+                <span className="text-blue-300 text-xs sm:text-sm">{org}</span>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-blue-300 text-xs sm:text-sm">
+                  {repoName}
+                </span>
+                <span className="text-muted-foreground">:</span>
+              </>
+            ) : (
+              <span className="hidden sm:inline-flex sm:items-center">
+                <span className="text-blue-300 text-sm">{org}</span>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-blue-300 text-sm">{repoName}</span>
+                <span className="text-muted-foreground">:</span>
+              </span>
+            )}
+            <span className="text-purple-400 text-xs sm:text-sm">
+              {reference}
+            </span>
           </span>
         );
       } else {
-        displayText = <span className="text-purple-400">{reference}</span>;
+        displayText = (
+          <span className="text-purple-400 text-xs sm:text-sm">
+            {reference}
+          </span>
+        );
       }
       break;
     case 'commit':
@@ -102,30 +125,36 @@ export function GitHubLink({
       if (repo) {
         const [org, repoName] = repo.split('/');
         displayText = (
-          <span className="flex items-center gap-1.5">
-            <span className="text-blue-300">{org}</span>
+          <span className="flex flex-wrap items-center gap-1.5">
+            <span className="text-blue-300 text-xs sm:text-sm">{org}</span>
             <span className="text-muted-foreground">/</span>
-            <span className="text-blue-300">{repoName}</span>
+            <span className="text-blue-300 text-xs sm:text-sm">{repoName}</span>
             <span className="text-muted-foreground">@</span>
-            <span className="text-green-400">{shortReference}</span>
+            <span className="text-green-400 text-xs sm:text-sm">
+              {shortReference}
+            </span>
           </span>
         );
       } else {
-        displayText = <span className="text-green-400">{shortReference}</span>;
+        displayText = (
+          <span className="text-green-400 text-xs sm:text-sm">
+            {shortReference}
+          </span>
+        );
       }
       break;
     case 'user':
     case 'org':
       href = `https://github.com/${username}`;
       avatar = (
-        <Avatar className="h-5 w-5">
+        <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
           <AvatarImage
             src={`https://github.com/${username}.png`}
             alt={username}
           />
         </Avatar>
       );
-      displayText = `@${username}`;
+      displayText = <span className="text-xs sm:text-sm">@{username}</span>;
       break;
     case 'repo':
       href = `https://github.com/${reference}`;
@@ -140,7 +169,7 @@ export function GitHubLink({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium',
+        'inline-flex flex-wrap items-center gap-1.5 sm:gap-2 rounded-md px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm font-medium',
         type === 'commit' && 'font-mono bg-green-500/10 hover:bg-green-500/20',
         type === 'branch' &&
           'font-mono bg-purple-500/10 hover:bg-purple-500/20',
@@ -155,13 +184,13 @@ export function GitHubLink({
       <span className="flex items-center gap-1">
         {avatar || icon}
         {!['user', 'org', 'commit', 'branch', 'issue', 'pr'].includes(type) && (
-          <span className="text-blue-300">{label}</span>
+          <span className="text-blue-300 text-xs sm:text-sm">{label}</span>
         )}
       </span>
       {typeof displayText === 'string' ? (
         <span
           className={cn(
-            'text-blue-400',
+            'text-blue-400 text-xs sm:text-sm',
             type === 'commit' && 'text-green-400',
             type === 'branch' && 'text-purple-400'
           )}

@@ -3,7 +3,13 @@ import React, { type JSX } from 'react';
 import { BsOpencollective } from 'react-icons/bs';
 import { FaDiscord, FaGithub } from 'react-icons/fa';
 
-import { Privacy, Cookies, Terms } from '@/components/consent';
+import {
+  Privacy,
+  Cookies,
+  Terms,
+  PrivacyChoices,
+  NoticeAtCollection,
+} from '@/components/consent';
 
 interface NavigationItem {
   name: string;
@@ -78,10 +84,16 @@ export default function Footer() {
             </a>
           ))}
         </div>
-        <div className="mt-8 flex justify-center gap-x-4 text-gray-400 hover:text-gray-300 text-sm text-center flex-wrap gap-y-4">
-          <Privacy />
-          <Cookies />
-          <Terms />
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <div className="flex justify-center gap-x-4 text-gray-400 hover:text-gray-300 text-sm text-center flex-wrap gap-y-4">
+            <Privacy />
+            <Cookies />
+            <Terms />
+          </div>
+          <div className="flex justify-center gap-x-4 text-gray-400 hover:text-gray-300 text-sm text-center flex-wrap gap-y-4">
+            <PrivacyChoices />
+            <NoticeAtCollection />
+          </div>
         </div>
         <p className="mt-6 text-center text-sm text-gray-400 text-balance">
           &copy; 2024 All Things Linux • Made with ❤️ • All Rights Reserved.

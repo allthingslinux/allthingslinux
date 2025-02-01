@@ -8,18 +8,17 @@ category: 'News'
 
 import { Alert } from '@/components/mdx/alert';
 
-# Complete MDX Features Guide
+# Enjoy the power of MDX!
 
-Welcome to our comprehensive guide to MDX features! This post demonstrates all the available formatting and styling options you can use in your blog posts.
+Hey everyone!
+
+We are thrilled to announce the launch of our new blog! After dedicating significant time and effort, it's finally ready for you to explore. Our blog will highlight some of the fantastic features MDX has to offer.
+
+Looking ahead, we plan to expand our content beyond just news and announcements. We aim to create a platform where content creators and thought leaders can share their insights and experiences with the community through guides, tutorials, opinions, and more.
 
 ## Text Formatting
 
 You can make text **bold**, _italic_, or **_both_**. You can also use ~~strikethrough~~ for deleted text.
-
-## Links and References
-
-- External link: [MDX Documentation](https://mdxjs.com/)
-- Internal link: [Back to Blog](/blog)
 
 ## Lists
 
@@ -65,7 +64,7 @@ You can use `inline code` for short code snippets or technical terms.
 
 ### Code Block with Filename
 
-```python filename=hello.py {1-3}
+```py filename=hello.py {1-3}
 def greet(name: str) -> str:
     """A simple greeting function"""
     return f"Hello, {name}!"
@@ -73,27 +72,11 @@ def greet(name: str) -> str:
 
 ### TypeScript Example
 
-```typescript {1,3-4} showLineNumbers
+```ts {1,3-4} showLineNumbers
 function example() {
   const x = 1;
-  // This line is highlighted
-  return x + 2; // This line is also highlighted
-}
-```
-
-### Highlighted Lines
-
-```javascript {3,5-7} filename="example.js"
-function calculateTotal(items) {
-  return (
-    items
-      .filter((item) => item.inStock) // Only in-stock items
-      .map((item) => item.price)
-      // Calculate total with tax
-      .reduce((total, price) => {
-        return total + price * 1.2; // 20% tax
-      }, 0)
-  );
+  // Hello world
+  return x + 2;
 }
 ```
 
@@ -142,12 +125,6 @@ You can use GitHub-style alerts to highlight important information:
 - [ ] Add math equations
 - [ ] Add diagrams
 
-## Tips & Notes
-
-> 💡 **Pro Tip:** You can combine different MDX features to create rich, interactive content.
-
----
-
 ## Advanced Features
 
 ### Custom Components
@@ -165,10 +142,6 @@ You can use React components directly in your MDX:
   highlightLines={[2]}
 />
 ```
-
-### Keyboard Shortcuts
-
-Use `Ctrl + C` to copy and `Ctrl + V` to paste.
 
 ## GitHub References
 
@@ -196,14 +169,16 @@ You can automatically link to GitHub issues, commits, and users:
 
 - User mention: [@kzndotsh](https://github.com/kzndotsh)
 - Organization: [@allthingslinux](https://github.com/orgs/allthingslinux)
-- Full profile: [@kzndotsh](https://github.com/kzndotsh)
 
 These references will be automatically converted to links with avatars pointing to the correct GitHub pages.
 
 ## Final Notes
 
-This concludes our MDX features demo. Remember that you can combine all these elements to create engaging and informative blog posts. For more information, check out the [MDX documentation](https://mdxjs.com/).
+This concludes our MDX features demo. Remember that you can combine all these elements to create engaging and informative blog posts. Looking forward to sharing more content with you soon!
 
----
+## Links and References
+
+- External link: [MDX Documentation](https://mdxjs.com/)
+- Internal link: [Back to Blog](/blog)
 
 _Last updated: March 28, 2024_

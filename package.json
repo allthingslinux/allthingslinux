@@ -19,6 +19,7 @@
     "format": "prettier --write .",
     "check-format": "prettier --check .",
     "check:mdx": "remark content/blog/*.mdx --quiet",
+    "check:ts": "tsc --noEmit",
     "pages:build": "npx @cloudflare/next-on-pages",
     "preview": "npm run pages:build && wrangler pages dev",
     "deploy": "npm run pages:build && wrangler pages deploy"
