@@ -1,108 +1,100 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import AutoScroll from 'embla-carousel-auto-scroll';
+import { useRef } from 'react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import Marquee from '@/components/ui/marquee';
-import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
+import { Card } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
 import testimonalsData from '@/data/testimonials.json';
 
 const reviews = testimonalsData.testimonials;
-
-const shuffleArray = <T,>(array: T[]): T[] => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-};
-
-const avatars = shuffleArray(Array.from({ length: 15 }, (_, i) => i + 1));
+const avatars = Array.from({ length: 15 }, (_, i) => i + 1);
 
 const ReviewCard = ({
   avatar,
   name,
   content,
+  onMouseEnter,
+  onMouseLeave,
 }: {
   avatar: string;
   name: string;
   content: string;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }) => {
   return (
-    <figure
-      className={cn(
-        'relative w-full sm:w-[24rem] cursor-pointer overflow-hidden rounded-2xl border p-4 bg-catppuccin-crust',
-      )}>
-      <div className="flex flex-row items-center gap-4 mb-4">
-        <Avatar className="size-9 rounded-full">
-          <AvatarImage src={avatar} alt={name} />
-        </Avatar>
-        <div className="flex flex-col">
-          <figcaption className="font-medium">{name}</figcaption>
+    <Card
+      className="max-w-96 select-none bg-catppuccin-crust p-6"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div className="flex justify-between">
+        <div className="mb-4 flex gap-4">
+          <Avatar className="size-14 rounded-full ring-1 ring-input">
+            <AvatarImage src={avatar} alt={name} />
+          </Avatar>
+          <div>
+            <p className="font-medium text-catppuccin-text">{name}</p>
+          </div>
         </div>
       </div>
-      <q className="text-sm text-balance tracking-tight">{content}</q>
-    </figure>
+      <q className="text-catppuccin-subtext0 leading-7">{content}</q>
+    </Card>
   );
 };
 
 export default function Testimonials() {
-  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => setIsMobile(window.innerWidth < 640);
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  const handlePrevReview = () => {
-    setCurrentReviewIndex((prevIndex) =>
-      prevIndex === 0 ? reviews.length - 1 : prevIndex - 1,
-    );
-  };
-
-  const handleNextReview = () => {
-    setCurrentReviewIndex((prevIndex) =>
-      prevIndex === reviews.length - 1 ? 0 : prevIndex + 1,
-    );
-  };
+  const plugin = useRef(
+    AutoScroll({
+      startDelay: 0,
+      speed: 1.0,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+    })
+  );
 
   return (
-    <div className="relative flex min-h-[300px] md:min-h-[400px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-catppuccin-mantle p-8 md:shadow-xl">
-      <h2 className="mb-6 text-center text-3xl md:text-4xl lg:text-4xl font-semibold">
-        See what our members are saying
-      </h2>
-      {isMobile ? (
-        <div className="w-full max-w-sm">
-          <ReviewCard
-            key={reviews[currentReviewIndex].name}
-            avatar={`/images/penguins/${avatars[currentReviewIndex]}.svg`}
-            {...reviews[currentReviewIndex]}
-          />
-          <div className="flex justify-between mt-4">
-            <Button onClick={handlePrevReview} variant="outline" size="lg">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button onClick={handleNextReview} variant="outline" size="lg">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+    <section className="relative w-full bg-catppuccin-mantle py-20">
+      <div className="container mb-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="mb-4 text-3xl font-semibold md:text-4xl">
+            See what our members are saying
+          </h2>
+          <p className="text-lg text-catppuccin-subtext0">
+            Join our growing community of Linux enthusiasts and discover why
+            they love being part of our network.
+          </p>
         </div>
-      ) : (
-        <Marquee pauseOnHover className="[--duration:100s] [--gap:1rem]">
-          {reviews.map((review, index) => (
-            <ReviewCard
-              key={review.name}
-              avatar={`/images/penguins/${avatars[index]}.svg`}
-              {...review}
-            />
-          ))}
-        </Marquee>
-      )}
-    </div>
+      </div>
+
+      <div className="w-full overflow-hidden">
+        <Carousel
+          opts={{
+            loop: true,
+            align: 'start',
+            containScroll: false,
+          }}
+          plugins={[plugin.current]}
+        >
+          <CarouselContent className="-ml-4 px-4">
+            {[...reviews, ...reviews].map((review, index) => (
+              <CarouselItem key={index} className="pl-4 md:basis-[400px]">
+                <ReviewCard
+                  avatar={`/images/penguins/${avatars[index % avatars.length]}.svg`}
+                  {...review}
+                  onMouseEnter={() => plugin.current.stop()}
+                  onMouseLeave={() => plugin.current.play()}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
+    </section>
   );
 }

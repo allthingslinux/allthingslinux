@@ -15,9 +15,9 @@ const navItems = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'CoC', href: '/code-of-conduct' },
-  { name: 'Tools', href: 'https://atl.tools' },
-  { name: 'Blog', href: 'https://blog.atl.tools' },
+  { name: 'Blog', href: '/blog' },
   { name: 'Wiki', href: 'https://atl.wiki' },
+  { name: 'Tools', href: 'https://atl.tools' },
 ];
 
 export default function Header() {
@@ -41,7 +41,8 @@ export default function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-base lg:text-lg font-medium text-catppuccin-text/60 transition-colors hover:text-catppuccin-text">
+                  className="text-base lg:text-lg font-medium text-catppuccin-text/60 transition-colors hover:text-catppuccin-text"
+                >
                   {item.name}
                 </Link>
               ))}
@@ -66,7 +67,8 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="bg-catppuccin-crust/80 text-catppuccin-subtext w-64 border-l border-border">
+                className="bg-catppuccin-crust/80 text-catppuccin-subtext w-64 border-l border-border"
+              >
                 <SheetTitle className="text-xl font-bold mb-8 text-foreground">
                   Explore
                 </SheetTitle>
@@ -76,7 +78,8 @@ export default function Header() {
                       key={item.name}
                       href={item.href}
                       className="text-sm font-medium text-catppuccin-subtext0 transition-colors hover:text-primary"
-                      onClick={() => setIsOpen(false)}>
+                      onClick={() => setIsOpen(false)}
+                    >
                       {item.name}
                     </Link>
                   ))}
@@ -94,4 +97,3 @@ export default function Header() {
     </nav>
   );
 }
-

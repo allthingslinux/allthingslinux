@@ -16,6 +16,7 @@
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks",
-    "form": "@/components/form"
+    "form": "@/components/form",
+    "config": "@/config"
   }
 }

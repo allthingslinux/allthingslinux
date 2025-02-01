@@ -87,7 +87,7 @@ const Opportunities = () => {
   return (
     <section className="py-32">
       <div className="container">
-        <div className="mx-auto max-w-screen-lg">
+        <div className="mx-auto max-w-(--breakpoint-lg)">
           <h1 className="text-3xl font-bold md:text-5xl">How you can help</h1>
           <div className="mx-auto mt-14 flex flex-col gap-16">
             {opportunities.map((oppCategory) => (
@@ -105,7 +105,8 @@ const Opportunities = () => {
                       <div className="mt-6 flex justify-between gap-4">
                         <Button
                           variant="outline"
-                          className="w-full bg-tokyonight-brightBlack hover:bg-tokyonight-brightBlack hover:text-white pointer-events-none">
+                          className="w-full bg-tokyonight-brightBlack hover:bg-tokyonight-brightBlack hover:text-white pointer-events-none"
+                        >
                           Application opening soon
                           <Link className="ml-2" href={opp.link}>
                             <Lock className="size-4" />

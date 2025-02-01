@@ -14,42 +14,72 @@ const projects = [
     title: 'atl.wiki',
     description:
       'A wiki designed with beginners in mind, but useful for all. Come contribute!',
-    icon: <TbWritingSign className="size-14 text-catppuccin-peach" />,
+    icon: (
+      <TbWritingSign
+        className="size-14"
+        style={{ color: 'var(--color-catppuccin-peach)' }}
+      />
+    ),
     link: 'https://atl.wiki',
   },
   {
     title: '.gg/linux',
     description:
       'Our Discord server is the heart of our community and growing every day.',
-    icon: <TbBrandDiscord className="size-14 text-tokyonight-brightPurple" />,
+    icon: (
+      <TbBrandDiscord
+        className="size-14"
+        style={{ color: 'var(--color-tokyonight-bright-purple)' }}
+      />
+    ),
     link: 'https://discord.gg/linux',
   },
   {
     title: 'atl.tools',
     description:
       'Self-hosted applications, services and email, always free. More coming soon!',
-    icon: <TbStack2 className="size-14 text-tokyonight-red" />,
+    icon: (
+      <TbStack2
+        className="size-14"
+        style={{ color: 'var(--color-tokyonight-bright-red)' }}
+      />
+    ),
     link: 'https://atl.tools',
   },
   {
     title: 'atl.chat',
     description:
       'Chat with the community via other platforms like IRC or XMPP. Temporarily down.',
-    icon: <TbMessage2 className="size-14 text-tokyonight-white" />,
+    icon: (
+      <TbMessage2
+        className="size-14"
+        style={{ color: 'var(--color-tokyonight-bright-white)' }}
+      />
+    ),
     link: '#',
   },
   {
     title: 'tux',
     description:
       'Tux is an all in one Discord bot that powers our community. Currently in beta.',
-    icon: <PiLinuxLogoBold className="size-14 text-tokyonight-brightYellow" />,
+    icon: (
+      <PiLinuxLogoBold
+        className="size-14"
+        style={{ color: 'var(--color-tokyonight-bright-yellow)' }}
+      />
+    ),
     link: 'https://tux.atl.tools',
   },
   {
     title: 'atl.dev',
     description:
       'Our pubnix and hosting platform for developers. In development.',
-    icon: <TbCloud className="size-14 text-tokyonight-foreground" />,
+    icon: (
+      <TbCloud
+        className="size-14"
+        style={{ color: 'var(--color-tokyonight-foreground)' }}
+      />
+    ),
     link: '#',
   },
 ];

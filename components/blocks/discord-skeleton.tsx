@@ -30,7 +30,8 @@ export default function DiscordSkeleton() {
                 ].map((channel) => (
                   <div
                     key={channel}
-                    className="flex items-center text-[#8e9297] hover:text-catppuccin-text py-1">
+                    className="flex items-center text-[#8e9297] hover:text-catppuccin-text py-1"
+                  >
                     <Hash className="w-4 h-4 mr-2 opacity-70" />
                     <span className="text-sm">{channel}</span>
                   </div>
@@ -44,7 +45,7 @@ export default function DiscordSkeleton() {
           </div>
 
           {/* Central content */}
-          <div className="flex-grow p-4">
+          <div className="grow p-4">
             <div className="relative">
               {/* Skeleton messages in the background */}
               <div className="absolute inset-0 space-y-4">
@@ -137,7 +138,8 @@ export default function DiscordSkeleton() {
                   <Users className="w-5 h-5 text-catppuccin-text" />
                   <Badge
                     variant="outline"
-                    className="bg-[#43b581]/60 text-catppuccin-text font-semibold px-4 py-1 rounded-full border-0 text-xs">
+                    className="bg-[#43b581]/60 text-catppuccin-text font-semibold px-4 py-1 rounded-full border-0 text-xs"
+                  >
                     1,337+ online
                   </Badge>
                 </div>
