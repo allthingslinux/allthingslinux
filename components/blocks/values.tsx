@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card } from '@/components/ui/card';
 import {
   ArrowUpRight,
@@ -79,7 +80,7 @@ const valuesList = [
   },
 ];
 
-export default function Values() {
+const Values = memo(() => {
   return (
     <section className="pt-32">
       <div className="container px-4 md:px-16 mx-auto max-w-full">
@@ -140,4 +141,8 @@ export default function Values() {
       </div>
     </section>
   );
-}
+});
+
+Values.displayName = 'Values';
+
+export default Values;

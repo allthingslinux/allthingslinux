@@ -2,9 +2,10 @@
 /* eslint-disable jsx-a11y/alt-text */
 'use client';
 
+import { memo } from 'react';
 import DiscordSkeleton from './discord-skeleton';
 
-const Hero = () => {
+const Hero = memo(() => {
   return (
     <section className="pb-32">
       <div className="container flex flex-col items-center text-center">
@@ -113,6 +114,8 @@ const Hero = () => {
       </div>
     </section>
   );
-};
+});
+
+Hero.displayName = 'Hero';
 
 export default Hero;
