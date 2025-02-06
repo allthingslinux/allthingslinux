@@ -1,4 +1,9 @@
 import Values from '@/components/blocks/values';
+import { getPageMetadata } from '../metadata';
+
+export const metadata = getPageMetadata('about');
+
+export const dynamic = 'force-static';
 
 export default function About() {
   return (

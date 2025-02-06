@@ -3,13 +3,7 @@ import React, { type JSX } from 'react';
 import { BsOpencollective } from 'react-icons/bs';
 import { FaDiscord, FaGithub } from 'react-icons/fa';
 
-import {
-  Privacy,
-  Cookies,
-  Terms,
-  PrivacyChoices,
-  NoticeAtCollection,
-} from '@/components/consent';
+import { Privacy, Cookies, Terms, PrivacyChoices } from '@/components/consent';
 
 interface NavigationItem {
   name: string;
@@ -66,7 +60,7 @@ export default function Footer() {
             <a
               key={item.name}
               href={item.href}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-400 hover:text-white transition-colors duration-200 ease-in-out"
             >
               {item.name}
             </a>
@@ -77,22 +71,25 @@ export default function Footer() {
             <a
               key={item.name}
               href={item.href}
-              className="text-gray-400 hover:text-gray-300 transition-colors"
+              className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out group"
             >
               <span className="sr-only">{item.name}</span>
-              <item.icon aria-hidden="true" className="h-6 w-6" />
+              <item.icon
+                aria-hidden="true"
+                className="h-6 w-6 transform transition-transform duration-200 ease-in-out group-hover:scale-110"
+              />
             </a>
           ))}
         </div>
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <div className="flex justify-center gap-x-4 text-gray-400 hover:text-gray-300 text-sm text-center flex-wrap gap-y-4">
+        <div className="mt-8 flex flex-col items-center space-y-4">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             <Privacy />
             <Cookies />
             <Terms />
           </div>
-          <div className="flex justify-center gap-x-4 text-gray-400 hover:text-gray-300 text-sm text-center flex-wrap gap-y-4">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             <PrivacyChoices />
-            <NoticeAtCollection />
+            {/* <NoticeAtCollection /> */}
           </div>
         </div>
         <p className="mt-6 text-center text-sm text-gray-400 text-balance">

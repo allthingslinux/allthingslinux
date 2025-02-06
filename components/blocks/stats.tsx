@@ -1,13 +1,15 @@
-const Stats = () => {
-  const statsData = [
-    { id: 1, value: '4.5M+', description: 'messages' },
-    { id: 2, value: '6K+', description: 'members and counting' },
-    { id: 3, value: '30K+', description: 'voice hours' },
-    { id: 4, value: '30+', description: 'staff members trained' },
-    { id: 5, value: '600+', description: 'support threads solved' },
-    { id: 6, value: '6+', description: 'projects managed' },
-  ];
+import { memo } from 'react';
 
+const statsData = [
+  { id: 1, value: '4.5M+', description: 'messages' },
+  { id: 2, value: '6K+', description: 'members and counting' },
+  { id: 3, value: '30K+', description: 'voice hours' },
+  { id: 4, value: '30+', description: 'staff members trained' },
+  { id: 5, value: '600+', description: 'support threads solved' },
+  { id: 6, value: '6+', description: 'projects managed' },
+];
+
+const Stats = memo(() => {
   return (
     <section className="py-32 bg-catppuccin-mantle">
       <div className="">
@@ -29,6 +31,8 @@ const Stats = () => {
       </div>
     </section>
   );
-};
+});
+
+Stats.displayName = 'Stats';
 
 export default Stats;
