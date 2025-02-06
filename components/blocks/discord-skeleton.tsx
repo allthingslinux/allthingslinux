@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import { ChevronRight, Hash, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function DiscordSkeleton() {
+const DiscordSkeleton = memo(() => {
   return (
     <>
       <Card className="w-full max-w-3xl mx-auto bg-[#36393f] text-catppuccin-text shadow-lg overflow-hidden">
@@ -122,6 +123,7 @@ export default function DiscordSkeleton() {
                       alt="Tux the penguin"
                       width={40}
                       height={40}
+                      unoptimized={true}
                       className="w-10 h-10"
                     />
                   </div>
@@ -153,10 +155,14 @@ export default function DiscordSkeleton() {
           </div>
         </div>
       </Card>
-      <p className=" text-center text-balance text-catppuccin-text/70 text-xl py-8">
+      <p className="text-center text-balance text-catppuccin-text/70 text-xl py-8">
         Make new friends, share your knowledge and learn from the biggest Linux
         community on Discord.
       </p>
     </>
   );
-}
+});
+
+DiscordSkeleton.displayName = 'DiscordSkeleton';
+
+export default DiscordSkeleton;

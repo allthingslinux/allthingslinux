@@ -1,6 +1,12 @@
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { CodeOfConductContent } from './CodeOfConductContent';
+import { getPageMetadata } from '../metadata';
+
+export const metadata = getPageMetadata('code-of-conduct');
+
+export const dynamic = 'force-static';
+export const revalidate = 3600; // Revalidate every hour
 
 export default function CodeOfConduct() {
   const readmePath = path.join(process.cwd(), 'code-of-conduct', 'README.md');
