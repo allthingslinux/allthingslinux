@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card } from '@/components/ui/card';
 import {
   TbBrandDiscord,
@@ -84,7 +85,7 @@ const projects = [
   },
 ];
 
-const Projects = () => {
+const Projects = memo(() => {
   return (
     <section className="py-32">
       <div className="container">
@@ -118,6 +119,8 @@ const Projects = () => {
       </div>
     </section>
   );
-};
+});
+
+Projects.displayName = 'Projects';
 
 export default Projects;

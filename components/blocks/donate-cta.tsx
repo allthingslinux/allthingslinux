@@ -1,10 +1,11 @@
+import { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { LinkIcon } from 'lucide-react';
 import Link from 'next/link';
 
 import { BsOpencollective } from 'react-icons/bs';
 
-export default function DonateCta() {
+const DonateCta = memo(() => {
   return (
     <section className="py-32">
       <div
@@ -39,4 +40,8 @@ export default function DonateCta() {
       </div>
     </section>
   );
-}
+});
+
+DonateCta.displayName = 'DonateCta';
+
+export default DonateCta;

@@ -1,7 +1,7 @@
 'use client';
 
 import AutoScroll from 'embla-carousel-auto-scroll';
-import { useRef } from 'react';
+import { useRef, memo } from 'react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import {
@@ -14,39 +14,43 @@ import testimonalsData from '@/data/testimonials.json';
 const reviews = testimonalsData.testimonials;
 const avatars = Array.from({ length: 15 }, (_, i) => i + 1);
 
-const ReviewCard = ({
-  avatar,
-  name,
-  content,
-  onMouseEnter,
-  onMouseLeave,
-}: {
-  avatar: string;
-  name: string;
-  content: string;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}) => {
-  return (
-    <Card
-      className="max-w-96 select-none bg-catppuccin-crust p-6"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <div className="flex justify-between">
-        <div className="mb-4 flex gap-4">
-          <Avatar className="size-14 rounded-full ring-1 ring-input">
-            <AvatarImage src={avatar} alt={name} />
-          </Avatar>
-          <div>
-            <p className="font-medium text-catppuccin-text">{name}</p>
+export const ReviewCard = memo(
+  ({
+    avatar,
+    name,
+    content,
+    onMouseEnter,
+    onMouseLeave,
+  }: {
+    avatar: string;
+    name: string;
+    content: string;
+    onMouseEnter: () => void;
+    onMouseLeave: () => void;
+  }) => {
+    return (
+      <Card
+        className="max-w-96 select-none bg-catppuccin-crust p-6"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <div className="flex justify-between">
+          <div className="mb-4 flex gap-4">
+            <Avatar className="size-14 rounded-full ring-1 ring-input">
+              <AvatarImage loading="lazy" src={avatar} alt={name} />
+            </Avatar>
+            <div>
+              <p className="font-medium text-catppuccin-text">{name}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <q className="text-catppuccin-subtext0 leading-7">{content}</q>
-    </Card>
-  );
-};
+        <q className="text-catppuccin-subtext0 leading-7">{content}</q>
+      </Card>
+    );
+  }
+);
+
+ReviewCard.displayName = 'ReviewCard';
 
 export default function Testimonials() {
   const plugin = useRef(
