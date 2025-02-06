@@ -1,5 +1,3 @@
-'use client';
-
 import DonateCta from '@/components/blocks/donate-cta';
 import Hero from '@/components/blocks/hero';
 import Projects from '@/components/blocks/projects';
