@@ -123,7 +123,6 @@ const DiscordSkeleton = memo(() => {
                       alt="Tux the penguin"
                       width={40}
                       height={40}
-                      unoptimized={true}
                       className="w-10 h-10"
                     />
                   </div>

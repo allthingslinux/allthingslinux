@@ -1,11 +1,18 @@
 import type { Metadata } from 'next';
-
+import { Inter } from 'next/font/google';
 import './globals.css';
 
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
-
 import { GoogleTagManager } from '@next/third-parties/google';
+
+// Initialize font with subset for better performance
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'All Things Linux',
@@ -19,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <GoogleTagManager gtmId="GTM-KK56FB5V" />
       <body>
         <Header />
