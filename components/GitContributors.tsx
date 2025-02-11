@@ -9,6 +9,7 @@ interface Contributor {
   commits: number;
   avatar: string;
   username: string;
+  lastCommitDate: string;
 }
 
 async function getFileContributors(filePath: string): Promise<Contributor[]> {
@@ -24,13 +25,13 @@ async function getFileContributors(filePath: string): Promise<Contributor[]> {
 
     console.log(`Getting contributors for file: ${fullPath}`);
 
-    // Get git log for the specific file
-    const gitCommand = `git log --pretty=format:"%an|%ae" --follow "${fullPath}" | sort | uniq -c | sort -nr`;
+    // Get git log with author info and count commits
+    const gitCommand = `git log --format="%an|%ae|%at" --follow "${fullPath}"`;
     console.log(`Executing git command: ${gitCommand}`);
 
     const gitLog = execSync(gitCommand, {
       encoding: 'utf-8',
-      cwd: process.cwd(), // Ensure we're in the right directory
+      cwd: process.cwd(),
     });
 
     if (!gitLog.trim()) {
@@ -38,33 +39,45 @@ async function getFileContributors(filePath: string): Promise<Contributor[]> {
       return [];
     }
 
-    // Parse the git log output
-    const contributors = gitLog
+    // Parse the git log output and track contributors
+    const contributorMap = new Map<string, Contributor>();
+
+    gitLog
       .trim()
       .split('\n')
-      .map((line) => {
-        const match = line.match(/^\s*(\d+)\s+(.+?)\|(.+)$/);
-        if (!match) {
-          console.log(`Could not parse line: ${line}`);
-          return null;
-        }
+      .forEach((line) => {
+        const [name, email, timestamp] = line.split('|');
 
-        const [, commits, name, email] = match;
-
-        // Extract GitHub username from email if possible
+        // Process author
         const username = email.includes('@users.noreply.github.com')
           ? email.split('@')[0].replace(/^\d+\+/, '')
           : name.toLowerCase().replace(/\s+/g, '');
 
-        return {
-          name,
-          email,
-          commits: parseInt(commits, 10),
-          avatar: `https://github.com/${username}.png`,
-          username,
-        };
-      })
-      .filter((c): c is Contributor => c !== null);
+        if (!contributorMap.has(email)) {
+          contributorMap.set(email, {
+            name,
+            email,
+            commits: 1,
+            avatar: `https://github.com/${username}.png`,
+            username,
+            lastCommitDate: new Date(parseInt(timestamp) * 1000).toISOString(),
+          });
+        } else {
+          const contributor = contributorMap.get(email)!;
+          contributor.commits++;
+          // Update lastCommitDate if this commit is more recent
+          const commitDate = new Date(parseInt(timestamp) * 1000);
+          const currentLastDate = new Date(contributor.lastCommitDate);
+          if (commitDate > currentLastDate) {
+            contributor.lastCommitDate = commitDate.toISOString();
+          }
+        }
+      });
+
+    // Convert map to array and sort by commits
+    const contributors = Array.from(contributorMap.values()).sort(
+      (a, b) => b.commits - a.commits
+    );
 
     console.log(`Found ${contributors.length} contributors`);
     return contributors;
@@ -88,26 +101,31 @@ export async function GitContributors({ filePath }: { filePath: string }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-4">
-      {contributors.map((contributor) => (
-        <a
-          key={contributor.email}
-          href={`https://github.com/${contributor.username}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-blue-400 transition-colors"
-          title={`${contributor.commits} commits`}
-        >
-          <Image
-            src={contributor.avatar}
-            alt={contributor.name}
-            width={24}
-            height={24}
-            className="rounded-full"
-          />
-          <span>@{contributor.username}</span>
-        </a>
-      ))}
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-4">
+        {contributors.map((contributor) => (
+          <a
+            key={contributor.email}
+            href={`https://github.com/${contributor.username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-blue-400 transition-colors"
+            title={`${contributor.commits} commit${contributor.commits > 1 ? 's' : ''}\nLast contribution: ${new Date(contributor.lastCommitDate).toLocaleDateString()}`}
+          >
+            <Image
+              src={contributor.avatar}
+              alt={contributor.name}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+            <span>@{contributor.username}</span>
+            <span className="text-xs text-muted-foreground">
+              ({contributor.commits})
+            </span>
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
