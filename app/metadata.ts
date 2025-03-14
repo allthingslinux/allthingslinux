@@ -144,13 +144,7 @@ export const defaultMetadata: Metadata = {
 
 export const viewport: Viewport = {
   width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#11111B' },
-  ],
-  colorScheme: 'dark light',
+  initialScale: 1.0,
 };
 
 export const getPageMetadata = (page: string): Metadata => {

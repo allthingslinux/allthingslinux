@@ -1,5 +1,5 @@
-import Values from '@/components/blocks/values';
 import { getPageMetadata } from '../metadata';
+import Values from '@/components/pages/about/values';
 
 export const metadata = getPageMetadata('about');
 
