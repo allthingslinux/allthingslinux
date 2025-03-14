@@ -4,12 +4,12 @@ import DiscordSkeleton from './discord-skeleton';
 
 const Hero = memo(() => {
   return (
-    <section className="pb-32">
+    <section className="py-32">
       <div className="container flex flex-col items-center text-center">
-        <h1 className="mb-12 text-6xl font-bold lg:text-7xl  text-center">
+        <h1 className="mb-12 text-6xl font-bold lg:text-7xl text-center">
           Let&apos;s build the future of Linux together
         </h1>
-        <p className="max-w-4xl text-catppuccin-text/90 lg:text-2xl text-xl pb-4">
+        <p className="max-w-4xl lg:text-2xl text-xl pb-4">
           All Things Linux is a 501(c)(3) non-profit organization with a mission
           to empower the Linux ecosystem through education, collaboration, and
           support.

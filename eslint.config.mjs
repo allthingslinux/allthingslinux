@@ -1,5 +1,3 @@
-// @ts-check
-
 /** @type {import("eslint").Linter.Config} */
 
 import { FlatCompat } from '@eslint/eslintrc';
@@ -70,6 +68,11 @@ const eslintConfig = [
         extends: ['plugin:mdx/recommended'],
         rules: {
           'no-unused-expressions': 'off',
+          'react/jsx-no-undef': 'off',
+          'react/react-in-jsx-scope': 'off',
+        },
+        globals: {
+          Alert: 'readonly',
         },
       },
     ],

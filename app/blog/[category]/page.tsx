@@ -1,15 +1,21 @@
-import { getAllPosts } from '@/lib/utils';
 import BlogPosts from '@/components/blog/blog-posts';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import {
+  getPostsByCategory,
+  getAllCategories,
+  getPostsByCategoryAsPostType,
+} from '@/lib/blog';
 
 export async function generateMetadata({
   params,
 }: {
   params: { category: string };
 }): Promise<Metadata> {
-  const { category } = await params;
-  const posts = await getAllPosts();
+  const paramsResolved = await Promise.resolve(params);
+  const { category } = paramsResolved;
+
+  const posts = getPostsByCategory(category);
   const categoryName =
     category === 'all-posts'
       ? 'All Posts'
@@ -23,15 +29,13 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  const categories = Array.from(new Set(posts.map((post) => post.category)));
+  const categories = getAllCategories();
 
+  // Add 'all-posts' category
   return [
     { category: 'all-posts' },
     ...categories.map((category) => ({
-      category:
-        posts.find((p) => p.category === category)?.categorySlug ||
-        category.toLowerCase().replace(/ /g, '-'),
+      category: category.toLowerCase().replace(/ /g, '-'),
     })),
   ];
 }
@@ -41,25 +45,19 @@ export default async function CategoryPage({
 }: {
   params: { category: string };
 }) {
-  const { category } = await params;
-  const posts = await getAllPosts();
-  const categories = [
-    'All Posts',
-    ...Array.from(new Set(posts.map((post) => post.category))),
-  ];
+  const paramsResolved = await Promise.resolve(params);
+  const { category } = paramsResolved;
 
-  // Filter posts by category if not "all-posts"
-  const filteredPosts =
-    category === 'all-posts'
-      ? posts
-      : posts.filter((post) => post.categorySlug === category);
+  const blogPosts = getPostsByCategory(category);
+  const posts = getPostsByCategoryAsPostType(category);
+  const categories = ['All Posts', ...getAllCategories()];
 
   if (
     category !== 'all-posts' &&
-    !posts.some((post) => post.categorySlug === category)
+    !blogPosts.some((post) => post.categorySlug === category)
   ) {
     notFound();
   }
 
-  return <BlogPosts initialPosts={filteredPosts} categories={categories} />;
+  return <BlogPosts initialPosts={posts} categories={categories} />;
 }
