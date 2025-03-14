@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 import { cn } from '@/lib/utils';
 import { useMDXComponent } from 'next-contentlayer2/hooks';
-import { Alert } from '@/components/ui/alert';
+import { Alert } from '@/components/mdx/alert';
 
 const components = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -89,49 +89,69 @@ const components = {
     children,
     ...props
   }: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => {
-    const childArray = React.Children.toArray(children);
-    const firstChild = childArray[0] as React.ReactElement<{
-      children: string;
-    }>;
-
-    if (
-      React.isValidElement(firstChild) &&
-      typeof firstChild.props?.children === 'string' &&
-      firstChild.props.children.startsWith('[!')
-    ) {
-      const alertText = firstChild.props.children;
-      const match = alertText.match(
-        /\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i
-      );
-      if (match) {
-        const alertType = match[1].toLowerCase() as
-          | 'note'
-          | 'tip'
-          | 'important'
-          | 'warning'
-          | 'caution';
-        const content = alertText.replace(/\[!.*?\]\s*/, '').trim();
-
-        return (
-          <Alert type={alertType}>
-            <p>{content}</p>
-            {childArray.slice(1)}
-          </Alert>
-        );
+    // Try to find GitHub-style alert syntax in the first paragraph
+    try {
+      // Convert children to array and find the first paragraph
+      const childArray = React.Children.toArray(children);
+      if (childArray.length === 0) {
+        throw new Error('No children');
       }
-    }
 
-    return (
-      <blockquote
-        className={cn(
-          'mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground',
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </blockquote>
-    );
+      const firstChild = childArray[0];
+      if (!React.isValidElement(firstChild) || firstChild.type !== 'p') {
+        throw new Error('First child not a paragraph');
+      }
+
+      // TypeScript type assertion for props
+      const firstChildProps = firstChild.props as {
+        children?: React.ReactNode;
+      };
+
+      // Get the content of the first paragraph
+      let alertText = '';
+      if (typeof firstChildProps.children === 'string') {
+        alertText = firstChildProps.children;
+      } else {
+        throw new Error('Cannot extract string from first paragraph');
+      }
+
+      // Check for alert pattern
+      const match = alertText.match(
+        /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*?)\s*$/i
+      );
+      if (!match) {
+        throw new Error('Not an alert pattern');
+      }
+
+      // Extract alert type and title
+      const alertType = match[1].toLowerCase() as
+        | 'note'
+        | 'tip'
+        | 'important'
+        | 'warning'
+        | 'caution';
+      const title = match[2] ? match[2].trim() : '';
+
+      // Return the alert component
+      return (
+        <Alert type={alertType} title={title}>
+          {childArray.slice(1)}
+        </Alert>
+      );
+    } catch (error) {
+      // Not a GitHub-style alert, render as regular blockquote
+      return (
+        <blockquote
+          className={cn(
+            'mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </blockquote>
+      );
+    }
   },
   img: ({ alt, src, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     const { width: propsWidth, height: propsHeight, ...restProps } = props;

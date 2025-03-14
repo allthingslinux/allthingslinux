@@ -240,7 +240,9 @@ const CTAButtons = () => (
     <Button variant="outline" size="sm">
       Sign in
     </Button>
-    <Button size="sm">Get Started</Button>
+    <Link href="/get-involved">
+      <Button size="sm">Get Involved</Button>
+    </Link>
   </div>
 );
 

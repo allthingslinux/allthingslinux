@@ -1,169 +1,101 @@
-import { ArrowDown, Lock } from 'lucide-react';
+'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { GridPattern } from '@/components/ui/grid-pattern';
+import { useState } from 'react';
 import Link from 'next/link';
+import { roles } from '@/data/forms/roles';
+import { getRolesByDepartment } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-const Opportunities = () => {
-  const opportunities = [
-    {
-      category: 'Community & Moderation',
-      openings: [
-        {
-          title: 'Moderator',
-          description:
-            'Moderators are responsible for enforcing our Code of Conduct and keeping the community safe and welcoming. They are the first line of defense and backbone of the community.',
-          link: '/apply/mod',
-        },
-        {
-          title: 'Senior Moderator',
-          description:
-            'Senior Moderators are responsible for overseeing Moderator actions, resolving complex disputes, and keeping the Moderator team running smoothly with wisdom and support.',
-          link: '/apply/sr-mod',
-        },
-        {
-          title: 'Assistant Administrator',
-          description:
-            'The Assistant Administrator is responsible for supporting Administrators in the day-to-day running of the community. They help with note taking, task management, and other administrative duties.',
-          link: '/apply/admin-assistant ',
-        },
-        {
-          title: 'Director of Moderation',
-          description:
-            'The Director of Moderation is responsible for overseeing the entire moderation team. They establish tone and culture for the team, develop policies and procedures, and onboard new moderators.',
-          link: '/apply/mod-director',
-        },
-        {
-          title: 'Administrator',
-          description:
-            'Administrators are responsible for the overall management of the community. They set the vision and direction for the community, make key decisions, and act as a liaison between community and staff.',
-          link: '/apply/admin',
-        },
-      ],
-    },
-    {
-      category: 'Systems & Development',
-      openings: [
-        {
-          title: 'MediaWiki Administrator',
-          description:
-            'The MediaWiki Administrator is responsible for maintaining and improving our wiki. They manage user permissions, handle technical issues, and ensure that the wiki is up to date and running smoothly.',
-          link: '/apply/wiki-admin',
-        },
-        {
-          title: 'Web Developer',
-          description:
-            'Web Developers, whether frontend or backend, are responsible for rolling out any web-based projects. They work closely with the creative team and other system administrators to bring these projects to life.',
-          link: '/apply/web-dev',
-        },
-        {
-          title: 'Python Developer',
-          description:
-            'Python Developers are responsible for developing and maintaining our open source bot, Tux. They are responsible for adding new features, fixing bugs, and listening to community feedback.',
-          link: '/apply/python-dev',
-        },
-      ],
-    },
-    {
-      category: 'Creative Direction & Design',
-      openings: [
-        {
-          title: 'Creative Director',
-          description:
-            'The Creative Director is responsible for developing and establishing our creative vision. They oversee all design, branding and marketing efforts, and ensure that we maintain a consistent visual identity.',
-          link: '/apply/creative-director',
-        },
-        {
-          title: 'Graphic Designer',
-          description:
-            'Graphic Designers are responsible for creating visual assets and branding. They work closely with the creative team to develop logos, emojis, banners, and other visual elements as needed.',
-          link: '/apply/graphic-designer',
-        },
-      ],
-    },
-  ];
+export default function GetInvolvedPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const rolesByDepartment = getRolesByDepartment(roles);
+
+  // Filter roles based on search query
+  const filteredDepartments = Object.entries(rolesByDepartment)
+    .map(([department, departmentRoles]) => ({
+      department,
+      roles: departmentRoles.filter(
+        (role) =>
+          role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          role.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          department.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    }))
+    .filter((dept) => dept.roles.length > 0);
 
   return (
-    <section className="py-32">
-      <div className="container">
-        <div className="mx-auto max-w-(--breakpoint-lg)">
-          <h1 className="text-3xl font-bold md:text-5xl">How you can help</h1>
-          <div className="mx-auto mt-14 flex flex-col gap-16">
-            {opportunities.map((oppCategory) => (
-              <div key={oppCategory.category}>
-                <Badge variant="outline" className="px-2 mb-2">
-                  {oppCategory.category}
-                </Badge>
-                <div>
-                  {oppCategory.openings.map((opp) => (
-                    <div key={opp.title} className="group block border-b py-7">
-                      <h2 className="text-2xl font-semibold">{opp.title}</h2>
-                      <p className="mt-1 font-medium text-muted-foreground">
-                        {opp.description}
-                      </p>
-                      <div className="mt-6 flex justify-between gap-4">
-                        <Button
-                          variant="outline"
-                          className="w-full bg-tokyonight-brightBlack hover:bg-tokyonight-brightBlack hover:text-white pointer-events-none"
-                        >
-                          Application opening soon
-                          <Link className="ml-2" href={opp.link}>
-                            <Lock className="size-4" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className="container mx-auto py-8 px-4">
+      <div className="max-w-2xl mx-auto text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4">Get Involved</h1>
+        <p className="text-lg text-muted-foreground">
+          Join our community and make a difference. Find the perfect role that
+          matches your skills and interests.
+        </p>
       </div>
-    </section>
-  );
-};
 
-const GetInvolvedHero = () => {
-  return (
-    <section className="relative overflow-hidden pt-32">
-      <div className="container">
-        <div className="mx-auto flex max-w-5xl flex-col items-center">
-          <GridPattern className="absolute hidden opacity-25 [mask-image:linear-gradient(to_right,white,transparent,transparent,white)] lg:block" />
+      <div className="max-w-md mx-auto mb-8">
+        <Input
+          type="search"
+          placeholder="Search roles by title, department, or description..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full"
+        />
+      </div>
 
-          <div className="z-10 mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
-            <Badge variant="outline">
-              Open Positions
-              <ArrowDown className="ml-2 size-4" />
-            </Badge>
-
-            <div>
-              <h1 className="mb-6 text-pretty text-4xl font-bold lg:text-7xl">
-                Get Involved
-              </h1>
-
-              <p className="text-muted-foreground lg:text-xl">
-                All Things Linux is a community-driven project so we are always
-                looking for help with our mission. Whether you are a veteran
-                developer or just starting out, there are plenty of ways to get
-                involved and make a difference.
-              </p>
+      <div className="space-y-12">
+        {filteredDepartments.map(({ department, roles }) => (
+          <div key={department}>
+            <h2 className="text-2xl font-semibold mb-6">{department}</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {roles.map((role) => (
+                <Link
+                  key={role.slug}
+                  href={`/apply/${role.slug}`}
+                  className="block transition-transform hover:scale-105"
+                >
+                  <Card>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-xl">{role.name}</CardTitle>
+                        <Badge variant="secondary">{department}</Badge>
+                      </div>
+                      <CardDescription>{role.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          {role.questions.length} questions
+                        </span>
+                        <span className="text-sm font-medium text-primary">
+                          Apply Now →
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
+        ))}
+
+        {filteredDepartments.length === 0 && (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium">No roles found</h3>
+            <p className="text-muted-foreground mt-2">
+              Try adjusting your search query
+            </p>
+          </div>
+        )}
       </div>
-    </section>
+    </div>
   );
-};
-
-const GetInvolved = () => {
-  return (
-    <>
-      <GetInvolvedHero />
-      <Opportunities />
-    </>
-  );
-};
-
-export default GetInvolved;
+}
