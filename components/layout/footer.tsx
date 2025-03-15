@@ -112,33 +112,14 @@ import { Separator } from '@/components/ui/separator';
 // Define footer sections data
 const sections = [
   {
-    title: 'Product',
+    title: 'Pages',
     links: [
-      { name: 'Overview', href: '#' },
-      { name: 'Pricing', href: '#' },
-      { name: 'Marketplace', href: '#' },
-      { name: 'Features', href: '#' },
-      { name: 'Integrations', href: '#' },
-      { name: 'Pricing', href: '#' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { name: 'About', href: '#' },
-      { name: 'Team', href: '#' },
-      { name: 'Blog', href: '#' },
-      { name: 'Careers', href: '#' },
-      { name: 'Contact', href: '#' },
-      { name: 'Privacy', href: '#' },
-    ],
-  },
-  {
-    title: 'Resources',
-    links: [
-      { name: 'Help', href: '#' },
-      { name: 'Sales', href: '#' },
-      { name: 'Advertise', href: '#' },
+      { name: 'atl.wiki', href: 'https://atl.wiki' },
+      { name: 'atl.tools', href: 'https://atl.tools' },
+      { name: 'atl.chat', href: 'https://webirc.atl.chat' },
+      { name: 'Blog', href: '/blog' },
+      { name: 'Get Involved', href: '/get-involved' },
+      { name: 'Code of Conduct', href: '/code-of-conduct' },
     ],
   },
 ];
