@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, notFound } from 'next/navigation';
+import { useParams, notFound, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { roles } from '@/data/forms/roles';
@@ -9,6 +9,7 @@ import FormWrapper from '@/components/forms/FormWrapper';
 import { generateFormSchema } from '@/lib/utils';
 
 export default function RoleApplicationPage() {
+  const router = useRouter();
   const params = useParams();
   const roleSlug = params.role as string;
 
@@ -32,12 +33,22 @@ export default function RoleApplicationPage() {
   });
 
   const onSubmit = async (data: any) => {
-    await fetch(`/api/forms/${role.slug}`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const response = await fetch(`/api/forms/${role.slug}`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
 
-    // handle submission confirmation logic here
+      if (response.ok) {
+        // redirect to success page
+        router.push('/apply/success');
+      } else {
+        // Handle error if needed
+        console.error('Form submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
   };
 
   return (
