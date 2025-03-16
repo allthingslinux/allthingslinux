@@ -7,6 +7,7 @@ import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
 import FormWrapper from '@/components/forms/FormWrapper';
 import { generateFormSchema } from '@/lib/utils';
+import { z } from 'zod';
 
 export default function RoleApplicationPage() {
   const router = useRouter();
@@ -29,21 +30,33 @@ export default function RoleApplicationPage() {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: Object.fromEntries(
+      questions.map((q) => [q.name, q.type === 'select' ? '' : ''])
+    ),
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
+      // Create FormData instance
+      const formData = new FormData();
+
+      // Add all form fields to FormData
+      Object.entries(data).forEach(([key, value]) => {
+        if (value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, JSON.stringify(value));
+        }
+      });
+
       const response = await fetch(`/api/forms/${role.slug}`, {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       if (response.ok) {
-        // redirect to success page
         router.push('/apply/success');
       } else {
-        // Handle error if needed
         console.error('Form submission failed');
       }
     } catch (error) {
