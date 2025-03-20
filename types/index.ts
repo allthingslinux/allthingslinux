@@ -9,10 +9,13 @@ export type FormQuestion = {
   question: string;
 
   /** Question input type (determines rendered UI) */
-  type: 'short' | 'paragraph' | 'select';
+  type: 'short' | 'paragraph' | 'select' | 'number' | 'digits-only';
 
   /** Additional description or help text shown below the label */
   description?: string;
+
+  /** Placeholder text to show in the empty input */
+  placeholder?: string;
 
   /** Dropdown select options (only used if type is `select`) */
   options?: string[];
@@ -25,6 +28,24 @@ export type FormQuestion = {
 
   /** Input type for short text fields (only used if type is `short`) */
   inputType?: 'text' | 'email' | 'tel' | 'url' | 'password';
+
+  /** Min value for number fields (only used if type is `number`) */
+  min?: number;
+
+  /** Max value for number fields (only used if type is `number`) */
+  max?: number;
+
+  /** Step value for number fields (only used if type is `number`) */
+  step?: number;
+
+  /** Minimum length for digits-only fields */
+  minLength?: number;
+
+  /** Maximum length for digits-only fields */
+  maxLength?: number;
+
+  /** Object defining conditions for when this question should be shown */
+  showIf?: Record<string, string | string[]>;
 };
 
 /** Represents a single volunteer role available to applicants */

@@ -5,27 +5,31 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { memo } from 'react';
 
-export interface InputProps {
+export interface NumberFieldProps {
   name: string;
   label: string;
-  type?: 'text' | 'email' | 'tel' | 'url' | 'password';
   description?: string;
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
   className?: string;
 }
 
-const InputField = memo(function InputField({
+const NumberField = memo(function NumberField({
   name,
   label,
-  type = 'text',
   description,
   placeholder,
   disabled,
   required = false,
+  min,
+  max,
+  step = 1,
   className,
-}: InputProps) {
+}: NumberFieldProps) {
   const {
     control,
     formState: { errors },
@@ -33,9 +37,8 @@ const InputField = memo(function InputField({
 
   // Check if this field has an error
   const hasError = !!errors[name];
-
   const errorMessage = hasError
-    ? String(errors[name]?.message || 'This field is required')
+    ? String(errors[name]?.message || 'Please enter a valid number')
     : '';
 
   return (
@@ -48,7 +51,7 @@ const InputField = memo(function InputField({
             className={cn(
               'font-medium text-base',
               required &&
-                "after:content-['*'] after:ml-0.5 after:text-red-500 after:font-bold",
+                "after:content-['*'] after:ml-0.5 after:text-destructive after:font-bold",
               !required &&
                 "after:content-['(optional)'] after:ml-1.5 after:text-muted-foreground after:text-xs after:font-normal"
             )}
@@ -59,18 +62,28 @@ const InputField = memo(function InputField({
             <FormDescription className="mt-2">{description}</FormDescription>
           )}
           <Input
-            type={type}
+            type="number"
             placeholder={placeholder}
             disabled={disabled}
-            autoComplete="new-password"
-            data-lpignore="true"
+            autoComplete="off"
+            min={min}
+            max={max}
+            step={step}
             className={cn(
               'bg-transparent dark:bg-input/30',
-              hasError && 'border-red-500 focus:ring-red-500'
+              hasError && 'border-destructive focus:ring-destructive'
             )}
-            value={field.value || ''}
+            // Use value directly but ensure it's a string for the input
+            value={
+              field.value === undefined || field.value === null
+                ? ''
+                : field.value
+            }
             onChange={(e) => {
-              field.onChange(e);
+              // For number inputs, we need to convert the string value to a number
+              const value =
+                e.target.value === '' ? '' : parseFloat(e.target.value);
+              field.onChange(value);
               // React Hook Form will handle validation automatically in onChange mode
             }}
             onBlur={field.onBlur}
@@ -80,7 +93,7 @@ const InputField = memo(function InputField({
 
           {/* Add direct error display that will always show */}
           {hasError && (
-            <p className="text-sm font-medium text-red-400 mt-1">
+            <p className="text-sm font-medium text-destructive mt-1">
               {errorMessage}
             </p>
           )}
@@ -90,4 +103,4 @@ const InputField = memo(function InputField({
   );
 });
 
-export default InputField;
+export default NumberField;

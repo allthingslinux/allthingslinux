@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { roles } from '@/data/forms/roles';
+import { generalQuestions } from '@/data/forms/questions/general';
 import { getRolesByDepartment } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -13,10 +14,20 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { FormQuestion } from '@/types';
 
 export default function GetInvolvedPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const rolesByDepartment = getRolesByDepartment(roles);
+
+  // Filter out conditional "specify" questions that only appear if a specific option is selected
+  const filterOutConditionalQuestions = (questions: FormQuestion[]) => {
+    return questions.filter((question) => !question.showIf);
+  };
+
+  // Get the count of general questions that apply to all roles, excluding conditional ones
+  const generalQuestionCount =
+    filterOutConditionalQuestions(generalQuestions).length;
 
   // Filter roles based on search query
   const filteredDepartments = Object.entries(rolesByDepartment)
@@ -32,7 +43,7 @@ export default function GetInvolvedPage() {
     .filter((dept) => dept.roles.length > 0);
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-32 px-12">
       <div className="max-w-2xl mx-auto text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Get Involved</h1>
         <p className="text-lg text-muted-foreground">
@@ -60,20 +71,27 @@ export default function GetInvolvedPage() {
                 <Link
                   key={role.slug}
                   href={`/apply/${role.slug}`}
-                  className="block transition-transform hover:scale-105"
+                  className="block h-full"
                 >
-                  <Card>
+                  <Card className="hover:ring-2 hover:ring-primary/20 transition-all duration-300 rounded-md h-full flex flex-col">
                     <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-xl">{role.name}</CardTitle>
-                        <Badge variant="secondary">{department}</Badge>
+                      <div className="flex justify-between items-start mb-2">
+                        <CardTitle className="text-lg">{role.name}</CardTitle>
+                        <Badge variant="outline" className="text-xs">
+                          {department}
+                        </Badge>
                       </div>
-                      <CardDescription>{role.description}</CardDescription>
+                      <CardDescription className="text-md text-muted-foreground mb-2">
+                        {role.description}
+                      </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="mt-auto pt-0">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {role.questions.length} questions
+                        <span className="text-xs text-muted-foreground">
+                          {generalQuestionCount +
+                            filterOutConditionalQuestions(role.questions)
+                              .length}{' '}
+                          questions total
                         </span>
                         <span className="text-sm font-medium text-primary">
                           Apply Now →

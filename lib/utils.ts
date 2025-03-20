@@ -15,18 +15,84 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
   return z.object(
     questions.reduce(
       (acc, curr) => {
+        // If the question has showIf condition, make it conditionally required
+        const isConditional = !!curr.showIf;
+
         switch (curr.type) {
           case 'short':
           case 'paragraph':
-            acc[curr.name] = curr.optional
-              ? z.string().optional()
-              : z.string().min(1, 'Required');
+            // If it's conditional or optional, make it optional in schema
+            acc[curr.name] =
+              curr.optional || isConditional
+                ? z.string().optional()
+                : z.string().min(1, { message: 'This field is required' });
+            break;
+
+          case 'digits-only':
+            // Create a validator for digit-only string (like Discord IDs)
+            let digitsSchema = z
+              .string()
+              .regex(/^\d*$/, {
+                message: 'Only numeric digits (0-9) are allowed',
+              });
+
+            // Add length constraints if specified
+            if (typeof curr.minLength === 'number') {
+              digitsSchema = digitsSchema.min(curr.minLength, {
+                message: `Must be at least ${curr.minLength} digits`,
+              });
+            }
+
+            if (typeof curr.maxLength === 'number') {
+              digitsSchema = digitsSchema.max(curr.maxLength, {
+                message: `Must be at most ${curr.maxLength} digits`,
+              });
+            }
+
+            // If not required, make it optional
+            acc[curr.name] =
+              curr.optional || isConditional
+                ? digitsSchema.optional()
+                : digitsSchema.min(1, { message: 'This field is required' });
+            break;
+
+          case 'number':
+            // Create a number validator with optional min/max constraints
+            let numberSchema = z.coerce.number({
+              required_error: 'This field is required',
+              invalid_type_error: 'Please enter a valid number',
+            });
+
+            // Add min constraint if specified
+            if (typeof curr.min === 'number') {
+              numberSchema = numberSchema.min(curr.min, {
+                message: `Value must be at least ${curr.min}`,
+              });
+            }
+
+            // Add max constraint if specified
+            if (typeof curr.max === 'number') {
+              numberSchema = numberSchema.max(curr.max, {
+                message: `Value must be at most ${curr.max}`,
+              });
+            }
+
+            // Make it optional if needed
+            acc[curr.name] =
+              curr.optional || isConditional
+                ? numberSchema.optional()
+                : numberSchema;
             break;
 
           case 'select':
-            acc[curr.name] = curr.optional
-              ? z.enum(curr.options as [string, ...string[]]).optional()
-              : z.enum(curr.options as [string, ...string[]]);
+            acc[curr.name] =
+              curr.optional || isConditional
+                ? z.enum(curr.options as [string, ...string[]]).optional()
+                : z
+                    .enum(curr.options as [string, ...string[]])
+                    .refine((val) => val && val.length > 0, {
+                      message: 'Please select an option',
+                    });
             break;
 
           default:
