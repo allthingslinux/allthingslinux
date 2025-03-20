@@ -5,27 +5,29 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { memo } from 'react';
 
-export interface InputProps {
+export interface DigitsOnlyFieldProps {
   name: string;
   label: string;
-  type?: 'text' | 'email' | 'tel' | 'url' | 'password';
   description?: string;
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
+  minLength?: number;
+  maxLength?: number;
   className?: string;
 }
 
-const InputField = memo(function InputField({
+const DigitsOnlyField = memo(function DigitsOnlyField({
   name,
   label,
-  type = 'text',
   description,
   placeholder,
   disabled,
   required = false,
+  minLength,
+  maxLength,
   className,
-}: InputProps) {
+}: DigitsOnlyFieldProps) {
   const {
     control,
     formState: { errors },
@@ -33,7 +35,6 @@ const InputField = memo(function InputField({
 
   // Check if this field has an error
   const hasError = !!errors[name];
-
   const errorMessage = hasError
     ? String(errors[name]?.message || 'This field is required')
     : '';
@@ -59,18 +60,23 @@ const InputField = memo(function InputField({
             <FormDescription className="mt-2">{description}</FormDescription>
           )}
           <Input
-            type={type}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder={placeholder}
             disabled={disabled}
             autoComplete="new-password"
-            data-lpignore="true"
+            minLength={minLength}
+            maxLength={maxLength}
             className={cn(
               'bg-transparent dark:bg-input/30',
               hasError && 'border-red-500 focus:ring-red-500'
             )}
             value={field.value || ''}
             onChange={(e) => {
-              field.onChange(e);
+              // Only allow digits
+              const value = e.target.value.replace(/\D/g, '');
+              field.onChange(value);
               // React Hook Form will handle validation automatically in onChange mode
             }}
             onBlur={field.onBlur}
@@ -90,4 +96,4 @@ const InputField = memo(function InputField({
   );
 });
 
-export default InputField;
+export default DigitsOnlyField;
