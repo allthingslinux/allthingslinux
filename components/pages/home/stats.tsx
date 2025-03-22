@@ -31,7 +31,7 @@ const Stats = memo(() => {
   return (
     <section className="py-32">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-4xl font-bold text-center mb-16">
+        <h2 className="lg:text-4xl md:text-3xl text-2xl font-semibold text-center mb-16">
           Our community by the numbers
         </h2>
 

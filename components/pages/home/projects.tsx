@@ -98,17 +98,18 @@ const Projects = memo(() => {
   return (
     <section className="py-32">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col justify-between gap-6 md:flex-col lg:flex-row">
-          <h2 className="text-3xl font-medium md:w-1/2">Explore our Network</h2>
-
-          <p className="lg:text-xl">
-            As our organization grows, we will continue to develop new and
-            exciting projects via collaboration with our community. We have a
-            lot of projects in the works and are always looking for help!
+        <div className="text-center mx-auto max-w-2xl mb-16">
+          <h2 className="lg:text-4xl md:text-3xl text-2xl font-semibold mb-6">
+            Explore our Ecosystem
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground">
+            As our organization grows, we continue to develop new and exciting
+            projects through community collaboration. We have many initiatives
+            in progress and welcome your contributions!
           </p>
         </div>
 
-        <div className="mt-20 grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project, index) => (
             <ProjectCard key={index} project={project} />
           ))}
