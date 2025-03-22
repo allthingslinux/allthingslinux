@@ -76,10 +76,10 @@ const LegalSection = () => (
   </div>
 );
 
-// Logo component
-const Logo = () => (
-  <span className="text-2xl font-medium">All Things Linux</span>
-);
+// // Logo component
+// const Logo = () => (
+//   <span className="text-2xl font-medium">All Things Linux</span>
+// );
 
 // Footer link component
 const FooterLink = ({ name, href }: { name: string; href: string }) => (
