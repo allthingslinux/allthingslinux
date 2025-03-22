@@ -1,142 +1,80 @@
-// import React, { type JSX } from 'react';
-
-// import { BsOpencollective } from 'react-icons/bs';
-// import { FaDiscord, FaGithub } from 'react-icons/fa';
-
-// import { Privacy, Cookies, Terms, PrivacyChoices } from '@/components/consent';
-
-// interface NavigationItem {
-//   name: string;
-//   href: string;
-// }
-
-// interface SocialItem extends NavigationItem {
-//   icon: (props: React.ComponentProps<'svg'>) => JSX.Element;
-// }
-
-// interface Navigation {
-//   main: NavigationItem[];
-//   social: SocialItem[];
-// }
-
-// const navigation: Navigation = {
-//   main: [
-//     { name: 'Home', href: '/' },
-//     { name: 'About', href: '/about' },
-//     { name: 'CoC', href: '/code-of-conduct' },
-//     { name: 'Blog', href: '/blog' },
-//     { name: 'Wiki', href: 'https://atl.wiki' },
-//     { name: 'Tools', href: 'https://atl.tools' },
-//     { name: 'Get Involved', href: '/get-involved' },
-//   ],
-//   social: [
-//     {
-//       name: 'Discord',
-//       href: 'https://discord.gg/linux',
-//       icon: (props) => <FaDiscord {...props} />,
-//     },
-//     {
-//       name: 'Open Collective',
-//       href: 'https://opencollective.com/allthingslinux',
-//       icon: (props) => <BsOpencollective {...props} />,
-//     },
-//     {
-//       name: 'GitHub',
-//       href: 'https://github.com/allthingslinux',
-//       icon: (props) => <FaGithub {...props} />,
-//     },
-//   ],
-// };
-
-// export default function Footer() {
-//   return (
-//     <footer className="bg-gray-900 py-8">
-//       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-//         <nav
-//           aria-label="Footer"
-//           className="flex flex-wrap justify-center gap-x-12 gap-y-3 text-center text-base"
-//         >
-//           {navigation.main.map((item) => (
-//             <a
-//               key={item.name}
-//               href={item.href}
-//               className="text-gray-400 hover:text-white transition-colors duration-200 ease-in-out"
-//             >
-//               {item.name}
-//             </a>
-//           ))}
-//         </nav>
-//         <div className="mt-8 flex justify-center gap-x-10">
-//           {navigation.social.map((item) => (
-//             <a
-//               key={item.name}
-//               href={item.href}
-//               className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out group"
-//             >
-//               <span className="sr-only">{item.name}</span>
-//               <item.icon
-//                 aria-hidden="true"
-//                 className="h-6 w-6 transform transition-transform duration-200 ease-in-out group-hover:scale-110"
-//               />
-//             </a>
-//           ))}
-//         </div>
-//         <div className="mt-8 flex flex-col items-center space-y-4">
-//           <div className="flex flex-wrap justify-center items-center gap-4">
-//             <Privacy />
-//             <Cookies />
-//             <Terms />
-//           </div>
-//           <div className="flex flex-wrap justify-center items-center gap-4">
-//             <PrivacyChoices />
-//             {/* <NoticeAtCollection /> */}
-//           </div>
-//         </div>
-//         <p className="mt-6 text-center text-sm text-gray-400 text-balance">
-//           &copy; 2024 All Things Linux • Made with ❤️ • All Rights Reserved.
-//         </p>
-//       </div>
-//     </footer>
-//   );
-// }
-
-import {
-  FaDiscord,
-  FaRedditAlien,
-  FaTelegramPlane,
-  FaTwitter,
-} from 'react-icons/fa';
+import { FaDiscord, FaFacebook, FaGithub, FaInstagram } from 'react-icons/fa';
+import { BsOpencollective } from 'react-icons/bs';
 
 import { Separator } from '@/components/ui/separator';
+import { Privacy, Cookies, Terms } from '@/components/consent';
 
 // Define footer sections data
 const sections = [
   {
-    title: 'Pages',
+    title: 'Information',
     links: [
-      { name: 'atl.wiki', href: 'https://atl.wiki' },
-      { name: 'atl.tools', href: 'https://atl.tools' },
-      { name: 'atl.chat', href: 'https://webirc.atl.chat' },
+      { name: 'About', href: '/about' },
+      { name: 'Code of Conduct', href: '/code-of-conduct' },
       { name: 'Blog', href: '/blog' },
       { name: 'Get Involved', href: '/get-involved' },
-      { name: 'Code of Conduct', href: '/code-of-conduct' },
+    ],
+  },
+  {
+    title: 'Projects',
+    links: [
+      { name: 'tux', href: 'https://tux.atl.tools' },
+      { name: 'atl.wiki', href: 'https://atl.wiki' },
+      { name: 'atl.tools', href: 'https://atl.tools' },
+      { name: 'atl.chat', href: 'https://atl.chat' },
     ],
   },
 ];
 
 // Define social media links
 const socialLinks = [
-  { icon: FaDiscord, href: '#', label: 'Discord' },
-  { icon: FaRedditAlien, href: '#', label: 'Reddit' },
-  { icon: FaTwitter, href: '#', label: 'Twitter' },
-  { icon: FaTelegramPlane, href: '#', label: 'Telegram' },
+  {
+    icon: FaDiscord,
+    href: 'https://discord.gg/linux',
+    label: 'Discord',
+  },
+  {
+    icon: BsOpencollective,
+    href: 'https://opencollective.com/allthingslinux',
+    label: 'Open Collective',
+  },
+  {
+    icon: FaGithub,
+    href: 'https://github.com/allthingslinux',
+    label: 'GitHub',
+  },
+  {
+    icon: FaInstagram,
+    href: 'https://www.instagram.com/allthingslinux',
+    label: 'Instagram',
+  },
+  {
+    icon: FaFacebook,
+    href: 'https://www.facebook.com/allthingslinux.org',
+    label: 'Facebook',
+  },
 ];
 
-// Define legal links
-const legalLinks = [
-  { name: 'Term of Services', href: '#' },
-  { name: 'Privacy Policy', href: '#' },
-];
+// Legal section component
+const LegalSection = () => (
+  <div>
+    <h3 className="mb-4 font-bold">Legal</h3>
+    <ul className="space-y-4 text-muted-foreground">
+      <li className="font-medium hover:text-primary">
+        <Privacy />
+      </li>
+      <li className="font-medium hover:text-primary">
+        <Cookies />
+      </li>
+      <li className="font-medium hover:text-primary">
+        <Terms />
+      </li>
+      <li className="font-medium hover:text-primary">
+        {/* <PrivacyChoices /> */}
+      </li>
+    </ul>
+  </div>
+);
 
 // Logo component
 const Logo = () => (
@@ -185,22 +123,10 @@ const SocialIcon = ({
   </li>
 );
 
-// Legal section component
-const LegalSection = () => (
-  <div>
-    <h3 className="mb-4 font-bold">Legal</h3>
-    <ul className="space-y-4 text-muted-foreground">
-      {legalLinks.map((link, idx) => (
-        <FooterLink key={idx} name={link.name} href={link.href} />
-      ))}
-    </ul>
-  </div>
-);
-
 // Social section component
 const SocialSection = () => (
   <div>
-    <h3 className="mt-8 mb-4 font-bold">Social</h3>
+    <h3 className="mb-4 font-bold">Connect</h3>
     <ul className="flex items-center space-x-6 text-muted-foreground">
       {socialLinks.map((social, idx) => (
         <SocialIcon
@@ -214,14 +140,6 @@ const SocialSection = () => (
   </div>
 );
 
-// Combined legal and social section
-const LegalAndSocialSection = () => (
-  <div>
-    <LegalSection />
-    <SocialSection />
-  </div>
-);
-
 // Main sections grid
 const FooterSections = () => (
   <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -232,14 +150,15 @@ const FooterSections = () => (
         links={section.links}
       />
     ))}
-    <LegalAndSocialSection />
+    <LegalSection />
+    <SocialSection />
   </div>
 );
 
 // Copyright component
 const Copyright = () => (
   <p className="text-sm text-muted-foreground">
-    © 2024 All Things Linux. All rights reserved.
+    © 2024 All Things Linux • Made with ❤️ • All Rights Reserved.
   </p>
 );
 
