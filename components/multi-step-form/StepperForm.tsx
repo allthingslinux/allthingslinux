@@ -9,11 +9,9 @@ import { generateFormSchema } from '@/lib/utils';
 import type { FormQuestion } from '@/types';
 import type { Role } from '@/types';
 import StepIndicator from './StepIndicator';
+import type { StepId } from './StepIndicator';
 import { Button } from '@/components/ui/button';
 import { z } from 'zod';
-
-// Import StepId from StepIndicator
-import type { StepId } from './StepIndicator';
 
 // Define the stepper with two steps
 const { Scoped, useStepper } = defineStepper(
@@ -162,8 +160,8 @@ function StepperFormContent({
           general: () => (
             <StepForm
               questions={generalQuestions}
-              title={`${role.name} Application - General Information`}
-              description="Please provide your general information"
+              title="General Questions"
+              description="We'll use this information to get to know you better"
               onNext={() => navigateToStep('role_specific')}
               showPrevious={false}
             />
@@ -171,8 +169,8 @@ function StepperFormContent({
           role_specific: () => (
             <StepForm
               questions={roleQuestions}
-              title={`${role.name} Application - Department Questions`}
-              description={`Questions specific to the ${role.department} department`}
+              title="Department & Role Questions"
+              description={`Questions specific to the ${role.department} department and this role`}
               onPrevious={() => navigateToStep('general')}
               onSubmit={handleSubmit}
               isLastStep={true}
