@@ -158,7 +158,8 @@ const FooterSections = () => (
 // Copyright component
 const Copyright = () => (
   <p className="text-sm text-muted-foreground">
-    © 2024 All Things Linux • Made with ❤️ • All Rights Reserved.
+    © {new Date().getFullYear()} All Things Linux • Made with ❤️ • All Rights
+    Reserved
   </p>
 );
 
@@ -167,7 +168,6 @@ export default function Footer() {
     <section className="py-32">
       <div className="container">
         <footer>
-          <Logo />
           <Separator className="my-14" />
           <FooterSections />
           <Separator className="my-14" />
