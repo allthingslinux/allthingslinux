@@ -2,7 +2,7 @@ import type { FormQuestion } from '@/types';
 
 export const generalQuestions: FormQuestion[] = [
   {
-    name: 'discord_name',
+    name: 'discord_username',
     question: 'Discord Username:',
     description: 'Your unique/global username; not a server nickname.',
     type: 'short',
