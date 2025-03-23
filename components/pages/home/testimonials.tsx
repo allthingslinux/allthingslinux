@@ -63,7 +63,7 @@ export default function Testimonials() {
   );
 
   return (
-    <section className="w-full py-32">
+    <section className="py-32">
       <div className="container mb-16">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="mb-4 text-3xl font-semibold md:text-4xl">

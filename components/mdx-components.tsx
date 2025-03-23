@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils';
 import { useMDXComponent } from 'next-contentlayer2/hooks';
 import { Alert } from '@/components/mdx/alert';
 
-const components = {
-  h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+// Memoized components for better performance
+const MemoizedHeading1 = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
       className={cn(
         'scroll-m-20 font-bold tracking-tight mt-10 mb-6',
@@ -16,8 +17,11 @@ const components = {
       )}
       {...props}
     />
-  ),
-  h2: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  )
+);
+
+const MemoizedHeading2 = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h2
       className={cn(
         'scroll-m-20 border-b pb-2 tracking-tight first:mt-0 mt-8 mb-4',
@@ -25,32 +29,180 @@ const components = {
       )}
       {...props}
     />
-  ),
-  h3: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  )
+);
+
+const MemoizedHeading3 = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h3
       className={cn('scroll-m-20 tracking-tight mt-6 mb-3', className)}
       {...props}
     />
-  ),
-  h4: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  )
+);
+
+const MemoizedHeading4 = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h4
       className={cn('scroll-m-20 tracking-tight mt-5 mb-2', className)}
       {...props}
     />
-  ),
-  h5: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  )
+);
+
+const MemoizedHeading5 = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h5
       className={cn('scroll-m-20 tracking-tight mt-4 mb-2', className)}
       {...props}
     />
-  ),
-  h6: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  )
+);
+
+const MemoizedHeading6 = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h6
       className={cn('scroll-m-20 tracking-tight mt-4 mb-1.5', className)}
       {...props}
     />
-  ),
-  a: ({
+  )
+);
+
+// Simplified alert detection regex - precompiled
+const ALERT_REGEX =
+  /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*?)\s*$/i;
+
+const MemoizedBlockquote = React.memo(
+  ({
+    className,
+    children,
+    ...props
+  }: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => {
+    // Simpler alert detection with better performance
+    const childArray = React.Children.toArray(children);
+    const firstChild = childArray[0];
+
+    // Early return for non-paragraph first children
+    if (
+      !firstChild ||
+      !React.isValidElement(firstChild) ||
+      firstChild.type !== 'p'
+    ) {
+      return (
+        <blockquote
+          className={cn(
+            'mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </blockquote>
+      );
+    }
+
+    // Check for alert syntax in the first paragraph
+    const firstChildProps = firstChild.props as { children?: React.ReactNode };
+    const alertText =
+      typeof firstChildProps.children === 'string'
+        ? firstChildProps.children
+        : null;
+
+    // If no alert text pattern, render normal blockquote
+    if (!alertText) {
+      return (
+        <blockquote
+          className={cn(
+            'mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </blockquote>
+      );
+    }
+
+    // Check for alert pattern using regex
+    const match = alertText.match(ALERT_REGEX);
+    if (!match) {
+      return (
+        <blockquote
+          className={cn(
+            'mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </blockquote>
+      );
+    }
+
+    // Extract alert type and title
+    const alertType = match[1].toLowerCase() as
+      | 'note'
+      | 'tip'
+      | 'important'
+      | 'warning'
+      | 'caution';
+    const title = match[2] ? match[2].trim() : '';
+
+    // Return the alert component
+    return (
+      <Alert type={alertType} title={title}>
+        {childArray.slice(1)}
+      </Alert>
+    );
+  }
+);
+
+// Optimize image component with lazy loading and proper sizing
+const MemoizedImage = React.memo(
+  ({ alt, src, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => {
+    const { width: propsWidth, height: propsHeight, ...restProps } = props;
+
+    // Use default sizes that are more reasonable for blog content
+    const width = propsWidth
+      ? typeof propsWidth === 'number'
+        ? propsWidth
+        : parseInt(String(propsWidth), 10) || 800
+      : 800;
+
+    const height = propsHeight
+      ? typeof propsHeight === 'number'
+        ? propsHeight
+        : parseInt(String(propsHeight), 10) || 450
+      : 450;
+
+    return (
+      <Image
+        className="rounded-md border"
+        alt={alt || ''}
+        src={src || ''}
+        width={width}
+        height={height}
+        loading="lazy"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+        {...restProps}
+      />
+    );
+  }
+);
+
+// Set display names for devtools
+MemoizedHeading1.displayName = 'MemoizedH1';
+MemoizedHeading2.displayName = 'MemoizedH2';
+MemoizedHeading3.displayName = 'MemoizedH3';
+MemoizedHeading4.displayName = 'MemoizedH4';
+MemoizedHeading5.displayName = 'MemoizedH5';
+MemoizedHeading6.displayName = 'MemoizedH6';
+MemoizedBlockquote.displayName = 'MemoizedBlockquote';
+MemoizedImage.displayName = 'MemoizedImage';
+
+// Set display names for the remaining memoized components
+const MemoizedAnchor = React.memo(
+  ({
     className,
     href,
     ...props
@@ -68,135 +220,69 @@ const components = {
         {...props}
       />
     );
-  },
-  p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
+  }
+);
+MemoizedAnchor.displayName = 'MemoizedAnchor';
+
+const MemoizedParagraph = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p
       className={cn('leading-7 [&:not(:first-child)]:mt-6', className)}
       {...props}
     />
-  ),
-  ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
+  )
+);
+MemoizedParagraph.displayName = 'MemoizedParagraph';
+
+const MemoizedUnorderedList = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className={cn('my-6 ml-6 list-disc', className)} {...props} />
-  ),
-  ol: ({ className, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
+  )
+);
+MemoizedUnorderedList.displayName = 'MemoizedUnorderedList';
+
+const MemoizedOrderedList = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
     <ol className={cn('my-6 ml-6 list-decimal', className)} {...props} />
-  ),
-  li: ({ className, ...props }: React.LiHTMLAttributes<HTMLLIElement>) => (
+  )
+);
+MemoizedOrderedList.displayName = 'MemoizedOrderedList';
+
+const MemoizedListItem = React.memo(
+  ({ className, ...props }: React.LiHTMLAttributes<HTMLLIElement>) => (
     <li className={cn('mt-2', className)} {...props} />
-  ),
-  blockquote: ({
-    className,
-    children,
-    ...props
-  }: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => {
-    // Try to find GitHub-style alert syntax in the first paragraph
-    try {
-      // Convert children to array and find the first paragraph
-      const childArray = React.Children.toArray(children);
-      if (childArray.length === 0) {
-        throw new Error('No children');
-      }
+  )
+);
+MemoizedListItem.displayName = 'MemoizedListItem';
 
-      const firstChild = childArray[0];
-      if (!React.isValidElement(firstChild) || firstChild.type !== 'p') {
-        throw new Error('First child not a paragraph');
-      }
-
-      // TypeScript type assertion for props
-      const firstChildProps = firstChild.props as {
-        children?: React.ReactNode;
-      };
-
-      // Get the content of the first paragraph
-      let alertText = '';
-      if (typeof firstChildProps.children === 'string') {
-        alertText = firstChildProps.children;
-      } else {
-        throw new Error('Cannot extract string from first paragraph');
-      }
-
-      // Check for alert pattern
-      const match = alertText.match(
-        /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*?)\s*$/i
-      );
-      if (!match) {
-        throw new Error('Not an alert pattern');
-      }
-
-      // Extract alert type and title
-      const alertType = match[1].toLowerCase() as
-        | 'note'
-        | 'tip'
-        | 'important'
-        | 'warning'
-        | 'caution';
-      const title = match[2] ? match[2].trim() : '';
-
-      // Return the alert component
-      return (
-        <Alert type={alertType} title={title}>
-          {childArray.slice(1)}
-        </Alert>
-      );
-    } catch (error) {
-      // Not a GitHub-style alert, render as regular blockquote
-      return (
-        <blockquote
-          className={cn(
-            'mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground',
-            className
-          )}
-          {...props}
-        >
-          {children}
-        </blockquote>
-      );
-    }
-  },
-  img: ({ alt, src, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => {
-    const { width: propsWidth, height: propsHeight, ...restProps } = props;
-
-    const width = propsWidth
-      ? typeof propsWidth === 'number'
-        ? propsWidth
-        : parseInt(String(propsWidth), 10) || 1920
-      : 1920;
-
-    const height = propsHeight
-      ? typeof propsHeight === 'number'
-        ? propsHeight
-        : parseInt(String(propsHeight), 10) || 1080
-      : 1080;
-
-    return (
-      <Image
-        className="rounded-md border"
-        alt={alt || ''}
-        src={src || ''}
-        width={width}
-        height={height}
-        {...restProps}
-      />
-    );
-  },
-  hr: ({ className, ...props }: React.HTMLAttributes<HTMLHRElement>) => (
+const MemoizedHorizontalRule = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLHRElement>) => (
     <hr className={cn('my-4 md:my-8', className)} {...props} />
-  ),
-  table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
+  )
+);
+MemoizedHorizontalRule.displayName = 'MemoizedHorizontalRule';
+
+const MemoizedTable = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
     <div className="my-6 w-full overflow-y-auto">
       <table className={cn('w-full', className)} {...props} />
     </div>
-  ),
-  tr: ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
+  )
+);
+MemoizedTable.displayName = 'MemoizedTable';
+
+const MemoizedTableRow = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
     <tr
       className={cn('m-0 border-t p-0 even:bg-muted', className)}
       {...props}
     />
-  ),
-  th: ({
-    className,
-    ...props
-  }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
+  )
+);
+MemoizedTableRow.displayName = 'MemoizedTableRow';
+
+const MemoizedTableHeader = React.memo(
+  ({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
     <th
       className={cn(
         'border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right',
@@ -204,11 +290,12 @@ const components = {
       )}
       {...props}
     />
-  ),
-  td: ({
-    className,
-    ...props
-  }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
+  )
+);
+MemoizedTableHeader.displayName = 'MemoizedTableHeader';
+
+const MemoizedTableCell = React.memo(
+  ({ className, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
     <td
       className={cn(
         'border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right',
@@ -216,8 +303,12 @@ const components = {
       )}
       {...props}
     />
-  ),
-  pre: ({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
+  )
+);
+MemoizedTableCell.displayName = 'MemoizedTableCell';
+
+const MemoizedPreformatted = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
     <pre
       className={cn(
         'mb-4 mt-6 overflow-x-auto rounded-lg border bg-black py-4',
@@ -225,8 +316,12 @@ const components = {
       )}
       {...props}
     />
-  ),
-  code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => {
+  )
+);
+MemoizedPreformatted.displayName = 'MemoizedPreformatted';
+
+const MemoizedCode = React.memo(
+  ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => {
     const isInlineCode = !className?.includes('language-');
     return isInlineCode ? (
       <code
@@ -245,7 +340,31 @@ const components = {
         {...props}
       />
     );
-  },
+  }
+);
+MemoizedCode.displayName = 'MemoizedCode';
+
+const components = {
+  h1: MemoizedHeading1,
+  h2: MemoizedHeading2,
+  h3: MemoizedHeading3,
+  h4: MemoizedHeading4,
+  h5: MemoizedHeading5,
+  h6: MemoizedHeading6,
+  a: MemoizedAnchor,
+  p: MemoizedParagraph,
+  ul: MemoizedUnorderedList,
+  ol: MemoizedOrderedList,
+  li: MemoizedListItem,
+  blockquote: MemoizedBlockquote,
+  img: MemoizedImage,
+  hr: MemoizedHorizontalRule,
+  table: MemoizedTable,
+  tr: MemoizedTableRow,
+  th: MemoizedTableHeader,
+  td: MemoizedTableCell,
+  pre: MemoizedPreformatted,
+  code: MemoizedCode,
   Image,
   Alert,
 };
