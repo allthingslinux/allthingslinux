@@ -69,6 +69,8 @@ type Question = {
   options?: string[];
 };
 
+export const runtime = 'edge';
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { role: string } }

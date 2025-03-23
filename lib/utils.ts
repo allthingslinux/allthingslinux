@@ -7,7 +7,10 @@ import { format, parseISO } from 'date-fns';
 import type { FormQuestion, Role } from '@/types';
 import { z } from 'zod';
 
-export function cn(...inputs: ClassValue[]) {
+/**
+ * Combines multiple class names and merges Tailwind classes
+ */
+export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
@@ -30,11 +33,9 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
 
           case 'digits-only':
             // Create a validator for digit-only string (like Discord IDs)
-            let digitsSchema = z
-              .string()
-              .regex(/^\d*$/, {
-                message: 'Only numeric digits (0-9) are allowed',
-              });
+            let digitsSchema = z.string().regex(/^\d*$/, {
+              message: 'Only numeric digits (0-9) are allowed',
+            });
 
             // Add length constraints if specified
             if (typeof curr.minLength === 'number') {
