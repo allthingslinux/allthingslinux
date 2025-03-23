@@ -80,7 +80,6 @@
   --radius: 0.8rem;
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -91,8 +90,35 @@
   }
 }
 
+/* Consistent section spacing utility */
+@layer components {
+  .section-padding {
+    @apply py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32;
+  }
+
+  .section-margin {
+    @apply my-8 sm:my-12 md:my-16 lg:my-20;
+  }
+
+  .page-padding {
+    @apply pt-28 sm:pt-32 md:pt-36 lg:pt-40;
+  }
+}
+
 /* Legacy container utility class -- deprecated in v4, needs removed across the codebase */
 @utility container {
   margin-inline: auto;
-  padding-inline: 2rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-inline: 2rem;
+  }
 }

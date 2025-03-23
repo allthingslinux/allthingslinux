@@ -4,18 +4,18 @@ import DiscordSkeleton from './discord-skeleton';
 
 const Hero = memo(() => {
   return (
-    <section className="py-32">
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32">
       <div className="container flex flex-col items-center text-center">
-        <h1 className="mb-12 text-6xl font-bold lg:text-7xl text-center">
+        <h1 className="mb-6 sm:mb-8 md:mb-10 lg:mb-12 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-center">
           Let&apos;s build the future of Linux together
         </h1>
-        <p className="max-w-4xl lg:text-2xl text-xl pb-4">
+        <p className="max-w-4xl text-lg sm:text-xl md:text-xl lg:text-2xl pb-4">
           All Things Linux is a 501(c)(3) non-profit organization with a mission
           to empower the Linux ecosystem through education, collaboration, and
           support.
         </p>
       </div>
-      <div className="aspect-video text-clip sm:mt-16 md:aspect-auto md:h-[420px]">
+      <div className="aspect-video text-clip sm:mt-8 md:mt-12 lg:mt-16 md:aspect-auto md:h-[420px]">
         <div className="relative mx-auto flex max-w-3xl flex-col">
           {/* Left icons */}
           <div className="absolute right-[calc(100%+63px)] top-0 hidden size-[64px] rounded-2xl bg-[#4FAEC3] ring-1 ring-inset ring-accent-foreground/10 md:block">
@@ -160,7 +160,7 @@ const Hero = memo(() => {
             />
           </div>
           {/* Hero images */}
-          <div className="container mx-auto mt-12">
+          <div className="container mx-auto mt-8 sm:mt-10 md:mt-12">
             <DiscordSkeleton />
           </div>
         </div>

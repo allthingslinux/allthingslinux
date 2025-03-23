@@ -1,5 +1,12 @@
-import { FaDiscord, FaFacebook, FaGithub, FaInstagram } from 'react-icons/fa';
+import {
+  FaDiscord,
+  FaFacebook,
+  FaGitAlt,
+  FaGithub,
+  FaInstagram,
+} from 'react-icons/fa';
 import { BsOpencollective } from 'react-icons/bs';
+import { IoIosArrowUp } from 'react-icons/io';
 
 import { Separator } from '@/components/ui/separator';
 import { Privacy, Cookies, Terms } from '@/components/consent';
@@ -45,12 +52,12 @@ const socialLinks = [
   },
   {
     icon: FaInstagram,
-    href: 'https://www.instagram.com/allthingslinux',
+    href: 'https://instagram.com/allthingslinux',
     label: 'Instagram',
   },
   {
     icon: FaFacebook,
-    href: 'https://www.facebook.com/allthingslinux.org',
+    href: 'https://facebook.com/allthingslinux.org',
     label: 'Facebook',
   },
 ];
@@ -126,8 +133,8 @@ const SocialIcon = ({
 // Social section component
 const SocialSection = () => (
   <div>
-    <h3 className="mb-4 font-bold">Connect</h3>
-    <ul className="flex items-center space-x-6 text-muted-foreground">
+    <h3 className="mb-4 font-bold md:block hidden">Social</h3>
+    <ul className="flex items-center justify-center md:justify-start space-x-6 text-muted-foreground">
       {socialLinks.map((social, idx) => (
         <SocialIcon
           key={idx}
@@ -151,27 +158,61 @@ const FooterSections = () => (
       />
     ))}
     <LegalSection />
-    <SocialSection />
+    <div className="hidden md:block">
+      <SocialSection />
+    </div>
   </div>
 );
 
-// Copyright component
-const Copyright = () => (
-  <p className="text-sm text-muted-foreground">
-    © {new Date().getFullYear()} All Things Linux • Made with ❤️ • All Rights
-    Reserved
-  </p>
+// Mobile Footer
+const MobileFooter = () => (
+  <div className="flex flex-col items-center space-y-4 md:hidden">
+    <SocialSection />
+    <p className="text-sm text-center text-muted-foreground">
+      © {new Date().getFullYear()} All Things Linux • Made with ❤️ • All Rights
+      Reserved
+    </p>
+    <a
+      href="https://github.com/allthingslinux/allthingslinux"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+    >
+      <IoIosArrowUp className="size-4 -rotate-45" />
+      <span>View Source</span>
+    </a>
+  </div>
+);
+
+// Desktop Copyright
+const DesktopCopyright = () => (
+  <div className="hidden md:flex justify-between items-center">
+    <p className="text-sm text-muted-foreground">
+      © {new Date().getFullYear()} All Things Linux • Made with ❤️ • All Rights
+      Reserved
+    </p>
+    <a
+      href="https://github.com/allthingslinux/allthingslinux"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm text-muted-foreground hover:text-primary flex items-center gap-2 transition-colors"
+    >
+      <FaGitAlt className="size-4" />
+      <span>View Source</span>
+    </a>
+  </div>
 );
 
 export default function Footer() {
   return (
-    <section className="py-32">
+    <section className="py-12 md:py-20 lg:py-32">
       <div className="container">
-        <footer>
-          <Separator className="my-14" />
+        <footer className="w-full">
+          <Separator className="my-8 md:my-14" />
           <FooterSections />
-          <Separator className="my-14" />
-          <Copyright />
+          <Separator className="my-8 md:my-14" />
+          <DesktopCopyright />
+          <MobileFooter />
         </footer>
       </div>
     </section>

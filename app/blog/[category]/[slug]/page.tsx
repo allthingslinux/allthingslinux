@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BlogPostMeta } from '@/components/blog/blog-post-meta';
+import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 
 // Types
 type BlogPostParams = {
@@ -112,16 +113,9 @@ export default async function BlogPost({ params }: BlogPostParams) {
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
-      <Link
-        href="/blog"
-        className={cn(
-          buttonVariants({ variant: 'ghost' }),
-          'absolute left-[-200px] top-14 hidden xl:inline-flex'
-        )}
-      >
-        <ChevronLeft className="mr-2 h-4 w-4" />
-        See all posts
-      </Link>
+      <div className="absolute left-[-200px] top-14 hidden xl:block">
+        <BackToAllPostsButton />
+      </div>
 
       <h1 className="mb-2 font-heading text-4xl leading-tight lg:text-5xl">
         {post.title}
@@ -143,10 +137,7 @@ export default async function BlogPost({ params }: BlogPostParams) {
 
       <hr className="mt-12" />
       <div className="flex justify-center py-6 lg:py-10">
-        <Link href="/blog" className={cn(buttonVariants({ variant: 'ghost' }))}>
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          See all posts
-        </Link>
+        <BackToAllPostsButton />
       </div>
     </article>
   );
