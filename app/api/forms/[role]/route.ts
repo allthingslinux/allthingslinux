@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
 import { ApiClient } from '@mondaydotcomorg/api';
-import { promises as fs } from 'fs';
-import path from 'path';
 
 const monday = new ApiClient({
   token: process.env.MONDAY_API_KEY!,
 });
+
+// Define Discord webhook URL from environment variable
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 // Define types needed for Monday.com API interactions
 type Column = {
@@ -69,6 +70,136 @@ type Question = {
   options?: string[];
 };
 
+// Define Role type to replace 'any'
+type Role = {
+  name: string;
+  slug: string;
+  department: string;
+  description: string;
+  questions: Question[];
+};
+
+// Helper function to send application data to Discord webhook with retries
+async function sendToDiscordWebhook(
+  roleData: Role,
+  formData: FormData,
+  timestamp: string,
+  maxRetries = 3
+) {
+  if (!DISCORD_WEBHOOK_URL) {
+    console.log('Discord webhook URL not configured, skipping backup');
+    return false;
+  }
+
+  // Track retries
+  let retryCount = 0;
+  let lastError: Error | null = null;
+
+  // Retry loop
+  while (retryCount <= maxRetries) {
+    try {
+      // Create a complete backup JSON file with all data
+      const backupData = {
+        timestamp: timestamp,
+        application: {
+          role: {
+            name: roleData.name,
+            slug: roleData.slug,
+            department: roleData.department,
+            description: roleData.description,
+          },
+          applicant: {
+            discord_username: formData.discord_username,
+            discord_id: formData.discord_id,
+          },
+          // Include all form data organized by questions
+          generalAnswers: generalQuestions
+            .filter((q: Question) => formData[q.name])
+            .map((q: Question) => ({
+              question: q.question,
+              answer: formData[q.name],
+              name: q.name,
+              optional: q.optional || false,
+            })),
+          roleAnswers: roleData.questions
+            .filter((q: Question) => formData[q.name])
+            .map((q: Question) => ({
+              question: q.question,
+              answer: formData[q.name],
+              name: q.name,
+              optional: q.optional || false,
+            })),
+          // Include raw form data for complete backup
+          rawFormData: formData,
+        },
+      };
+
+      // Stringify the JSON data with nice formatting
+      const jsonString = JSON.stringify(backupData, null, 2);
+
+      // Create a unique filename with role, username and timestamp
+      const fileName = `application-${roleData.slug}-${formData.discord_username.replace(/[^a-z0-9]/gi, '_')}-${timestamp.replace(/[:.]/g, '-')}.json`;
+
+      // Create a FormData object for the multipart request (required for file uploads)
+      const formDataPayload = new FormData();
+
+      // Add minimal payload JSON with just a simple message - no embeds
+      formDataPayload.append(
+        'payload_json',
+        JSON.stringify({
+          content: `Application backup: ${roleData.name} - ${formData.discord_username}`,
+        })
+      );
+
+      // Create a file from the JSON string and attach it
+      const file = new File([jsonString], fileName, {
+        type: 'application/json',
+      });
+      formDataPayload.append('file', file);
+
+      // Send to Discord webhook
+      const response = await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        body: formDataPayload,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Discord webhook error: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // Success!
+      return true;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.error(
+        `Error sending to Discord webhook (attempt ${retryCount + 1}/${maxRetries + 1}):`,
+        error
+      );
+
+      // If we've reached max retries, break out of the loop
+      if (retryCount >= maxRetries) {
+        break;
+      }
+
+      // Exponential backoff for retry
+      const backoffDelay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+
+      // Increment retry counter
+      retryCount++;
+    }
+  }
+
+  // If we reach here, all retries failed
+  console.error(
+    `All ${maxRetries + 1} attempts to send Discord webhook failed:`,
+    lastError
+  );
+  return false;
+}
+
 export const runtime = 'edge';
 
 export async function POST(
@@ -123,31 +254,40 @@ export async function POST(
       );
     }
 
-    // Store the form data in a backup file before processing
-    const backupData = {
-      timestamp: new Date().toISOString(),
-      role: roleData,
-      formData: formObject,
-      processed: false,
-    };
+    // Create timestamp for this submission
+    const timestamp = new Date().toISOString();
 
-    // Create a unique filename based on timestamp and discord ID
-    const backupDir = path.join(process.cwd(), 'form-backups');
-    const fileName = `${new Date().toISOString().replace(/[:.]/g, '-')}-${formObject.discord_id}.json`;
-    const backupFilePath = path.join(backupDir, fileName);
+    // Flag to track if initial backup was sent successfully
+    let initialBackupSent = false;
 
+    // Store backup of submission in Discord (instead of files)
     try {
-      // Ensure backup directory exists
-      await fs.mkdir(backupDir, { recursive: true });
-      // Write backup file
-      await fs.writeFile(backupFilePath, JSON.stringify(backupData, null, 2));
+      // Send backup to Discord webhook immediately with retries
+      // This happens before we try to process with Monday.com as an immediate backup
+      initialBackupSent = await sendToDiscordWebhook(
+        roleData,
+        formObject,
+        timestamp
+      );
     } catch (_backupError) {
       // Log backup error but continue - this doesn't need to block the response
-      // In production, you'd want to alert on this failure
+      console.error('Error creating initial backup:', _backupError);
+      initialBackupSent = false;
     }
 
     // Define the background processing function
     const processFormInBackground = async () => {
+      // If initial backup failed, try one more time immediately in the background process
+      if (!initialBackupSent) {
+        try {
+          console.log('Retrying initial backup in background process...');
+          await sendToDiscordWebhook(roleData, formObject, timestamp, 5); // More retries
+        } catch (retryError) {
+          console.error('Retry of initial backup also failed:', retryError);
+          // Continue with processing - we'll still try to save to Monday.com
+        }
+      }
+
       try {
         // First, get current dropdown settings
         const columnsQuery = `query {
@@ -205,9 +345,62 @@ export async function POST(
               );
             }
           }
-        } catch (_error) {
-          // Log error but don't terminate the process
-          // Since we're in the background, we can't return an HTTP response
+        } catch (error) {
+          // Send error to Discord
+          if (DISCORD_WEBHOOK_URL) {
+            // Create detailed error data object
+            const columnErrorData = {
+              timestamp: new Date().toISOString(),
+              status: 'error',
+              errorType: 'Monday.com Columns Error',
+              error: error instanceof Error ? error.message : 'Unknown error',
+              errorStack: error instanceof Error ? error.stack : undefined,
+              application: {
+                role: {
+                  name: roleData.name,
+                  slug: roleData.slug,
+                  department: roleData.department,
+                  description: roleData.description,
+                },
+                applicant: {
+                  discord_username: formObject.discord_username,
+                  discord_id: formObject.discord_id,
+                },
+                // Include all form data for reference
+                formData: formObject,
+              },
+            };
+
+            // Stringify the error data to JSON
+            const errorJsonString = JSON.stringify(columnErrorData, null, 2);
+
+            // Create a unique error log filename
+            const errorFileName = `column-error-${roleData.slug}-${formObject.discord_username.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+
+            // Create a FormData object for the multipart request
+            const errorFormData = new FormData();
+
+            // Add simple message - no embeds
+            errorFormData.append(
+              'payload_json',
+              JSON.stringify({
+                content: `Error retrieving Monday.com columns: ${roleData.name} - ${formObject.discord_username}`,
+              })
+            );
+
+            // Create a file from the JSON string and attach it
+            const errorFile = new File([errorJsonString], errorFileName, {
+              type: 'application/json',
+            });
+            errorFormData.append('file', errorFile);
+
+            await fetch(DISCORD_WEBHOOK_URL, {
+              method: 'POST',
+              body: errorFormData,
+            }).catch((e) =>
+              console.error('Failed to send error to Discord:', e)
+            );
+          }
           return;
         }
 
@@ -257,7 +450,62 @@ export async function POST(
             createItemQuery,
             createItemVars
           );
-        } catch (_error) {
+        } catch (error) {
+          // Send error to Discord
+          if (DISCORD_WEBHOOK_URL) {
+            // Create detailed error data object
+            const itemErrorData = {
+              timestamp: new Date().toISOString(),
+              status: 'error',
+              errorType: 'Monday.com Item Creation Error',
+              error: error instanceof Error ? error.message : 'Unknown error',
+              errorStack: error instanceof Error ? error.stack : undefined,
+              application: {
+                role: {
+                  name: roleData.name,
+                  slug: roleData.slug,
+                  department: roleData.department,
+                  description: roleData.description,
+                },
+                applicant: {
+                  discord_username: formObject.discord_username,
+                  discord_id: formObject.discord_id,
+                },
+                // Include all form data for reference
+                formData: formObject,
+              },
+            };
+
+            // Stringify the error data to JSON
+            const errorJsonString = JSON.stringify(itemErrorData, null, 2);
+
+            // Create a unique error log filename
+            const errorFileName = `item-error-${roleData.slug}-${formObject.discord_username.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+
+            // Create a FormData object for the multipart request
+            const errorFormData = new FormData();
+
+            // Add simple message - no embeds
+            errorFormData.append(
+              'payload_json',
+              JSON.stringify({
+                content: `Error creating Monday.com item: ${roleData.name} - ${formObject.discord_username}`,
+              })
+            );
+
+            // Create a file from the JSON string and attach it
+            const errorFile = new File([errorJsonString], errorFileName, {
+              type: 'application/json',
+            });
+            errorFormData.append('file', errorFile);
+
+            await fetch(DISCORD_WEBHOOK_URL, {
+              method: 'POST',
+              body: errorFormData,
+            }).catch((e) =>
+              console.error('Failed to send error to Discord:', e)
+            );
+          }
           return;
         }
 
@@ -291,15 +539,72 @@ export async function POST(
             createDocQuery,
             createDocVars
           );
-        } catch (_error) {
+        } catch (error) {
+          // Send error to Discord
+          if (DISCORD_WEBHOOK_URL) {
+            // Create detailed error data object
+            const docErrorData = {
+              timestamp: new Date().toISOString(),
+              status: 'error',
+              errorType: 'Monday.com Document Creation Error',
+              error: error instanceof Error ? error.message : 'Unknown error',
+              errorStack: error instanceof Error ? error.stack : undefined,
+              application: {
+                role: {
+                  name: roleData.name,
+                  slug: roleData.slug,
+                  department: roleData.department,
+                  description: roleData.description,
+                },
+                applicant: {
+                  discord_username: formObject.discord_username,
+                  discord_id: formObject.discord_id,
+                },
+                monday: {
+                  itemId: itemResult.create_item.id,
+                  itemName: docTitle,
+                },
+                // Include all form data for reference
+                formData: formObject,
+              },
+            };
+
+            // Stringify the error data to JSON
+            const errorJsonString = JSON.stringify(docErrorData, null, 2);
+
+            // Create a unique error log filename
+            const errorFileName = `doc-error-${roleData.slug}-${formObject.discord_username.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+
+            // Create a FormData object for the multipart request
+            const errorFormData = new FormData();
+
+            // Add simple message - no embeds
+            errorFormData.append(
+              'payload_json',
+              JSON.stringify({
+                content: `Error creating Monday.com document: ${roleData.name} - ${formObject.discord_username}`,
+              })
+            );
+
+            // Create a file from the JSON string and attach it
+            const errorFile = new File([errorJsonString], errorFileName, {
+              type: 'application/json',
+            });
+            errorFormData.append('file', errorFile);
+
+            await fetch(DISCORD_WEBHOOK_URL, {
+              method: 'POST',
+              body: errorFormData,
+            }).catch((e) =>
+              console.error('Failed to send error to Discord:', e)
+            );
+          }
           return;
         }
 
         if (!docResult?.create_doc?.id) {
           return;
         }
-
-        // Skip document metadata update and separate name update since we've set the name during creation
 
         // Create blocks for title and grouped questions/answers to reduce API calls
         const blocks = [];
@@ -520,32 +825,63 @@ export async function POST(
           }
         }
 
-        // At the end of successful processing, mark the backup as processed
-        try {
-          const updatedBackup = { ...backupData, processed: true };
-          await fs.writeFile(
-            backupFilePath,
-            JSON.stringify(updatedBackup, null, 2)
-          );
-        } catch (_error) {
-          // Just log the error, don't interrupt the flow
-        }
+        // Success! Processing is complete - no success notification needed
       } catch (error) {
-        // Just log the error and continue since we're in the background
-        // We could store the error in a database or send to an error tracking service
-        try {
-          // Update the backup file with the error information
-          const updatedBackup = {
-            ...backupData,
+        // Send error notification to Discord if Monday processing failed
+        if (DISCORD_WEBHOOK_URL) {
+          // Create detailed error data object
+          const errorData = {
+            timestamp: new Date().toISOString(),
+            status: 'error',
+            errorType: 'Monday.com Processing Error',
             error: error instanceof Error ? error.message : 'Unknown error',
-            errorTimestamp: new Date().toISOString(),
+            errorStack: error instanceof Error ? error.stack : undefined,
+            application: {
+              role: {
+                name: roleData.name,
+                slug: roleData.slug,
+                department: roleData.department,
+                description: roleData.description,
+              },
+              applicant: {
+                discord_username: formObject.discord_username,
+                discord_id: formObject.discord_id,
+              },
+              // Include all form data for reference
+              formData: formObject,
+            },
           };
-          await fs.writeFile(
-            backupFilePath,
-            JSON.stringify(updatedBackup, null, 2)
+
+          // Stringify the error data to JSON
+          const errorJsonString = JSON.stringify(errorData, null, 2);
+
+          // Create a unique error log filename
+          const errorFileName = `process-error-${roleData.slug}-${formObject.discord_username.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+
+          // Create a FormData object for the multipart request
+          const errorFormData = new FormData();
+
+          // Add simple message - no embeds
+          errorFormData.append(
+            'payload_json',
+            JSON.stringify({
+              content: `Application processing failed: ${roleData.name} - ${formObject.discord_username}`,
+            })
           );
-        } catch (_writeError) {
-          // Failed to update backup file
+
+          // Create a file from the JSON string and attach it
+          const errorFile = new File([errorJsonString], errorFileName, {
+            type: 'application/json',
+          });
+          errorFormData.append('file', errorFile);
+
+          // Send to Discord webhook
+          fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            body: errorFormData,
+          }).catch((e) =>
+            console.error('Failed to send error notification to Discord:', e)
+          );
         }
       }
     };

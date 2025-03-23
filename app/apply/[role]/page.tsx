@@ -34,6 +34,12 @@ export default function RoleApplicationPage() {
 
   const onSubmit = async (data: z.infer<typeof _formSchema>) => {
     try {
+      // Ensure role is still available (edge case protection)
+      if (!role) {
+        console.error('Role not found during form submission');
+        return;
+      }
+
       // Create FormData instance
       const formData = new FormData();
 
@@ -55,10 +61,43 @@ export default function RoleApplicationPage() {
         setIsSubmitted(true);
         window.scrollTo(0, 0); // Scroll to top to show success message
       } else {
-        console.error('Form submission failed');
+        // Safely get error data from response
+        let errorMessage = response.statusText || 'Unknown error';
+        let errorDetails = null;
+
+        try {
+          // Only try to parse JSON if content-type is application/json
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorDetails = errorData;
+            if (errorData && errorData.error) {
+              errorMessage = errorData.error;
+            }
+          }
+        } catch (parseError) {
+          console.error('Error parsing error response:', parseError);
+        }
+
+        // Log the error safely
+        console.error('Form submission failed:', errorMessage);
+        if (errorDetails) {
+          console.error('Error details:', errorDetails);
+        }
+
+        // Show user-friendly error message
+        alert(
+          `There was an error submitting your application: ${errorMessage}. Please try again later.`
+        );
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      // Handle network or other errors
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error submitting form:', errorMessage);
+      alert(
+        'There was an error submitting your application. Please check your network connection and try again.'
+      );
     }
   };
 

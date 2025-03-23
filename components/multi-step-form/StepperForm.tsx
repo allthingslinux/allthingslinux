@@ -65,6 +65,7 @@ function StepperFormContent({
 }) {
   const methods = useStepper();
   const [formData, setFormData] = useState<Record<string, unknown>>({});
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   // Create all schemas up-front
   const generalSchema = generateFormSchema(generalQuestions);
@@ -95,6 +96,9 @@ function StepperFormContent({
 
   // Handle step navigation
   const navigateToStep = async (targetStep: StepId) => {
+    // Reset any previous submission errors when navigating
+    setSubmissionError(null);
+
     // If moving forward, validate the current step first
     if (
       (methods.current.id === 'general' && targetStep === 'role_specific') ||
@@ -111,6 +115,19 @@ function StepperFormContent({
       const isValid = await form.trigger(requiredFields, { shouldFocus: true });
 
       if (!isValid) {
+        // Find the first field with an error and scroll to it
+        setTimeout(() => {
+          const firstErrorField = document.querySelector(
+            '[aria-invalid="true"]'
+          );
+          if (firstErrorField) {
+            firstErrorField.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+          }
+        }, 100);
+
         return; // Don't proceed if validation fails
       }
     }
@@ -127,6 +144,8 @@ function StepperFormContent({
   // Handle form submission
   const handleSubmit = async (stepData: Record<string, unknown>) => {
     try {
+      setSubmissionError(null);
+
       // For final submission, merge all form data
       const finalData = { ...formData, ...stepData };
 
@@ -134,14 +153,48 @@ function StepperFormContent({
       const validationResult = combinedSchema.safeParse(finalData);
 
       if (validationResult.success) {
-        await onSubmit(finalData);
+        try {
+          await onSubmit(finalData);
+        } catch (error) {
+          console.error('Error in form submission:', error);
+          setSubmissionError(
+            'There was an error submitting your application. Please try again later.'
+          );
+
+          // Scroll to error message
+          setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 100);
+        }
       } else {
         // If validation fails on the final step, show field errors
         console.log('Validation failed:', validationResult.error);
+
+        // Find the first field with an error and scroll to it
+        setTimeout(() => {
+          const firstErrorField = document.querySelector(
+            '[aria-invalid="true"]'
+          );
+          if (firstErrorField) {
+            firstErrorField.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+          }
+        }, 100);
+
         return;
       }
     } catch (error) {
       console.error('Error submitting form:', error);
+      setSubmissionError(
+        'There was an error processing your application. Please try again later.'
+      );
+
+      // Scroll to error message
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
     }
   };
 
@@ -154,6 +207,34 @@ function StepperFormContent({
         errorCounts={{}} // Hide error counts
         onStepClick={navigateToStep}
       />
+
+      {submissionError && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">
+                Submission Error
+              </h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p>{submissionError}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <FormProvider {...form}>
         {methods.switch({
@@ -222,6 +303,20 @@ function StepForm({
 
       if (!isValid) {
         setIsSubmitting(false);
+
+        // Find the first field with an error and scroll to it
+        setTimeout(() => {
+          const firstErrorField = document.querySelector(
+            '[aria-invalid="true"]'
+          );
+          if (firstErrorField) {
+            firstErrorField.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+          }
+        }, 100);
+
         return;
       }
 
