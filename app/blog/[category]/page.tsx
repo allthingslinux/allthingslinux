@@ -16,14 +16,8 @@ export const revalidate = 3600;
 // Configure Edge Runtime for Cloudflare Pages
 export const runtime = 'edge';
 
-// Generate static paths for common categories at build time
-export async function generateStaticParams() {
-  const categories = [
-    'all-posts',
-    ...getAllCategories().map((c) => c.toLowerCase().replace(/ /g, '-')),
-  ];
-  return categories.map((category) => ({ category }));
-}
+// Remove generateStaticParams since it's incompatible with Edge Runtime
+// We'll rely on ISR instead for dynamic paths
 
 export async function generateMetadata({
   params,
