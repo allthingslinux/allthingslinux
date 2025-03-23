@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getPost, getAllPosts } from '@/lib/blog';
+import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import { Mdx } from '@/components/mdx-components';
 
@@ -72,16 +72,6 @@ export async function generateMetadata({
       authors: [post.author],
     },
   };
-}
-
-// Generate static paths for all blog posts
-export async function generateStaticParams() {
-  const posts = getAllPosts();
-
-  return posts.map((post) => ({
-    category: post.categorySlug,
-    slug: post.slug,
-  }));
 }
 
 export default async function PostPage({ params }: PostPageProps) {
