@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -219,15 +219,16 @@ const components = {
   ),
 };
 
-export function CodeOfConductContent({
+// Optimize the main component with memo
+const CodeOfConductContent = memo(function CodeOfConductContent({
   content,
   lastUpdated,
 }: CodeOfConductContentProps) {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8">
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
-      <article className="prose max-w-3xl mx-auto space-y-8 [&_p]:text-base [&_p]:leading-7">
-        <div className="flex items-center gap-2 text-sm text-neutral-400 mb-8">
+      <article className="prose max-w-3xl mx-auto [&_p]:text-base [&_p]:leading-7">
+        <div className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
           <span>Last updated:</span>
           <time dateTime={lastUpdated}>{lastUpdated}</time>
         </div>
@@ -281,4 +282,6 @@ export function CodeOfConductContent({
       </article>
     </div>
   );
-}
+});
+
+export { CodeOfConductContent };

@@ -1,21 +1,8 @@
-import { MenuIcon } from 'lucide-react';
+'use client';
 
-// import {
-//   Accordion,
-//   AccordionContent,
-//   AccordionItem,
-//   AccordionTrigger,
-// } from '@/components/ui/accordion';
+import { useState } from 'react';
+import { MenuIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
 import {
   Sheet,
   SheetContent,
@@ -24,234 +11,173 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
 // Define navigation items
 const navItems = [
-  { name: 'Home', href: '/', hasSubmenu: false },
-  { name: 'About', href: '/about', hasSubmenu: false },
-  { name: 'CoC', href: '/code-of-conduct', hasSubmenu: false },
-  { name: 'Blog', href: '/blog', hasSubmenu: false },
-  { name: 'Wiki', href: 'https://atl.wiki', hasSubmenu: false },
-  { name: 'Tools', href: 'https://atl.tools', hasSubmenu: false },
-  // { name: 'Features', href: '#features', hasSubmenu: true },
-];
-
-// Define features submenu items
-const features = [
-  {
-    title: 'Dashboard',
-    description: 'Overview of your activity',
-    href: '/dashboard',
-  },
-  {
-    title: 'Analytics',
-    description: 'Track your performance',
-    href: '/analytics',
-  },
-  {
-    title: 'Settings',
-    description: 'Configure your preferences',
-    href: '/settings',
-  },
-  {
-    title: 'Integrations',
-    description: 'Connect with other tools',
-    href: '/integrations',
-  },
-  {
-    title: 'Storage',
-    description: 'Manage your files',
-    href: '/storage',
-  },
-  {
-    title: 'Support',
-    description: 'Get help when needed',
-    href: '/support',
-  },
+  { name: 'Home', href: '/' },
+  { name: 'About', href: '/about' },
+  { name: 'CoC', href: '/code-of-conduct' },
+  { name: 'Blog', href: '/blog' },
+  { name: 'Wiki', href: 'https://atl.wiki' },
+  { name: 'Tools', href: 'https://atl.tools' },
 ];
 
 // Logo component
 const Logo = () => (
-  <div className="flex items-center gap-1 sm:gap-2">
-    <Link href="/">
-      <span className="text-base sm:text-lg font-semibold">
-        All Things Linux
-      </span>
+  <Link href="/" className="flex items-center mr-6">
+    <span className="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary/90 to-primary">
+      All Things Linux
+    </span>
+  </Link>
+);
+
+// Desktop NavLink component
+const NavLink = ({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) => {
+  const pathname = usePathname();
+  const isActive =
+    pathname === href || (href !== '/' && pathname?.startsWith(href));
+  const isExternal = href.startsWith('http');
+
+  return (
+    <Link
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      className={cn(
+        'px-4 py-2 rounded-full text-sm transition-all relative',
+        isActive
+          ? 'font-medium text-primary bg-primary/10'
+          : 'font-normal text-foreground/90 hover:bg-background/80 hover:text-foreground'
+      )}
+    >
+      {children}
     </Link>
-  </div>
-);
+  );
+};
 
-// Feature item component for the dropdown
-const FeatureItem = ({ feature }: { feature: (typeof features)[0] }) => (
-  <NavigationMenuLink
-    href={feature.href}
-    key={feature.title}
-    className="block rounded-md p-3 transition-colors hover:bg-muted"
-  >
-    <div>
-      <p className="mb-1 font-medium">{feature.title}</p>
-      <p className="text-sm text-muted-foreground">{feature.description}</p>
-    </div>
-  </NavigationMenuLink>
-);
-
-// Features submenu content
-const FeaturesSubmenu = () => (
-  <div className="grid w-[600px] grid-cols-2 gap-2 p-4">
-    {features.map((feature) => (
-      <FeatureItem key={feature.title} feature={feature} />
+// Desktop navigation component
+const DesktopNavigation = () => (
+  <div className="hidden md:flex items-center bg-card/40 backdrop-blur-sm rounded-full px-1.5 py-1.5 border border-border/30">
+    {navItems.map((item) => (
+      <NavLink key={item.name} href={item.href}>
+        {item.name}
+      </NavLink>
     ))}
   </div>
 );
 
-// Navigation item component
-const NavItem = ({ item }: { item: (typeof navItems)[0] }) => (
-  <NavigationMenuItem key={item.name}>
-    {item.hasSubmenu ? (
-      <>
-        <NavigationMenuTrigger>{item.name}</NavigationMenuTrigger>
-        <NavigationMenuContent>
-          <FeaturesSubmenu />
-        </NavigationMenuContent>
-      </>
-    ) : (
-      <NavigationMenuLink
-        href={item.href}
-        className={navigationMenuTriggerStyle()}
-      >
-        {item.name}
-      </NavigationMenuLink>
-    )}
-  </NavigationMenuItem>
+// CTA button component
+const CTAButton = ({ className }: { className?: string }) => (
+  <Link href="/get-involved">
+    <Button
+      variant="default"
+      size="default"
+      className={cn(
+        'font-semibold px-5 py-2.5 rounded-full bg-primary text-primary-foreground',
+        'hover:scale-105 hover:bg-primary/90 transition-all duration-300',
+        className
+      )}
+    >
+      Get Involved
+    </Button>
+  </Link>
 );
-
-// Desktop navigation component
-const DesktopNavigation = () => (
-  <NavigationMenu className="hidden lg:block">
-    <NavigationMenuList>
-      {navItems.map((item) => (
-        <NavItem key={item.name} item={item} />
-      ))}
-    </NavigationMenuList>
-  </NavigationMenu>
-);
-
-// CTA buttons component
-const CTAButtons = () => (
-  <div className="hidden items-center gap-4 lg:flex">
-    <Link href="/get-involved">
-      <Button size="sm" variant="default">
-        Get Involved
-      </Button>
-    </Link>
-  </div>
-);
-
-// // Mobile feature item component
-// const MobileFeatureItem = ({ feature }: { feature: (typeof features)[0] }) => (
-//   <a
-//     href={feature.href}
-//     key={feature.title}
-//     className="rounded-md p-2 transition-colors hover:bg-muted"
-//   >
-//     <p className="font-medium">{feature.title}</p>
-//     <p className="text-sm text-muted-foreground">{feature.description}</p>
-//   </a>
-// );
-
-// Mobile features accordion
-// const MobileFeaturesAccordion = () => (
-//   <Accordion type="single" collapsible>
-//     <AccordionItem value="features" className="border-b">
-//       <AccordionTrigger className="py-3">Features</AccordionTrigger>
-//       <AccordionContent>
-//         <div className="flex flex-col space-y-2">
-//           {features.map((feature) => (
-//             <MobileFeatureItem key={feature.title} feature={feature} />
-//           ))}
-//         </div>
-//       </AccordionContent>
-//     </AccordionItem>
-//   </Accordion>
-// );
 
 // Mobile navigation links
-const MobileNavLinks = () => (
-  <>
-    {navItems
-      .filter((item) => !item.hasSubmenu)
-      .map((item) => (
-        <a
-          key={item.name}
-          href={item.href}
-          className="py-3 font-medium transition-colors hover:text-primary"
-        >
-          {item.name}
-        </a>
-      ))}
-  </>
-);
+const MobileNavLinks = ({ onNavigate }: { onNavigate: () => void }) => {
+  const pathname = usePathname();
 
-// Mobile CTA buttons
-const MobileCTAButtons = () => (
-  <div className="mt-4 sm:mt-6 flex flex-col gap-3">
-    <Link href="/get-involved">
-      <Button className="w-full">Get Involved</Button>
-    </Link>
-  </div>
-);
-
-// Mobile navigation sheet content
-const MobileNavContent = () => (
-  <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-4">
-    {/* <MobileFeaturesAccordion /> */}
-    <MobileNavLinks />
-    <MobileCTAButtons />
-  </div>
-);
-
-// Mobile navigation component
-const MobileNavigation = () => (
-  <Sheet>
-    <SheetTrigger asChild className="lg:hidden">
-      <Button variant="ghost" size="icon" className="ml-1 sm:ml-2">
-        <MenuIcon className="h-5 w-5" />
-        <span className="sr-only">Open menu</span>
-      </Button>
-    </SheetTrigger>
-    <SheetContent side="right" className="w-[260px] sm:w-[300px] md:w-[400px]">
-      <SheetHeader>
-        <SheetTitle className="text-left">
-          <span className="text-base sm:text-lg font-semibold">
-            All Things Linux
-          </span>
-        </SheetTitle>
-      </SheetHeader>
-      <MobileNavContent />
-    </SheetContent>
-  </Sheet>
-);
-
-// Main Navbar component
-function Navbar() {
   return (
-    <div className="border-b">
-      <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3">
-        <nav className="flex items-center justify-between">
-          <Logo />
-          <DesktopNavigation />
-          <CTAButtons />
-          <MobileNavigation />
-        </nav>
-      </div>
+    <div className="flex flex-col space-y-2">
+      {navItems.map((item) => {
+        const isActive =
+          pathname === item.href ||
+          (item.href !== '/' && pathname?.startsWith(item.href));
+
+        return (
+          <Link
+            key={item.name}
+            href={item.href}
+            onClick={onNavigate}
+            className={cn(
+              'py-2.5 px-4 rounded-lg font-medium transition-colors',
+              isActive
+                ? 'bg-primary/10 text-primary'
+                : 'text-foreground/90 hover:bg-card/60'
+            )}
+          >
+            {item.name}
+          </Link>
+        );
+      })}
     </div>
   );
-}
+};
 
+// Mobile navigation component
+const MobileNavigation = () => {
+  const [open, setOpen] = useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild className="md:hidden">
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-2 rounded-full border-border/50"
+        >
+          <MenuIcon className="h-5 w-5" />
+          <span className="sr-only">Open menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[280px]">
+        <SheetHeader className="mb-8 pb-4 border-b">
+          <SheetTitle className="text-left">
+            <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary/90 to-primary">
+              All Things Linux
+            </span>
+          </SheetTitle>
+        </SheetHeader>
+        <div className="flex flex-col gap-8">
+          <MobileNavLinks onNavigate={handleClose} />
+          <div onClick={handleClose}>
+            <CTAButton className="w-full" />
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+// Main Header component
 export default function Header() {
   return (
-    <header>
-      <Navbar />
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
+          <Logo />
+
+          <div className="flex items-center gap-x-4">
+            <DesktopNavigation />
+            <div className="hidden md:block ml-4">
+              <CTAButton />
+            </div>
+            <MobileNavigation />
+          </div>
+        </div>
+      </div>
     </header>
   );
 }

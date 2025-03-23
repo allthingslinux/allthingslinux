@@ -1,40 +1,20 @@
-import { Mdx } from '@/components/mdx-components';
-import { buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { allBlogPosts } from 'contentlayer/generated';
-import { ChevronLeft } from 'lucide-react';
-import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BlogPostMeta } from '@/components/blog/blog-post-meta';
+import type { Metadata } from 'next';
+import { getPost, getAllPosts } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
+import { Mdx } from '@/components/mdx-components';
 
-// Types
-type BlogPostParams = {
+// Enable ISR with revalidation every hour
+export const revalidate = 3600;
+
+// Configure Edge Runtime for Cloudflare Pages
+export const runtime = 'edge';
+
+interface PostPageProps {
   params: {
     category: string;
     slug: string;
   };
-};
-
-// Helper function to get post
-async function getPostFromParams(params: BlogPostParams['params']) {
-  const resolvedParams = await Promise.resolve(params);
-  const { category, slug } = resolvedParams;
-
-  if (!category || !slug) {
-    return null;
-  }
-
-  const post = allBlogPosts.find(
-    (post) => post.categorySlug === category && post.slug === slug
-  );
-
-  if (!post) {
-    return null;
-  }
-
-  return post;
 }
 
 // Simple date formatter function for server components
@@ -62,54 +42,58 @@ function formatDate(dateString: string): string {
   }
 }
 
-// Metadata generation
 export async function generateMetadata({
   params,
-}: BlogPostParams): Promise<Metadata> {
-  const post = await getPostFromParams(params);
+}: PostPageProps): Promise<Metadata> {
+  // Properly await params
+  const resolvedParams = await Promise.resolve(params);
+  const { category, slug } = resolvedParams;
+
+  const post = getPost(category, slug);
 
   if (!post) {
     return {
-      title: 'Blog Post Not Found',
-      description: 'The requested blog post could not be found.',
+      title: 'Post Not Found',
+      description: 'The post you are looking for does not exist.',
     };
   }
 
   return {
-    title: `${post.title} - All Things Linux Blog`,
-    description: post.description,
+    title: `${post.title} | All Things Linux Blog`,
+    description:
+      post.description || `Read ${post.title} on All Things Linux Blog`,
     authors: [{ name: post.author }],
     openGraph: {
-      title: post.title,
-      description: post.description,
       type: 'article',
+      title: post.title,
+      description:
+        post.description || `Read ${post.title} on All Things Linux Blog`,
       publishedTime: post.date,
       authors: [post.author],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.description,
     },
   };
 }
 
+// Generate static paths for all blog posts
 export async function generateStaticParams() {
-  return allBlogPosts.map((post) => ({
+  const posts = getAllPosts();
+
+  return posts.map((post) => ({
     category: post.categorySlug,
     slug: post.slug,
   }));
 }
 
-export default async function BlogPost({ params }: BlogPostParams) {
-  const post = await getPostFromParams(params);
+export default async function PostPage({ params }: PostPageProps) {
+  // Properly await params
+  const resolvedParams = await Promise.resolve(params);
+  const { category, slug } = resolvedParams;
+
+  const post = getPost(category, slug);
 
   if (!post) {
     notFound();
   }
-
-  // Format the date at the component level for safety
-  const formattedDate = post.dateFormatted || formatDate(post.date);
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
@@ -117,23 +101,54 @@ export default async function BlogPost({ params }: BlogPostParams) {
         <BackToAllPostsButton />
       </div>
 
-      <h1 className="mb-2 font-heading text-4xl leading-tight lg:text-5xl">
-        {post.title}
-      </h1>
+      <div>
+        <h1 className="mt-2 scroll-m-20 text-4xl font-bold tracking-tight text-balance">
+          {post.title}
+        </h1>
+        {post.description && (
+          <p className="mt-2 text-xl text-muted-foreground text-balance">
+            {post.description}
+          </p>
+        )}
 
-      {post.description && (
-        <p className="mb-6 text-lg text-muted-foreground">{post.description}</p>
-      )}
+        {/* Author and date with card aesthetic */}
+        <div className="mt-6">
+          <div className="flex items-center space-x-4 rounded-lg border border-gray-800 bg-gray-900/50 p-4 shadow-md">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 text-blue-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <div className="space-y-1">
+              <div className="font-medium text-neutral-200">{post.author}</div>
+              <div className="text-xs text-neutral-400 flex items-center gap-2">
+                <span>Published on</span>
+                <time dateTime={post.date}>
+                  {post.dateFormatted || formatDate(post.date)}
+                </time>
+                <span>•</span>
+                <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20">
+                  {post.category}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <BlogPostMeta
-        author={post.author}
-        date={post.date}
-        formattedDate={formattedDate}
-        category={post.category}
-        categorySlug={post.categorySlug}
-      />
-
-      <Mdx code={post.body.code} />
+      <div className="prose prose-quoteless prose-neutral dark:prose-invert mt-12 w-full">
+        <Mdx code={post.body.code} />
+      </div>
 
       <hr className="mt-12" />
       <div className="flex justify-center py-6 lg:py-10">

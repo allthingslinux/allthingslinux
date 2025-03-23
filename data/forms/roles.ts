@@ -5,8 +5,6 @@ import { managementQuestions } from './questions/departmental/management';
 import { creativeQuestions } from './questions/departmental/creative';
 import { systemsQuestions } from './questions/departmental/systems';
 
-import { moderatorQuestions } from './questions/roles/moderation/moderator';
-
 export const moderationRoles: Role[] = [
   {
     slug: 'senior-moderator',
@@ -22,7 +20,7 @@ export const moderationRoles: Role[] = [
     department: 'Moderation',
     description:
       'Moderators are responsible for enforcing our Code of Conduct and keeping the community safe and welcoming. They are the first line of defense and backbone of the community.',
-    questions: [...moderationQuestions, ...moderatorQuestions],
+    questions: [...moderationQuestions],
   },
 ];
 

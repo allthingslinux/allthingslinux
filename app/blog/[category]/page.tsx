@@ -10,16 +10,29 @@ import {
 // Number of posts per page for pagination
 const POSTS_PER_PAGE = 6;
 
-// Add a dynamic export to support the soft navigation
-export const dynamic = 'force-dynamic';
+// Enable ISR for blog pages with revalidation every hour
+export const revalidate = 3600;
+
+// Configure Edge Runtime for Cloudflare Pages
+export const runtime = 'edge';
+
+// Generate static paths for common categories at build time
+export async function generateStaticParams() {
+  const categories = [
+    'all-posts',
+    ...getAllCategories().map((c) => c.toLowerCase().replace(/ /g, '-')),
+  ];
+  return categories.map((category) => ({ category }));
+}
 
 export async function generateMetadata({
   params,
 }: {
   params: { category: string };
 }): Promise<Metadata> {
-  const paramsResolved = await Promise.resolve(params);
-  const { category } = paramsResolved;
+  // Properly await params
+  const resolvedParams = await Promise.resolve(params);
+  const { category } = resolvedParams;
 
   const posts = getPostsByCategory(category);
   const categoryName =
@@ -34,18 +47,6 @@ export async function generateMetadata({
   };
 }
 
-export async function generateStaticParams() {
-  const categories = getAllCategories();
-
-  // Add 'all-posts' category
-  return [
-    { category: 'all-posts' },
-    ...categories.map((category) => ({
-      category: category.toLowerCase().replace(/ /g, '-'),
-    })),
-  ];
-}
-
 export default async function CategoryPage({
   params,
   searchParams,
@@ -53,13 +54,15 @@ export default async function CategoryPage({
   params: { category: string };
   searchParams: { page?: string };
 }) {
-  const paramsResolved = await Promise.resolve(params);
-  const searchParamsResolved = await Promise.resolve(searchParams);
-  const { category } = paramsResolved;
+  // Properly await both params and searchParams
+  const resolvedParams = await Promise.resolve(params);
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+
+  const { category } = resolvedParams;
 
   // Parse page number from search params
-  const page = searchParamsResolved.page
-    ? parseInt(searchParamsResolved.page, 10)
+  const page = resolvedSearchParams.page
+    ? parseInt(resolvedSearchParams.page, 10)
     : 1;
 
   // Get all posts for this category
