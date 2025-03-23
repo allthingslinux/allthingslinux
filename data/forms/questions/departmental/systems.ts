@@ -4,7 +4,7 @@ export const systemsQuestions: FormQuestion[] = [
   {
     name: 'interest_and_goals',
     question:
-      'What interests you about joining the Systems & Development team at All Things Linux, and what professional or technical skills do you hope to learn, practice, or further develop?',
+      'What interests you about joining the systems team at All Things Linux, and what professional or technical skills do you hope to learn, practice, or further develop?',
     description:
       'Mention your enthusiasm for technology, open-source contributing, or community-driven projects and any personal growth areas you are looking to explore.',
     type: 'paragraph',
@@ -12,7 +12,7 @@ export const systemsQuestions: FormQuestion[] = [
   {
     name: 'personal_qualities',
     question:
-      'What personal qualities or strengths do you have that would help you succeed on a systems or development team?',
+      'What personal qualities or strengths do you have that would help you succeed on a systems/development team?',
     description:
       'For example: problem-solving mindset, curiosity, reliability, good communication, patience, or teamwork skills.',
     type: 'paragraph',

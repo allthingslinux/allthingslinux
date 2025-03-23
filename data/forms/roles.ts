@@ -88,6 +88,38 @@ export const systemsRoles: Role[] = [
       'Systems Administrators are responsible for the overall management of our servers and infrastructure. They ensure that our systems are running smoothly and efficiently.',
     questions: [...systemsQuestions],
   },
+  {
+    slug: 'fullstack-web-developer',
+    name: 'Fullstack Web Developer',
+    department: 'Systems',
+    description:
+      'Fullstack Web Developers are responsible for developing and maintaining our website, blog and related projects that require web development skills, from front-end to back-end.',
+    questions: [...systemsQuestions],
+  },
+  {
+    slug: 'frontend-web-developer',
+    name: 'Frontend Web Developer',
+    department: 'Systems',
+    description:
+      'Frontend Web Developers are responsible for developing and maintaining our website and related projects that require skills such as React, Next.js, Shadcn UI, and Tailwind CSS.',
+    questions: [...systemsQuestions],
+  },
+  {
+    slug: 'backend-web-developer',
+    name: 'Backend Web Developer',
+    department: 'Systems',
+    description:
+      'Backend Web Developers are responsible for developing and maintaining our website and related projects that require skills such as Node.js, Express, PostgreSQL, and Docker.',
+    questions: [...systemsQuestions],
+  },
+  {
+    slug: 'python-developer',
+    name: 'Python Developer',
+    department: 'Systems',
+    description:
+      'Python Developers are responsible for developing and maintaing Python related projects like our Discord bot, Tux. Experience with discord.py, httpx, poetry, and strict typing is preferred.',
+    questions: [...systemsQuestions],
+  },
 ];
 
 export const roles: Role[] = [
