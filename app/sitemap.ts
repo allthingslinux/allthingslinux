@@ -64,7 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Get all blog posts and add them to sitemap
-  const posts = getAllPostsAsPostType();
+  const posts = await getAllPostsAsPostType();
   const blogPosts = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.categorySlug}/${post.slug}`,
     lastModified: new Date(post.date),

@@ -18,6 +18,12 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   );
 }
 
+// Get all posts as Post type
+export async function getAllPostsAsPostType(): Promise<Post[]> {
+  const posts = await getAllPosts();
+  return posts.map(convertToPost);
+}
+
 // Get all unique categories
 export async function getAllCategories(): Promise<string[]> {
   const posts = await getAllPosts();
