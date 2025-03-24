@@ -15,12 +15,12 @@
     "check-format": "prettier --check .",
     "check:mdx": "remark content/blog/*.mdx --quiet",
     "check:ts": "tsc --noEmit",
-    "pages:build": "open-next build",
-    "cloudflare-build": "contentlayer2 build && open-next build && npx @opennextjs/cloudflare",
-    "preview": "npm run build:content && opennextjs-cloudflare && wrangler dev",
-    "deploy": "npm run build:content && opennextjs-cloudflare && wrangler deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "build:content": "contentlayer2 build"
+    "build:content": "contentlayer2 build",
+    "open-next:build": "contentlayer2 build && open-next build",
+    "cloudflare:build": "npm run open-next:build && npx @opennextjs/cloudflare",
+    "cloudflare:dev": "npm run open-next:build && opennextjs-cloudflare && wrangler dev .open-next/worker.js",
+    "cloudflare:deploy": "npm run open-next:build && opennextjs-cloudflare && wrangler deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
