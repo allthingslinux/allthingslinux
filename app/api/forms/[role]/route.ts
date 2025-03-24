@@ -132,7 +132,7 @@ async function storeApplicationDataOnGitHub(
           name: q.name,
           optional: q.optional || false,
         })),
-      // Include raw form data for complete backup
+      // Include simplified form data for complete backup
       rawFormData: Object.fromEntries(
         Object.entries(formData).map(([key, value]) => [key, String(value)])
       ),
@@ -144,8 +144,36 @@ async function storeApplicationDataOnGitHub(
     const filename = `applications/${roleData.slug}/${safeUsername}-${safeTimestamp}.json`;
     const content = JSON.stringify(applicationData, null, 2);
 
-    // Encode content to base64 (required by GitHub API)
-    const contentEncoded = btoa(unescape(encodeURIComponent(content)));
+    // Cloudflare Workers compatible Base64 encoding
+    // First convert the string to UTF-8 bytes
+    const encoder = new TextEncoder();
+    const data = encoder.encode(content);
+
+    // Then encode those bytes to base64
+    let contentEncoded = '';
+    try {
+      // Try the modern approach first (supported in most environments)
+      contentEncoded = btoa(
+        Array.from(data)
+          .map((byte) => String.fromCharCode(byte))
+          .join('')
+      );
+    } catch (encodeError) {
+      console.error(
+        'Error with btoa encoding, trying Buffer fallback:',
+        encodeError
+      );
+
+      // Fallback for environments that support Buffer
+      try {
+        contentEncoded = Buffer.from(content).toString('base64');
+      } catch (bufferError) {
+        console.error('Buffer fallback also failed:', bufferError);
+        throw new Error('Unable to base64 encode content');
+      }
+    }
+
+    console.log(`Attempting to create file: ${filename}`);
 
     // Create the file via GitHub API
     const response = await fetch(
@@ -166,8 +194,11 @@ async function storeApplicationDataOnGitHub(
       }
     );
 
+    console.log(`GitHub API response status: ${response.status}`);
+
     if (!response.ok) {
       const responseData = await response.json();
+      console.error('GitHub API error details:', JSON.stringify(responseData));
       throw new Error(
         `GitHub API error: ${response.status} - ${JSON.stringify(responseData)}`
       );
