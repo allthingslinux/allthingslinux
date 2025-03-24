@@ -1,8 +1,6 @@
 'use client';
 
-import React from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import React, { useState, useEffect, useMemo } from 'react';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 
 type CodeBlockProps = {
@@ -32,8 +30,10 @@ export const CodeBlock = ({
   highlightLines = [],
   tabs = [],
 }: CodeBlockProps) => {
-  const [copied, setCopied] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState(0);
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const [highlightedCode, setHighlightedCode] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   const tabsExist = tabs.length > 0;
 
@@ -46,19 +46,87 @@ export const CodeBlock = ({
     }
   };
 
-  const activeCode = tabsExist ? tabs[activeTab].code : code;
-  const activeLanguage = tabsExist
-    ? tabs[activeTab].language || language
-    : language;
-  const activeHighlightLines = tabsExist
-    ? tabs[activeTab].highlightLines || []
-    : highlightLines;
+  const activeCode = useMemo(
+    () => (tabsExist ? tabs[activeTab].code : code),
+    [tabsExist, tabs, activeTab, code]
+  );
+
+  const activeLanguage = useMemo(
+    () => (tabsExist ? tabs[activeTab].language || language : language),
+    [tabsExist, tabs, activeTab, language]
+  );
+
+  const activeHighlightLines = useMemo(
+    () => (tabsExist ? tabs[activeTab].highlightLines || [] : highlightLines),
+    [tabsExist, tabs, activeTab, highlightLines]
+  );
+
+  useEffect(() => {
+    // Simple syntax highlighting function that doesn't rely on external libraries
+    const highlightCode = () => {
+      if (!activeCode) {
+        setHighlightedCode('<pre><code>No code content available</code></pre>');
+        return;
+      }
+
+      try {
+        // Create a simple highlighted HTML with line numbers
+        const lines = activeCode.split('\n');
+        let html = '<pre class="shiki"><code>';
+
+        lines.forEach((line, index) => {
+          const lineNumber = index + 1;
+          const isHighlighted = activeHighlightLines.includes(lineNumber);
+          const lineClass = isHighlighted ? 'line highlighted-line' : 'line';
+
+          // Escape HTML characters
+          const escapedLine = line
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+          html += `<span class="${lineClass}">${escapedLine}</span>`;
+        });
+
+        html += '</code></pre>';
+        setHighlightedCode(html);
+        setError(null);
+      } catch (err) {
+        // Safe error logging without accessing err.stack
+        console.error(
+          'Failed to highlight code:',
+          err instanceof Error ? err.message : 'Unknown error'
+        );
+
+        setError('Failed to highlight code. Displaying plain text instead.');
+
+        // Fallback to plain text with safe HTML escaping
+        try {
+          const escapedCode = activeCode
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+          setHighlightedCode(`<pre><code>${escapedCode}</code></pre>`);
+        } catch (escapeErr) {
+          // If even the escaping fails, use a very simple fallback
+          setHighlightedCode(`<pre><code>Code rendering failed</code></pre>`);
+          setError(
+            escapeErr instanceof Error
+              ? escapeErr.message
+              : 'Unknown error during code highlighting'
+          );
+        }
+      }
+    };
+
+    highlightCode();
+  }, [activeCode, activeLanguage, activeHighlightLines]);
 
   return (
     <div className="relative w-full rounded-lg bg-slate-900 p-4 font-mono text-sm">
       <div className="flex flex-col gap-2">
         {tabsExist && (
-          <div className="flex  overflow-x-auto">
+          <div className="flex overflow-x-auto">
             {tabs.map((tab, index) => (
               <button
                 key={index}
@@ -74,7 +142,7 @@ export const CodeBlock = ({
             ))}
           </div>
         )}
-        {!tabsExist && filename && (
+        {filename && (
           <div className="flex justify-between items-center py-2">
             <div className="text-xs text-zinc-400">{filename}</div>
             <button
@@ -86,30 +154,50 @@ export const CodeBlock = ({
           </div>
         )}
       </div>
-      <SyntaxHighlighter
-        language={activeLanguage}
-        style={atomDark}
-        customStyle={{
-          margin: 0,
-          padding: 0,
-          background: 'transparent',
-          fontSize: '0.875rem', // text-sm equivalent
-        }}
-        wrapLines={true}
-        showLineNumbers={true}
-        lineProps={(lineNumber) => ({
-          style: {
-            backgroundColor: activeHighlightLines.includes(lineNumber)
-              ? 'rgba(255,255,255,0.1)'
-              : 'transparent',
-            display: 'block',
-            width: '100%',
-          },
-        })}
-        PreTag="div"
-      >
-        {String(activeCode)}
-      </SyntaxHighlighter>
+
+      {error ? (
+        <div className="py-4 text-red-400">{error}</div>
+      ) : (
+        <div
+          className="shiki-container"
+          dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          style={{
+            fontSize: '0.875rem',
+          }}
+        />
+      )}
+
+      <style jsx global>{`
+        .shiki-container {
+          background: transparent;
+          margin: 0;
+          padding: 0;
+          overflow-x: auto;
+        }
+        .shiki-container pre {
+          margin: 0;
+          padding: 0;
+        }
+        .shiki-container .line {
+          display: block;
+          width: 100%;
+        }
+        .shiki-container .highlighted-line {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+        .shiki-container code {
+          counter-reset: line;
+        }
+        .shiki-container .line::before {
+          counter-increment: line;
+          content: counter(line);
+          display: inline-block;
+          width: 1.5rem;
+          margin-right: 1rem;
+          text-align: right;
+          color: rgba(115, 138, 148, 0.4);
+        }
+      `}</style>
     </div>
   );
 };

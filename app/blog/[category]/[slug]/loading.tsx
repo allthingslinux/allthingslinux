@@ -1,49 +1,57 @@
-import { ChevronLeft } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function BlogPostLoading() {
   return (
-    <section className="py-20 min-h-[calc(100vh-4rem)]">
-      <div className="container max-w-3xl">
-        {/* Header */}
-        <header className="mb-16">
-          <div className="mb-8 inline-flex items-center gap-1 text-sm text-blue-400">
-            <ChevronLeft className="h-4 w-4" />
-            Return to blog
+    <div className="opacity-0 animate-in fade-in duration-500 delay-300 fill-mode-forwards">
+      <article className="container relative max-w-3xl py-6 lg:py-10">
+        <Link
+          href="/blog/all-posts"
+          className={cn(
+            buttonVariants({ variant: 'ghost' }),
+            'absolute left-[-200px] top-14 hidden xl:inline-flex'
+          )}
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          See all posts
+        </Link>
+
+        <Skeleton className="h-12 w-3/4 mb-2 rounded-md" />
+        <Skeleton className="h-6 w-4/5 mb-6 rounded-md" />
+
+        <div className="flex items-center space-x-4 mb-8">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32 rounded-md" />
+            <Skeleton className="h-4 w-40 rounded-md" />
           </div>
+        </div>
 
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-6 w-24 rounded-md" />
+        {/* Content loading skeleton */}
+        <div className="space-y-6">
+          {Array(8)
+            .fill(0)
+            .map((_, i) => (
+              <div key={i} className="space-y-3">
+                {i % 3 === 0 && <Skeleton className="h-8 w-2/3 rounded-md" />}
+                <Skeleton className="h-4 w-full rounded-md" />
+                <Skeleton className="h-4 w-full rounded-md" />
+                {i % 2 === 0 && <Skeleton className="h-4 w-4/5 rounded-md" />}
               </div>
-              <Skeleton className="h-12 w-full" />
-            </div>
+            ))}
+        </div>
 
-            <div className="flex items-center gap-3 border-b pb-8">
-              <Skeleton className="size-10 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
+        <hr className="mt-12" />
+        <div className="flex justify-center py-6 lg:py-10">
+          <div className={cn(buttonVariants({ variant: 'ghost' }))}>
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            See all posts
           </div>
-        </header>
-
-        {/* Main Content */}
-        <article className="space-y-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-[90%]" />
-          <Skeleton className="h-4 w-[95%]" />
-          <Skeleton className="h-4 w-[85%]" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-[92%]" />
-          <Skeleton className="h-4 w-[88%]" />
-          <Skeleton className="h-4 w-[95%]" />
-          <Skeleton className="h-4 w-[90%]" />
-          <Skeleton className="h-4 w-full" />
-        </article>
-      </div>
-    </section>
+        </div>
+      </article>
+    </div>
   );
 }

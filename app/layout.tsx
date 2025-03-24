@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+
+import { Inter, JetBrains_Mono } from 'next/font/google';
+
 import './globals.css';
 
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
-import { GoogleTagManager } from '@next/third-parties/google';
+
+// import { GoogleTagManager } from '@next/third-parties/google';
 
 // Initialize font with subset for better performance
 const inter = Inter({
@@ -12,6 +15,14 @@ const inter = Inter({
   display: 'swap',
   preload: true,
   variable: '--font-inter',
+});
+
+// Add a monospace font for code blocks
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-mono',
 });
 
 export const metadata: Metadata = {
@@ -26,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <GoogleTagManager gtmId="GTM-KK56FB5V" />
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      {/* <GoogleTagManager gtmId="GTM-KK56FB5V" /> */}
       <body>
         <Header />
         {children}

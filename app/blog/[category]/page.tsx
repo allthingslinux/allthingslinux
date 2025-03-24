@@ -1,15 +1,34 @@
-import { getAllPosts } from '@/lib/utils';
 import BlogPosts from '@/components/blog/blog-posts';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import {
+  getPostsByCategory,
+  getAllCategories,
+  getPostsByCategoryAsPostType,
+} from '@/lib/blog';
+
+// Number of posts per page for pagination
+const POSTS_PER_PAGE = 6;
+
+// Enable ISR for blog pages with revalidation every hour
+export const revalidate = 3600;
+
+// Configure Edge Runtime for Cloudflare Pages
+export const runtime = 'edge';
+
+// Remove generateStaticParams since it's incompatible with Edge Runtime
+// We'll rely on ISR instead for dynamic paths
 
 export async function generateMetadata({
   params,
 }: {
   params: { category: string };
 }): Promise<Metadata> {
-  const { category } = await params;
-  const posts = await getAllPosts();
+  // Properly await params
+  const resolvedParams = await Promise.resolve(params);
+  const { category } = resolvedParams;
+
+  const posts = getPostsByCategory(category);
   const categoryName =
     category === 'all-posts'
       ? 'All Posts'
@@ -22,44 +41,62 @@ export async function generateMetadata({
   };
 }
 
-export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  const categories = Array.from(new Set(posts.map((post) => post.category)));
-
-  return [
-    { category: 'all-posts' },
-    ...categories.map((category) => ({
-      category:
-        posts.find((p) => p.category === category)?.categorySlug ||
-        category.toLowerCase().replace(/ /g, '-'),
-    })),
-  ];
-}
-
 export default async function CategoryPage({
   params,
+  searchParams,
 }: {
   params: { category: string };
+  searchParams: { page?: string };
 }) {
-  const { category } = await params;
-  const posts = await getAllPosts();
-  const categories = [
-    'All Posts',
-    ...Array.from(new Set(posts.map((post) => post.category))),
-  ];
+  // Properly await both params and searchParams
+  const resolvedParams = await Promise.resolve(params);
+  const resolvedSearchParams = await Promise.resolve(searchParams);
 
-  // Filter posts by category if not "all-posts"
-  const filteredPosts =
+  const { category } = resolvedParams;
+
+  // Parse page number from search params
+  const page = resolvedSearchParams.page
+    ? parseInt(resolvedSearchParams.page, 10)
+    : 1;
+
+  // Get all posts for this category
+  const allCategoryPosts = getPostsByCategoryAsPostType(category);
+
+  // Calculate pagination values
+  const totalPosts = allCategoryPosts.length;
+  const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
+
+  // Get paginated posts
+  const startIndex = (page - 1) * POSTS_PER_PAGE;
+  const paginatedPosts = allCategoryPosts.slice(
+    startIndex,
+    startIndex + POSTS_PER_PAGE
+  );
+
+  // Get category name for UI
+  const categoryName =
     category === 'all-posts'
-      ? posts
-      : posts.filter((post) => post.categorySlug === category);
+      ? 'All Posts'
+      : allCategoryPosts.length > 0
+        ? allCategoryPosts[0].category
+        : 'Blog';
+
+  const categories = ['All Posts', ...getAllCategories()];
 
   if (
     category !== 'all-posts' &&
-    !posts.some((post) => post.categorySlug === category)
+    !allCategoryPosts.some((post) => post.categorySlug === category)
   ) {
     notFound();
   }
 
-  return <BlogPosts initialPosts={filteredPosts} categories={categories} />;
+  return (
+    <BlogPosts
+      initialPosts={paginatedPosts}
+      categories={categories}
+      currentCategory={categoryName}
+      page={page}
+      totalPages={totalPages}
+    />
+  );
 }
