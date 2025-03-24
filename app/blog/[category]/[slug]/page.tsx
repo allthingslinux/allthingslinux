@@ -1,11 +1,9 @@
 import { notFound } from 'next/navigation';
+import { Mdx } from '@/components/mdx-components';
 import type { Metadata } from 'next';
 import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
-import { Mdx } from '@/components/mdx-components';
-
-// Enable ISR with revalidation every hour
-export const revalidate = 3600;
+import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
 
 // Configure Edge Runtime for Cloudflare Pages
 export const runtime = 'edge';
@@ -17,7 +15,9 @@ interface PostPageProps {
   };
 }
 
-// Simple date formatter function for server components
+export const revalidate = 3600;
+
+// Simple date formatter function for edge runtime
 function formatDate(dateString: string): string {
   try {
     const date = new Date(dateString);
@@ -102,47 +102,28 @@ export default async function PostPage({ params }: PostPageProps) {
         )}
 
         {/* Author and date with card aesthetic */}
-        <div className="mt-6">
-          <div className="flex items-center space-x-4 rounded-lg border border-gray-800 bg-gray-900/50 p-4 shadow-md">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 text-blue-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </div>
-            <div className="space-y-1">
-              <div className="font-medium text-neutral-200">{post.author}</div>
-              <div className="text-xs text-neutral-400 flex items-center gap-2">
-                <span>Published on</span>
-                <time dateTime={post.date}>
-                  {post.dateFormatted || formatDate(post.date)}
-                </time>
-                <span>•</span>
-                <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/20">
-                  {post.category}
-                </span>
-              </div>
-            </div>
+        <div className="mt-4 items-center space-x-2 text-sm text-muted-foreground bg-card/50 px-3 py-1 rounded-md inline-flex">
+          {post.author && (
+            <>
+              <div className="font-medium">{post.author}</div>
+              <div>·</div>
+            </>
+          )}
+          <div>
+            <time dateTime={post.date}>
+              {post.dateFormatted || formatDate(post.date)}
+            </time>
           </div>
         </div>
       </div>
 
-      <div className="prose prose-quoteless prose-neutral dark:prose-invert mt-12 w-full">
+      <div className="mt-8">
         <Mdx code={post.body.code} />
       </div>
 
-      <hr className="mt-12" />
-      <div className="flex justify-center py-6 lg:py-10">
+      <div className="flex justify-center items-center gap-4 py-6 lg:py-10">
         <BackToAllPostsButton />
+        <ClientScrollToTop />
       </div>
     </article>
   );
