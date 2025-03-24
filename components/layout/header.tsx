@@ -27,7 +27,7 @@ const navItems = [
 // Logo component
 const Logo = () => (
   <Link href="/" className="flex items-center mr-6">
-    <span className="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary/90 to-primary">
+    <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary/90 to-primary">
       All Things Linux
     </span>
   </Link>
