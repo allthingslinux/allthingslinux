@@ -7,7 +7,7 @@ import './globals.css';
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
 
-// import { GoogleTagManager } from '@next/third-parties/google';
+import { GoogleTagManager } from '@next/third-parties/google';
 
 // Initialize font with subset for better performance
 const inter = Inter({
@@ -38,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      {/* <GoogleTagManager gtmId="GTM-KK56FB5V" /> */}
+      <GoogleTagManager gtmId="GTM-KK56FB5V" />
       <body>
         <Header />
         {children}
