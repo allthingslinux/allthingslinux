@@ -1,5 +1,3 @@
-// @ts-check
-
 /** @type {import("eslint").Linter.Config} */
 
 import { FlatCompat } from '@eslint/eslintrc';
@@ -18,7 +16,7 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   {
-    ignores: ['**/node_modules/**', '.next/**', 'dist/**'],
+    ignores: ['**/node_modules/**', '.next/**', 'dist/**', '.contentlayer/**'],
   },
   ...compat.config({
     extends: [
@@ -49,6 +47,9 @@ const eslintConfig = [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          ignoreRestSiblings: true,
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -70,6 +71,11 @@ const eslintConfig = [
         extends: ['plugin:mdx/recommended'],
         rules: {
           'no-unused-expressions': 'off',
+          'react/jsx-no-undef': 'off',
+          'react/react-in-jsx-scope': 'off',
+        },
+        globals: {
+          Alert: 'readonly',
         },
       },
     ],

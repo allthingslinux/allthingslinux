@@ -1,156 +1,287 @@
 'use client';
 
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { createHeadingComponent } from '@/components/mdx/headings';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import Image from 'next/image';
+
+// Custom CSS for the animation
+const animationStyles = `
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+`;
 
 interface CodeOfConductContentProps {
   content: string;
   lastUpdated: string;
 }
 
-// Memoize markdown components
-const markdownComponents: Components = {
-  h1: createHeadingComponent('h1'),
-  h2: createHeadingComponent('h2'),
-  h3: createHeadingComponent('h3'),
-  h4: createHeadingComponent('h4'),
-  h5: createHeadingComponent('h5'),
-  h6: createHeadingComponent('h6'),
-  ul: ({ ...props }) => <ul {...props} className="list-disc pl-5 space-y-2" />,
-  ol: ({ ...props }) => (
-    <ol {...props} className="list-decimal pl-5 space-y-2" />
-  ),
-  li: ({ ...props }) => <li {...props} className="text-base leading-7" />,
-  table: ({ ...props }) => (
-    <div className="my-8 overflow-hidden rounded-lg border border-[color-mix(in_oklab,neutral-700_50%,transparent)]">
-      <table {...props} className="w-full border-collapse" />
-    </div>
-  ),
-  thead: ({ ...props }) => (
-    <thead
+// Define custom components with improved styling
+const components = {
+  h1: ({
+    id,
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h1
+      id={id}
+      className={`group scroll-m-20 font-bold tracking-tight mt-12 mb-8 text-neutral-100 text-3xl lg:text-4xl pb-3 border-b border-blue-500/30 ${className || ''}`}
       {...props}
-      className="bg-[color-mix(in_oklab,neutral-900_30%,transparent)]"
-    />
+    >
+      <span>{children}</span>
+      {id && (
+        <a
+          href={`#${id}`}
+          className="ml-2 opacity-0 group-hover:opacity-100 text-blue-400 hover:text-blue-300 transition-opacity"
+          aria-label={`Link to this section`}
+        >
+          #
+        </a>
+      )}
+    </h1>
   ),
-  th: ({ ...props }) => (
-    <th
+  h2: ({
+    id,
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h2
+      id={id}
+      className={`group scroll-m-20 font-semibold tracking-tight mt-10 mb-6 text-neutral-100 text-2xl lg:text-3xl border-l-3 border-blue-500/40 pl-3 ${className || ''}`}
       {...props}
-      className="p-3 text-left text-sm font-semibold text-neutral-200"
-    />
+    >
+      <span>{children}</span>
+      {id && (
+        <a
+          href={`#${id}`}
+          className="ml-2 opacity-0 group-hover:opacity-100 text-blue-400 hover:text-blue-300 transition-opacity"
+          aria-label={`Link to this section`}
+        >
+          #
+        </a>
+      )}
+    </h2>
   ),
-  td: ({ ...props }) => (
-    <td
+  h3: ({
+    id,
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h3
+      id={id}
+      className={`group scroll-m-20 tracking-tight mt-8 mb-4 text-neutral-200 text-xl lg:text-2xl border-l-2 border-blue-400/30 pl-2 ${className || ''}`}
       {...props}
-      className="p-3 text-sm text-neutral-300 border-t border-[color-mix(in_oklab,neutral-700_50%,transparent)]"
-    />
+    >
+      <span>{children}</span>
+      {id && (
+        <a
+          href={`#${id}`}
+          className="ml-2 opacity-0 group-hover:opacity-100 text-blue-400 hover:text-blue-300 transition-opacity"
+          aria-label={`Link to this section`}
+        >
+          #
+        </a>
+      )}
+    </h3>
   ),
-  tr: ({ ...props }) => (
-    <tr
+  h4: ({
+    id,
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h4
+      id={id}
+      className={`group scroll-m-20 tracking-tight mt-6 mb-3 text-neutral-200 text-lg lg:text-xl border-l border-blue-400/20 pl-2 ${className || ''}`}
       {...props}
-      className="hover:bg-[color-mix(in_oklab,neutral-800_20%,transparent)] transition-colors"
-    />
+    >
+      <span>{children}</span>
+      {id && (
+        <a
+          href={`#${id}`}
+          className="ml-2 opacity-0 group-hover:opacity-100 text-blue-400 hover:text-blue-300 transition-opacity"
+          aria-label={`Link to this section`}
+        >
+          #
+        </a>
+      )}
+    </h4>
   ),
-  code: ({ className, children, ...props }) => {
-    const isInlineCode = !className?.includes('language-');
+  a: ({
+    href,
+    className,
+    children,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+    // Handle case where href might not be a string
+    if (href === undefined || href === null) {
+      return <span className="text-neutral-300">{children}</span>;
+    }
+
+    // Make sure href is a string
+    const hrefString = String(href);
+    const isExternal = hrefString.startsWith('http');
+
     return (
-      <code
+      <a
+        className={`font-medium text-blue-400 underline underline-offset-4 hover:text-blue-300 ${className || ''}`}
+        href={hrefString}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
         {...props}
-        className={
-          isInlineCode
-            ? 'px-1.5 py-0.5 text-sm bg-[color-mix(in_oklab,neutral-900_30%,transparent)] rounded border border-neutral-800'
-            : undefined
-        }
       >
         {children}
-      </code>
+      </a>
     );
   },
-  pre: ({ ...props }) => (
-    <pre
-      {...props}
-      className="my-6 p-4 overflow-x-auto text-sm bg-[color-mix(in_oklab,neutral-900_30%,transparent)] rounded-lg border border-neutral-800"
-    />
-  ),
-  a: ({ href, children, ...props }) => (
-    <a
-      href={href}
-      target={href?.startsWith('http') ? '_blank' : undefined}
-      rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+  ul: ({
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLUListElement>) => (
+    <ul
+      className={`my-6 ml-6 list-disc text-neutral-300 space-y-2 ${className || ''}`}
       {...props}
     >
       {children}
-    </a>
+    </ul>
+  ),
+  ol: ({
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLOListElement>) => (
+    <ol
+      className={`my-6 ml-6 list-decimal text-neutral-300 space-y-2 ${className || ''}`}
+      {...props}
+    >
+      {children}
+    </ol>
+  ),
+  li: ({
+    className,
+    children,
+    ...props
+  }: React.LiHTMLAttributes<HTMLLIElement>) => (
+    <li
+      className={`text-neutral-300 leading-relaxed ${className || ''}`}
+      {...props}
+    >
+      {children}
+    </li>
+  ),
+  p: ({
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLParagraphElement>) => (
+    <p
+      className={`leading-7 [&:not(:first-child)]:mt-6 text-neutral-300 ${className || ''}`}
+      {...props}
+    >
+      {children}
+    </p>
+  ),
+  code: ({
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLElement>) => (
+    <code
+      className={`px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-200 font-mono text-sm ${className || ''}`}
+      {...props}
+    >
+      {children}
+    </code>
+  ),
+  pre: ({
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLPreElement>) => (
+    <pre
+      className={`p-4 my-6 rounded-lg bg-neutral-900 overflow-x-auto border border-neutral-700/50 ${className || ''}`}
+      {...props}
+    >
+      {children}
+    </pre>
   ),
 };
 
-export const CodeOfConductContent = memo(
-  ({ content, lastUpdated }: CodeOfConductContentProps) => {
-    // Memoize remarkPlugins array
-    const remarkPlugins = useMemo(() => [remarkGfm], []);
+// Optimize the main component with memo
+const CodeOfConductContent = memo(function CodeOfConductContent({
+  content,
+  lastUpdated,
+}: CodeOfConductContentProps) {
+  return (
+    <div className="container mx-auto pt-24 sm:pt-28 md:pt-32 lg:pt-36 pb-16 sm:pb-20 md:pb-24 lg:pb-32 px-3 sm:px-4 md:px-6 lg:px-8">
+      <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
+      <article className="prose max-w-3xl mx-auto space-y-8 [&_p]:text-base [&_p]:leading-7">
+        <div className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
+          <span>Last updated:</span>
+          <time dateTime={lastUpdated}>{lastUpdated}</time>
+        </div>
 
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <article
-          className="prose color-scheme-dark max-w-3xl mx-auto space-y-8 
-          [&_p]:text-base [&_p]:leading-7 
-          [&_:is(h1,h2,h3,h4,h5,h6)]:scroll-mt-20 
-          [&_:is(h1,h2,h3,h4,h5,h6)]:font-semibold 
-          [&_:is(h1,h2,h3,h4,h5,h6)]:group
-          [&_:is(h1,h2,h3,h4,h5,h6)]:w-full
-          [&_:is(h1,h2,h3,h4,h5,h6)]:rounded-md
-          [&_:is(h1,h2,h3,h4,h5,h6)]:-mx-2
-          [&_:is(h1,h2,h3,h4,h5,h6)]:px-2
-          [&_:is(h1,h2,h3,h4,h5,h6)]:transition-all
-          [&_:is(h1,h2,h3,h4,h5,h6)]:duration-200
-          [&_:is(h1,h2,h3,h4,h5,h6)]:hover:bg-catppuccin-base/30
-          [&_h1]:text-3xl [&_h2]:text-2xl [&_h3]:text-xl [&_h4]:text-lg [&_h5]:text-base [&_h6]:text-base 
-          [&_blockquote]:pl-4 [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-700
-          [&_p_a]:text-blue-400 [&_p_a]:underline [&_p_a]:decoration-blue-400/30 
-          [&_p_a]:underline-offset-2 [&_p_a]:transition-colors 
-          hover:[&_p_a]:text-blue-300 hover:[&_p_a]:decoration-blue-300/30
-          [&_li_a]:text-blue-400 [&_li_a]:underline [&_li_a]:decoration-blue-400/30 
-          [&_li_a]:underline-offset-2 [&_li_a]:transition-colors 
-          hover:[&_li_a]:text-blue-300 hover:[&_li_a]:decoration-blue-300/30"
+        {/* Render the Markdown content */}
+        <div
+          className="prose prose-invert max-w-none 
+          prose-headings:font-semibold 
+          prose-a:text-blue-400 hover:prose-a:text-blue-300
+          prose-pre:bg-neutral-900 prose-code:bg-neutral-800 prose-code:before:content-none 
+          prose-code:after:content-none"
         >
-          <div className="flex items-center gap-2 text-sm text-neutral-400 mb-8">
-            <span>Last updated:</span>
-            <time dateTime={lastUpdated}>{lastUpdated}</time>
-          </div>
           <ReactMarkdown
-            remarkPlugins={remarkPlugins}
-            components={markdownComponents}
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[
+              rehypeSlug,
+              [
+                rehypeAutolinkHeadings,
+                {
+                  behavior: 'append',
+                  properties: {
+                    className: ['anchor'],
+                    ariaHidden: true,
+                    tabIndex: -1,
+                  },
+                },
+              ],
+            ]}
+            components={components}
           >
-            {content}
+            {content || ''}
           </ReactMarkdown>
-          <div>
-            <p className="text-sm text-neutral-400 pb-6">Contributors:</p>
-            <a href="https://github.com/allthingslinux/code-of-conduct/graphs/contributors">
-              <Image
-                src="https://contrib.rocks/image?repo=allthingslinux/code-of-conduct"
-                alt="Contributors"
-                width={500}
-                height={100}
-                loading="lazy"
-                onError={(e) => {
-                  // Fallback to a simple text message if image fails to load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.parentElement?.insertAdjacentHTML(
-                    'beforeend',
-                    '<p class="text-sm text-neutral-400">View contributors on GitHub</p>'
-                  );
-                }}
-              />
-            </a>
-          </div>
-        </article>
-      </div>
-    );
-  }
-);
+        </div>
 
-CodeOfConductContent.displayName = 'CodeOfConductContent';
+        <div className="mt-16 pt-8 border-t border-neutral-800">
+          <p className="text-sm text-neutral-400">Contributors:</p>
+          <a
+            href="https://github.com/allthingslinux/code-of-conduct/graphs/contributors"
+            className="block hover:opacity-90 transition-opacity"
+          >
+            <Image
+              src="https://contrib.rocks/image?repo=allthingslinux/code-of-conduct"
+              alt="Contributors"
+              width={1000}
+              height={1000}
+              loading="lazy"
+              className="rounded-lg"
+            />
+          </a>
+        </div>
+      </article>
+    </div>
+  );
+});
+
+export { CodeOfConductContent };

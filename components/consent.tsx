@@ -1,25 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
 import { MdOutlinePrivacyTip, MdCookie, MdGavel } from 'react-icons/md';
 
 const Privacy = () => {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.iubenda.com/iubenda.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   return (
     <a
-      href="https://www.iubenda.com/privacy-policy/97069484"
-      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2 iubenda-nostyle no-brand iubenda-noiframe iubenda-embed iubenda-noiframe"
+      href="https://www.iubenda.com/privacy-policy/97069484/full-legal"
+      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2"
       title="Privacy Policy"
+      target="_blank"
+      rel="noopener noreferrer"
     >
       <MdOutlinePrivacyTip className="w-4 h-4" />
       Privacy Policy
@@ -28,22 +18,13 @@ const Privacy = () => {
 };
 
 const Cookies = () => {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.iubenda.com/iubenda.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   return (
     <a
       href="https://www.iubenda.com/privacy-policy/97069484/cookie-policy"
-      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2 iubenda-nostyle no-brand iubenda-noiframe iubenda-embed iubenda-noiframe"
+      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2"
       title="Cookie Policy"
+      target="_blank"
+      rel="noopener noreferrer"
     >
       <MdCookie className="w-4 h-4" />
       Cookie Policy
@@ -52,22 +33,13 @@ const Cookies = () => {
 };
 
 const Terms = () => {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.iubenda.com/iubenda.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   return (
     <a
       href="https://www.iubenda.com/terms-and-conditions/97069484"
-      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2 iubenda-nostyle no-brand iubenda-noiframe iubenda-embed iubenda-noiframe"
+      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2"
       title="Terms and Conditions"
+      target="_blank"
+      rel="noopener noreferrer"
     >
       <MdGavel className="w-4 h-4" />
       Terms & Conditions
@@ -75,34 +47,32 @@ const Terms = () => {
   );
 };
 
-const PrivacyChoices = () => {
-  return (
-    <a
-      href="#"
-      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2"
-      onClick={(e) => {
-        e.preventDefault();
-        if (window._iub?.cs?.api?.openPreferences) {
-          window._iub.cs.api.openPreferences();
-        }
-      }}
-    >
-      <MdOutlinePrivacyTip className="w-4 h-4" />
-      Your Privacy Choices
-    </a>
-  );
-};
+// const PrivacyChoices = () => {
+//   useEffect(() => {
+//     const script = document.createElement('script');
+//     script.src =
+//       '//embeds.iubenda.com/widgets/1a87d6c7-a30f-472c-97ad-dee6e51b6968.js';
+//     script.async = true;
+//     script.type = 'text/javascript';
+//     document.body.appendChild(script);
 
-const NoticeAtCollection = () => {
-  return (
-    <a
-      href="#"
-      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2"
-    >
-      <MdOutlinePrivacyTip className="w-4 h-4" />
-      Notice at Collection
-    </a>
-  );
-};
+//     return () => {
+//       if (document.body.contains(script)) {
+//         document.body.removeChild(script);
+//       }
+//     };
+//   }, []);
 
-export { Privacy, Cookies, Terms, PrivacyChoices, NoticeAtCollection };
+//   return (
+//     <a
+//       href="#"
+//       className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2 iubenda-cs-preferences-link"
+//       title="Your Privacy Choices"
+//     >
+//       <MdOutlinePrivacyTip className="w-4 h-4" />
+//       Your Privacy Choices
+//     </a>
+//   );
+// };
+
+export { Privacy, Cookies, Terms };
