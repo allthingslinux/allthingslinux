@@ -12,8 +12,8 @@ export const generalQuestions: FormQuestion[] = [
     name: 'discord_id',
     question: 'Discord ID:',
     type: 'digits-only',
-    minLength: 19,
-    maxLength: 19,
+    minLength: 17,
+    maxLength: 22,
     description:
       'Learn how to find your Discord ID: https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID',
   },
