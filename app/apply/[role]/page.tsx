@@ -13,8 +13,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
-export const runtime = 'edge';
-
 export default function RoleApplicationPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
 

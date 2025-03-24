@@ -1,6 +1,11 @@
 import type { NextConfig } from 'next';
-import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import { withContentlayer } from 'next-contentlayer2';
+
+// Initialize OpenNext for local development
+if (process.env.NODE_ENV === 'development') {
+  initOpenNextCloudflareForDev();
+}
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -52,11 +57,5 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 };
-
-if (process.env.NODE_ENV === 'development') {
-  (async () => {
-    await setupDevPlatform();
-  })();
-}
 
 export default withContentlayer(nextConfig);

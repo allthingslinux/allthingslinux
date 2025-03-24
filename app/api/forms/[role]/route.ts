@@ -200,8 +200,6 @@ async function sendToDiscordWebhook(
   return false;
 }
 
-export const runtime = 'edge';
-
 export async function POST(
   req: NextRequest,
   { params }: { params: { role: string } }
