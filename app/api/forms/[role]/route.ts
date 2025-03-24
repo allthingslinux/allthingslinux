@@ -14,6 +14,11 @@ if (process.env.MONDAY_API_KEY) {
 // Define Discord webhook URL from environment variable
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
+// Define GitHub API credentials from environment variables
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_REPO_OWNER = process.env.GITHUB_REPO_OWNER || 'allthingslinux';
+const GITHUB_REPO_NAME = process.env.GITHUB_REPO_NAME || 'application-data';
+
 // Define types needed for Monday.com API interactions
 type Column = {
   id: string;
@@ -83,6 +88,99 @@ type Role = {
   questions: Question[];
 };
 
+// Helper function to store application data in GitHub
+async function storeApplicationDataOnGitHub(
+  roleData: Role,
+  formData: FormData,
+  timestamp: string
+) {
+  if (!GITHUB_TOKEN) {
+    console.log('GitHub token not configured, skipping GitHub storage');
+    return false;
+  }
+
+  try {
+    console.log('Attempting to store application data on GitHub...');
+
+    // Create application data object
+    const applicationData = {
+      timestamp,
+      role: {
+        name: roleData.name,
+        slug: roleData.slug,
+        department: roleData.department,
+        description: roleData.description,
+      },
+      applicant: {
+        discord_username: formData.discord_username,
+        discord_id: formData.discord_id,
+      },
+      // Include all form data organized by questions
+      generalAnswers: generalQuestions
+        .filter((q: Question) => formData[q.name])
+        .map((q: Question) => ({
+          question: q.question,
+          answer: formData[q.name],
+          name: q.name,
+          optional: q.optional || false,
+        })),
+      roleAnswers: roleData.questions
+        .filter((q: Question) => formData[q.name])
+        .map((q: Question) => ({
+          question: q.question,
+          answer: formData[q.name],
+          name: q.name,
+          optional: q.optional || false,
+        })),
+      // Include raw form data for complete backup
+      rawFormData: Object.fromEntries(
+        Object.entries(formData).map(([key, value]) => [key, String(value)])
+      ),
+    };
+
+    // Format timestamp for filename
+    const safeTimestamp = timestamp.replace(/[:.]/g, '-');
+    const safeUsername = formData.discord_username.replace(/[^a-z0-9]/gi, '_');
+    const filename = `applications/${roleData.slug}/${safeUsername}-${safeTimestamp}.json`;
+    const content = JSON.stringify(applicationData, null, 2);
+
+    // Encode content to base64 (required by GitHub API)
+    const contentEncoded = btoa(unescape(encodeURIComponent(content)));
+
+    // Create the file via GitHub API
+    const response = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/${filename}`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/vnd.github.v3+json',
+          'User-Agent': 'Cloudflare-Worker',
+        },
+        body: JSON.stringify({
+          message: `Application submission: ${roleData.name} - ${formData.discord_username}`,
+          content: contentEncoded,
+          branch: 'main',
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const responseData = await response.json();
+      throw new Error(
+        `GitHub API error: ${response.status} - ${JSON.stringify(responseData)}`
+      );
+    }
+
+    console.log(`Successfully stored application in GitHub at ${filename}`);
+    return true;
+  } catch (error) {
+    console.error('Error storing application data on GitHub:', error);
+    return false;
+  }
+}
+
 // Helper function to send application data to Discord webhook with retries
 async function sendToDiscordWebhook(
   roleData: Role,
@@ -141,90 +239,57 @@ async function sendToDiscordWebhook(
       // Stringify the JSON data with nice formatting
       const jsonString = JSON.stringify(backupData, null, 2);
 
-      // Create a unique filename with role, username and timestamp
-      const fileName = `application-${roleData.slug}-${formData.discord_username.replace(/[^a-z0-9]/gi, '_')}-${timestamp.replace(/[:.]/g, '-')}.json`;
+      // First send a simple header message
+      const headerResponse = await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: `**NEW APPLICATION**\nRole: ${roleData.name}\nDepartment: ${roleData.department}\nApplicant: ${formData.discord_username} (${formData.discord_id})\nTimestamp: ${timestamp}`,
+        }),
+      });
 
-      // Create the discord message
-      const discordMessage = `**NEW APPLICATION**
-Role: ${roleData.name}
-Department: ${roleData.department}
-Applicant: ${formData.discord_username} (${formData.discord_id})
-Timestamp: ${timestamp}`;
-
-      // Try multipart upload first
-      try {
-        console.log('Trying multipart upload to Discord webhook...');
-
-        // Cloudflare Workers compatible approach for multipart/form-data
-        const boundary = `----FormBoundary${Math.random().toString(16).substr(2)}`;
-
-        // Build multipart form-data manually
-        const parts = [
-          // Add the JSON payload part
-          `--${boundary}\r\n`,
-          `Content-Disposition: form-data; name="payload_json"\r\n`,
-          `Content-Type: application/json\r\n\r\n`,
-          `${JSON.stringify({ content: discordMessage })}\r\n`,
-
-          // Add the file part
-          `--${boundary}\r\n`,
-          `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n`,
-          `Content-Type: application/json\r\n\r\n`,
-          `${jsonString}\r\n`,
-
-          // End boundary
-          `--${boundary}--\r\n`,
-        ];
-
-        // Convert parts array to Uint8Array for compatibility
-        const encoder = new TextEncoder();
-        const formDataString = parts.join('');
-        const formDataBytes = encoder.encode(formDataString);
-
-        // Send to Discord webhook
-        const response = await fetch(DISCORD_WEBHOOK_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': `multipart/form-data; boundary=${boundary}`,
-          },
-          body: formDataBytes,
-        });
-
-        if (response.ok) {
-          console.log('Multipart upload to Discord webhook succeeded');
-          return true;
-        }
-
+      if (!headerResponse.ok) {
         throw new Error(
-          `Discord webhook error: ${response.status} ${response.statusText}`
+          `Discord webhook error: ${headerResponse.status} ${headerResponse.statusText}`
         );
-      } catch (multipartError) {
-        console.error(
-          'Multipart upload failed, trying fallback method:',
-          multipartError
-        );
+      }
 
-        // Fallback: Send message-only without file attachment
-        // This is more likely to work in limited environments
-        const fallbackResponse = await fetch(DISCORD_WEBHOOK_URL, {
+      // Split the JSON data into manageable chunks for Discord
+      const chunkSize = 1950; // Leave room for markdown code block syntax
+      const chunks = [];
+
+      for (let i = 0; i < jsonString.length; i += chunkSize) {
+        chunks.push(jsonString.substring(i, i + chunkSize));
+      }
+
+      // Send each chunk as a code block
+      for (let i = 0; i < chunks.length; i++) {
+        const chunkResponse = await fetch(DISCORD_WEBHOOK_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            content: `${discordMessage}\n\n**APPLICATION DATA (JSON):**\n\`\`\`json\n${jsonString.substring(0, 1500)}...\n\`\`\``,
+            content: `**Application Data (Part ${i + 1}/${chunks.length})**\n\`\`\`json\n${chunks[i]}\n\`\`\``,
           }),
         });
 
-        if (!fallbackResponse.ok) {
-          throw new Error(
-            `Discord fallback webhook error: ${fallbackResponse.status} ${fallbackResponse.statusText}`
+        if (!chunkResponse.ok) {
+          console.warn(
+            `Failed to send data chunk ${i + 1}: ${chunkResponse.status}`
           );
         }
 
-        console.log('Fallback Discord webhook method succeeded');
-        return true;
+        // Add a small delay between chunk messages to avoid rate limiting
+        if (i < chunks.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
       }
+
+      console.log('Successfully sent application data to Discord webhook');
+      return true;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       console.error(
@@ -352,10 +417,25 @@ export async function POST(
 
     // Flag to track if initial backup was sent successfully
     let initialBackupSent = false;
+    let githubStorageSuccess = false;
 
     // Log environment status for debugging
     console.log(`Discord webhook configured: ${!!DISCORD_WEBHOOK_URL}`);
+    console.log(`GitHub token configured: ${!!GITHUB_TOKEN}`);
     console.log(`Monday.com API client initialized: ${!!monday}`);
+
+    // Store application data in GitHub
+    try {
+      githubStorageSuccess = await storeApplicationDataOnGitHub(
+        roleData,
+        formObject,
+        timestamp
+      );
+      console.log(`GitHub storage success: ${githubStorageSuccess}`);
+    } catch (githubError) {
+      console.error('Error storing application in GitHub:', githubError);
+      githubStorageSuccess = false;
+    }
 
     // Store backup of submission in Discord
     try {
@@ -375,6 +455,16 @@ export async function POST(
 
     // Define the background processing function
     const processFormInBackground = async () => {
+      // If initial GitHub storage failed, try again in the background
+      if (!githubStorageSuccess) {
+        try {
+          console.log('Retrying GitHub storage in background process...');
+          await storeApplicationDataOnGitHub(roleData, formObject, timestamp);
+        } catch (retryError) {
+          console.error('Retry of GitHub storage also failed:', retryError);
+        }
+      }
+
       // If initial backup failed, try one more time immediately in the background process
       if (!initialBackupSent) {
         try {
