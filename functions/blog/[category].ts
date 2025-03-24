@@ -19,21 +19,28 @@ export const onRequest = async (context: RequestContext) => {
   if (pathParts.length === 2 && pathParts[0] === 'blog') {
     const category = pathParts[1];
 
+    // Log the category we're trying to access
+    console.log(`Accessing blog category: ${category}`);
+
     try {
+      // Pre-load blog data here to ensure it happens within a handler
+      const allPostsData = await getAllPosts();
+
+      // For all-posts, we don't need to filter
+      if (category === 'all-posts') {
+        return context.next();
+      }
+
       // Get posts for this category
       const posts = await getPostsByCategory(category);
 
       // Get all categories for the navigation
-      const allPostsData = await getAllPosts();
       const allCategories = Array.from(
         new Set(allPostsData.map((post) => post.category))
       );
 
       // If no posts found for this category and it's not a valid category, return 404
-      if (
-        (posts.length === 0 || !allCategories.includes(category)) &&
-        category !== 'all-posts'
-      ) {
+      if (posts.length === 0 || !allCategories.includes(category)) {
         return new Response('Category not found', { status: 404 });
       }
 
