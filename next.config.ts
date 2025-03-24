@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
   },
   // Turbopack configuration
   experimental: {
-    mdxRs: true,
+    // mdxRs: true,
     cssChunking: true,
     turbo: {
       resolveAlias: {
