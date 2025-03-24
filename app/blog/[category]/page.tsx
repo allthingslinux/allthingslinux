@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { getAllPosts, getPostsByCategory } from '@/lib/blog';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -11,30 +10,6 @@ export const revalidate = 3600;
 interface CategoryPageProps {
   params: {
     category: string;
-  };
-}
-
-export async function generateMetadata({
-  params,
-}: CategoryPageProps): Promise<Metadata> {
-  // Properly await params
-  const resolvedParams = await Promise.resolve(params);
-  const { category } = resolvedParams;
-
-  const posts = await getPostsByCategory(category);
-
-  if (!posts || posts.length === 0) {
-    return {
-      title: 'Category Not Found',
-      description: 'The category you are looking for does not exist.',
-    };
-  }
-
-  const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
-
-  return {
-    title: `${categoryName} Posts | All Things Linux Blog`,
-    description: `Browse all ${categoryName.toLowerCase()} posts on All Things Linux Blog`,
   };
 }
 

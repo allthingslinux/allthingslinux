@@ -43,14 +43,6 @@ export async function getPostsByCategory(
   return allPosts.filter((post) => post.categorySlug === categorySlug);
 }
 
-// Get posts by category as Post type
-export async function getPostsByCategoryAsPostType(
-  category: string
-): Promise<Post[]> {
-  const posts = await getPostsByCategory(category);
-  return posts.map(convertToPost);
-}
-
 export async function getPost(
   category: string,
   slug: string

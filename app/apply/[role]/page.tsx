@@ -50,7 +50,14 @@ export default function RoleApplicationPage() {
         }
       });
 
-      const response = await fetch(`/api/forms/${role.slug}`, {
+      // Use absolute URL for the API endpoint
+      const baseUrl =
+        process.env.NEXT_PUBLIC_URL ||
+        (typeof window !== 'undefined'
+          ? window.location.origin
+          : 'http://localhost:3000');
+
+      const response = await fetch(`${baseUrl}/api/forms/${role.slug}`, {
         method: 'POST',
         body: formData,
       });

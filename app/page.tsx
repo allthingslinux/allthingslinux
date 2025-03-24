@@ -1,14 +1,8 @@
-import { getPageMetadata } from './metadata';
-import { viewport } from './metadata';
-
 import DonateCta from '@/components/pages/home/donate-cta';
 import Hero from '@/components/pages/home/hero';
 import Projects from '@/components/pages/home/projects';
 import Stats from '@/components/pages/home/stats';
 import Testimonials from '@/components/pages/home/testimonials';
-
-export { viewport };
-export const metadata = getPageMetadata('home');
 
 export default function Home() {
   return (

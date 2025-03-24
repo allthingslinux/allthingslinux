@@ -1,19 +1,8 @@
 import { getAllPosts, getAllCategories } from '@/lib/blog';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-
-export const revalidate = 3600;
-
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: 'Blog - All Things Linux',
-    description:
-      'Browse our collection of articles and tutorials about Linux and open source software.',
-  };
-}
 
 export default async function BlogPage() {
   // Get all blog posts

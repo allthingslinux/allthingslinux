@@ -1,5 +1,3 @@
-'use client';
-
 import { MdOutlinePrivacyTip, MdCookie, MdGavel } from 'react-icons/md';
 
 const Privacy = () => {

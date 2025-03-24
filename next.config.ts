@@ -2,27 +2,34 @@ import type { NextConfig } from 'next';
 import { withContentlayer } from 'next-contentlayer2';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
 
   // Performance optimizations
-  // compress: true,
-  // compiler: {
-  // removeConsole: process.env.NODE_ENV === 'production',
-  // },
+  compress: true,
+  compiler: {
+    removeConsole: true,
+  },
 
   // Build optimizations
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // Still catch errors in development, but don't block production builds
     ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
-
+  logging: {
+    fetches: {
+      fullUrl: true,
+      hmrRefreshes: true,
+    },
+  },
   // Turbopack configuration
   experimental: {
+    mdxRs: true,
+    cssChunking: true,
     turbo: {
       resolveAlias: {
         'contentlayer/generated': './.contentlayer/generated',
