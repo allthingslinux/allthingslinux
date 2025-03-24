@@ -1,0 +1,13 @@
+[build]
+command = "npm run cloudflare-build"
+base = "/"
+output_directory = "./.open-next/assets"
+
+[build.environment]
+NODE_VERSION = "20"
+
+[site]
+bucket = "./.open-next/assets"
+
+[env.production]
+NODE_ENV = "production" 

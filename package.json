@@ -2,6 +2,9 @@
   "name": "allthingslinux",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev --turbo",
     "turbo": "next dev --turbo",
@@ -13,6 +16,7 @@
     "check:mdx": "remark content/blog/*.mdx --quiet",
     "check:ts": "tsc --noEmit",
     "pages:build": "open-next build",
+    "cloudflare-build": "contentlayer2 build && open-next build && npx @opennextjs/cloudflare",
     "preview": "npm run build:content && opennextjs-cloudflare && wrangler dev",
     "deploy": "npm run build:content && opennextjs-cloudflare && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
