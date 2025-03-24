@@ -1,99 +1,112 @@
-import BlogPosts from '@/components/blog/blog-posts';
 import { notFound } from 'next/navigation';
+import { getAllPosts, getPostsByCategory } from '@/lib/blog';
 import type { Metadata } from 'next';
-import {
-  getPostsByCategory,
-  getAllCategories,
-  getPostsByCategoryAsPostType,
-} from '@/lib/blog';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
-// Number of posts per page for pagination
-const POSTS_PER_PAGE = 6;
+// Change to Edge Runtime for Cloudflare Pages compatibility
+export const runtime = 'edge';
 
-// Enable ISR for blog pages with revalidation every hour
 export const revalidate = 3600;
 
-// Use dynamic rendering
-export const dynamic = 'force-dynamic';
+interface CategoryPageProps {
+  params: {
+    category: string;
+  };
+}
 
 export async function generateMetadata({
   params,
-}: {
-  params: { category: string };
-}): Promise<Metadata> {
+}: CategoryPageProps): Promise<Metadata> {
   // Properly await params
   const resolvedParams = await Promise.resolve(params);
   const { category } = resolvedParams;
 
   const posts = getPostsByCategory(category);
-  const categoryName =
-    category === 'all-posts'
-      ? 'All Posts'
-      : posts.find((post) => post.categorySlug === category)?.category ||
-        'Blog';
+
+  if (!posts || posts.length === 0) {
+    return {
+      title: 'Category Not Found',
+      description: 'The category you are looking for does not exist.',
+    };
+  }
+
+  const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
 
   return {
-    title: `${categoryName} - All Things Linux Blog`,
-    description: `Browse our collection of ${categoryName.toLowerCase()} articles and tutorials about Linux and open source software.`,
+    title: `${categoryName} Posts | All Things Linux Blog`,
+    description: `Browse all ${categoryName.toLowerCase()} posts on All Things Linux Blog`,
   };
 }
 
-export default async function CategoryPage({
-  params,
-  searchParams,
-}: {
-  params: { category: string };
-  searchParams: { page?: string };
-}) {
-  // Properly await both params and searchParams
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  // Properly await params
   const resolvedParams = await Promise.resolve(params);
-  const resolvedSearchParams = await Promise.resolve(searchParams);
-
   const { category } = resolvedParams;
 
-  // Parse page number from search params
-  const page = resolvedSearchParams.page
-    ? parseInt(resolvedSearchParams.page, 10)
-    : 1;
+  const allCategories = getAllPosts()
+    .map((post) => post.category)
+    .filter((value, index, self) => self.indexOf(value) === index);
 
-  // Get all posts for this category
-  const allCategoryPosts = getPostsByCategoryAsPostType(category);
+  const posts = getPostsByCategory(category);
 
-  // Calculate pagination values
-  const totalPosts = allCategoryPosts.length;
-  const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
-
-  // Get paginated posts
-  const startIndex = (page - 1) * POSTS_PER_PAGE;
-  const paginatedPosts = allCategoryPosts.slice(
-    startIndex,
-    startIndex + POSTS_PER_PAGE
-  );
-
-  // Get category name for UI
-  const categoryName =
-    category === 'all-posts'
-      ? 'All Posts'
-      : allCategoryPosts.length > 0
-        ? allCategoryPosts[0].category
-        : 'Blog';
-
-  const categories = ['All Posts', ...getAllCategories()];
-
-  if (
-    category !== 'all-posts' &&
-    !allCategoryPosts.some((post) => post.categorySlug === category)
-  ) {
+  if (!posts || posts.length === 0 || !allCategories.includes(category)) {
     notFound();
   }
 
+  const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+
   return (
-    <BlogPosts
-      initialPosts={paginatedPosts}
-      categories={categories}
-      currentCategory={categoryName}
-      page={page}
-      totalPages={totalPages}
-    />
+    <div className="container py-6 lg:py-10">
+      <div className="flex items-start gap-6">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/blog">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to all posts
+          </Link>
+        </Button>
+      </div>
+
+      <div className="my-8">
+        <h1 className="scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
+          {categoryTitle}
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          {posts.length} article{posts.length === 1 ? '' : 's'}
+        </p>
+      </div>
+
+      <hr className="mt-8 mb-8" />
+
+      <div className="flex flex-col">
+        {posts.map((post) => (
+          <div key={post.slug}>
+            <Link
+              href={`/blog/${post.categorySlug}/${post.slug}`}
+              className="flex flex-col gap-3 hover:opacity-90 transition-opacity"
+            >
+              <p className="text-sm font-semibold text-muted-foreground">
+                {post.category}
+              </p>
+              <h3 className="text-balance text-2xl font-semibold lg:text-3xl">
+                {post.title}
+              </h3>
+              {post.description && (
+                <p className="text-muted-foreground">{post.description}</p>
+              )}
+              <div className="mt-3 flex items-center gap-2 text-sm">
+                <span className="font-medium">{post.author}</span>
+                <span className="text-muted-foreground">
+                  on {post.dateFormatted}
+                </span>
+              </div>
+            </Link>
+            <Separator className="my-8" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
