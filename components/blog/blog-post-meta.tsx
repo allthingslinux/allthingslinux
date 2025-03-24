@@ -50,7 +50,11 @@ export function BlogPostMeta({
               <time dateTime={date}>{formattedDate}</time>
             </div>
 
-            <Link href={`/blog/${categorySlug}`}>
+            <Link
+              href={
+                categorySlug === 'all-posts' ? '/blog' : `/blog/${categorySlug}`
+              }
+            >
               <Badge
                 variant="secondary"
                 className="flex items-center gap-1 hover:bg-secondary/90 transition-colors"

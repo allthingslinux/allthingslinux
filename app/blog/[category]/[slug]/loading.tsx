@@ -9,7 +9,7 @@ export default function BlogPostLoading() {
     <div className="opacity-0 animate-in fade-in duration-500 delay-300 fill-mode-forwards">
       <article className="container relative max-w-3xl py-6 lg:py-10">
         <Link
-          href="/blog/all-posts"
+          href="/blog"
           className={cn(
             buttonVariants({ variant: 'ghost' }),
             'absolute left-[-200px] top-14 hidden xl:inline-flex'

@@ -16,6 +16,11 @@ export const onRequest = async (context: RequestContext) => {
   const url = new URL(context.request.url);
   const path = url.pathname;
 
+  // Redirect /blog/all-posts to /blog
+  if (path === '/blog/all-posts') {
+    return Response.redirect(`${url.origin}/blog`, 301);
+  }
+
   // Debug log information about the request
   console.log(`Processing request for path: ${path}`);
 
@@ -30,8 +35,6 @@ export const onRequest = async (context: RequestContext) => {
       if (path === '/blog' || path === '/blog/') {
         await blogModule.getAllPosts();
         await blogModule.getAllCategories();
-      } else if (path === '/blog/all-posts') {
-        await blogModule.getAllPosts();
       }
 
       console.log(`Blog data preloaded for path: ${path}`);

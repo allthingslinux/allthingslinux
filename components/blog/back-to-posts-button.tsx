@@ -18,7 +18,7 @@ export function BackToAllPostsButton({ className }: BackToAllPostsButtonProps) {
   useEffect(() => {
     // This ensures the page is at the top after navigating to blog list
     const path = window.location.pathname;
-    if (path === '/blog/all-posts') {
+    if (path === '/blog') {
       window.scrollTo(0, 0);
     }
   }, []);
@@ -32,7 +32,7 @@ export function BackToAllPostsButton({ className }: BackToAllPostsButtonProps) {
     window.scrollTo(0, 0);
 
     // Prefetch the destination first
-    router.prefetch('/blog/all-posts');
+    router.prefetch('/blog');
 
     // Use a fixed overlay during transition
     const overlay = document.createElement('div');
@@ -60,7 +60,7 @@ export function BackToAllPostsButton({ className }: BackToAllPostsButtonProps) {
     // Navigate after a short delay with the overlay visible
     setTimeout(() => {
       // Navigate with scroll:true to start at the top
-      router.push('/blog/all-posts', { scroll: true });
+      router.push('/blog', { scroll: true });
 
       // After navigation, ensure we're at the top again and clean up
       setTimeout(() => {
