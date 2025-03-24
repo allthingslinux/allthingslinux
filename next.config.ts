@@ -1,11 +1,5 @@
 import type { NextConfig } from 'next';
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import { withContentlayer } from 'next-contentlayer2';
-
-// Initialize OpenNext for local development
-if (process.env.NODE_ENV === 'development') {
-  initOpenNextCloudflareForDev();
-}
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -59,3 +53,6 @@ const nextConfig: NextConfig = {
 };
 
 export default withContentlayer(nextConfig);
+
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+initOpenNextCloudflareForDev();

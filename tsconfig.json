@@ -13,7 +13,6 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "contentlayer/generated": ["./.contentlayer/generated"]
@@ -23,6 +22,7 @@
         "name": "next"
       }
     ],
+    "types": ["@cloudflare/workers-types/2023-07-01"],
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -37,7 +37,8 @@
     ".contentlayer/generated",
     "types/**/*.d.ts",
     "**/*.mjs",
-    "**/*.cjs"
+    "**/*.cjs",
+    ".archive/error.tsx"
   ],
   "exclude": ["node_modules"]
 }
