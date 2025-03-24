@@ -49,7 +49,7 @@ export async function generateMetadata({
   const resolvedParams = await Promise.resolve(params);
   const { category, slug } = resolvedParams;
 
-  const post = getPost(category, slug);
+  const post = await getPost(category, slug);
 
   if (!post) {
     return {
@@ -79,7 +79,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const resolvedParams = await Promise.resolve(params);
   const { category, slug } = resolvedParams;
 
-  const post = getPost(category, slug);
+  const post = await getPost(category, slug);
 
   if (!post) {
     notFound();

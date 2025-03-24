@@ -24,7 +24,7 @@ export async function generateMetadata({
   const resolvedParams = await Promise.resolve(params);
   const { category } = resolvedParams;
 
-  const posts = getPostsByCategory(category);
+  const posts = await getPostsByCategory(category);
 
   if (!posts || posts.length === 0) {
     return {
@@ -46,11 +46,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const resolvedParams = await Promise.resolve(params);
   const { category } = resolvedParams;
 
-  const allCategories = getAllPosts()
-    .map((post) => post.category)
-    .filter((value, index, self) => self.indexOf(value) === index);
+  const allPostsData = await getAllPosts();
+  const allCategories = Array.from(
+    new Set(allPostsData.map((post) => post.category))
+  ).filter((value, index, self) => self.indexOf(value) === index);
 
-  const posts = getPostsByCategory(category);
+  const posts = await getPostsByCategory(category);
 
   if (!posts || posts.length === 0 || !allCategories.includes(category)) {
     notFound();
