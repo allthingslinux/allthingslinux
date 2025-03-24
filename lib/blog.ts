@@ -33,12 +33,12 @@ export async function getAllCategories(): Promise<string[]> {
 export async function getPostsByCategory(
   category: string
 ): Promise<BlogPost[]> {
-  const categorySlug = category.toLowerCase().replace(/ /g, '-');
-
-  if (categorySlug === 'all-posts') {
+  // If category is empty, null, undefined, or "all-posts", return all posts
+  if (!category || category === 'all-posts') {
     return getAllPosts();
   }
 
+  const categorySlug = category.toLowerCase().replace(/ /g, '-');
   const allPosts = await getAllPosts();
   return allPosts.filter((post) => post.categorySlug === categorySlug);
 }

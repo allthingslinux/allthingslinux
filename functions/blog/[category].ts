@@ -19,17 +19,17 @@ export const onRequest = async (context: RequestContext) => {
   if (pathParts.length === 2 && pathParts[0] === 'blog') {
     const category = pathParts[1];
 
+    // Redirect all-posts to the main blog page
+    if (category === 'all-posts') {
+      return Response.redirect(`${url.origin}/blog`, 301);
+    }
+
     // Log the category we're trying to access
     console.log(`Accessing blog category: ${category}`);
 
     try {
       // Pre-load blog data here to ensure it happens within a handler
       const allPostsData = await getAllPosts();
-
-      // For all-posts, we don't need to filter
-      if (category === 'all-posts') {
-        return context.next();
-      }
 
       // Get posts for this category
       const posts = await getPostsByCategory(category);

@@ -1,25 +1,16 @@
-import { getAllPosts, getAllCategories } from '@/lib/blog';
+// Simple redirect function that sends users from /blog/all-posts to /blog
 
-// Define type for context
-type Env = Record<string, never>;
-
-export interface RequestContext {
+export const onRequest = async (context: {
   request: Request;
-  env: Env;
-  params: Record<string, string>;
-  next: () => Promise<Response>;
-}
+  next: () => Response;
+}) => {
+  const url = new URL(context.request.url);
 
-export const onRequest = async (context: RequestContext) => {
-  try {
-    // Pre-load all blog posts within the handler context
-    await getAllPosts();
-    await getAllCategories();
-
-    // Continue to the Next.js page that will render the content
-    return context.next();
-  } catch (error) {
-    console.error('Error in blog all-posts function:', error);
-    return new Response('Internal Server Error', { status: 500 });
+  // If we're on the all-posts page, redirect to the main blog page
+  if (url.pathname === '/blog/all-posts') {
+    return Response.redirect(`${url.origin}/blog`, 301);
   }
+
+  // Otherwise continue
+  return context.next();
 };

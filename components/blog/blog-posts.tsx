@@ -154,10 +154,17 @@ export default function BlogPosts({
       setLoadingPosts(true);
       setShouldScrollTop(true); // Set flag to scroll on next content update
 
-      const categorySlug =
-        category === 'All Posts'
-          ? 'all-posts'
-          : category.toLowerCase().replace(/ /g, '-');
+      // If "All Posts" is selected, go to the main blog page
+      if (category === 'All Posts') {
+        router.prefetch('/blog');
+        setTimeout(() => {
+          router.push('/blog', { scroll: false });
+        }, 50);
+        return;
+      }
+
+      // For other categories, use the category slug
+      const categorySlug = category.toLowerCase().replace(/ /g, '-');
 
       // Use shallow routing to avoid full page reload
       router.prefetch(`/blog/${categorySlug}`);
