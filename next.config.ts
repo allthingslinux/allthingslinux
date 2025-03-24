@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
 
   // Build optimizations
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
     // Still catch errors in development, but don't block production builds
@@ -28,6 +28,15 @@ const nextConfig: NextConfig = {
         'contentlayer/generated': './.contentlayer/generated',
       },
     },
+  },
+
+  // Add webpack configuration for non-Turbo builds
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'contentlayer/generated': './.contentlayer/generated',
+    };
+    return config;
   },
 
   // Image optimizations

@@ -8,15 +8,15 @@
   "scripts": {
     "dev": "next dev --turbo",
     "turbo": "next dev --turbo",
-    "build": "next build",
+    "build": "TURBO=0 next build",
     "start": "next start",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.mdx",
+    "lint": "eslint .",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
     "check:mdx": "remark content/blog/*.mdx --quiet",
     "check:ts": "tsc --noEmit",
     "build:content": "contentlayer2 build",
-    "open-next:build": "contentlayer2 build && NODE_VERSION=20 open-next build",
+    "open-next:build": "contentlayer2 build && NODE_VERSION=20 TURBO=0 open-next build",
     "cloudflare:build": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 npx @opennextjs/cloudflare",
     "cloudflare:pages": "NODE_VERSION=20 npm run cloudflare:build",
     "cloudflare:dev": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 npx @opennextjs/cloudflare && wrangler pages dev .open-next/assets",
@@ -64,17 +64,14 @@
     "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
     "rehype-autolink-headings": "^7.1.0",
-    "rehype-pretty-code": "^0.14.1",
     "rehype-slug": "^6.0.0",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
-    "remark-github": "^12.0.0",
-    "remark-github-blockquote-alert": "^1.3.0",
     "remark-mdx-frontmatter": "^5.1.0",
-    "shiki": "^3.2.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "typescript": "^5.8.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250321.0",
@@ -98,7 +95,6 @@
     "prettier-eslint": "^16.3.0",
     "remark-cli": "^12.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
     "typescript-eslint": "^8.27.0",
     "wrangler": "^4.4.0"
   }

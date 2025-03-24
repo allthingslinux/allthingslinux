@@ -202,11 +202,11 @@ async function sendToDiscordWebhook(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { role: string } }
+  context: { params: { role: string } }
 ) {
   try {
     // Get role and questions
-    const roleSlug = (await params).role;
+    const roleSlug = context.params.role;
     const roleData = roles.find((r) => r.slug === roleSlug);
 
     if (!roleData) {
