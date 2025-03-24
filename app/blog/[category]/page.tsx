@@ -6,9 +6,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-// Change to Edge Runtime for Cloudflare Pages compatibility
-export const runtime = 'edge';
-
 export const revalidate = 3600;
 
 interface CategoryPageProps {

@@ -5,8 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 
-// Use Edge Runtime for Cloudflare compatibility
-export const runtime = 'edge';
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
