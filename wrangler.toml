@@ -1,12 +1,7 @@
 name = "allthingslinux"
-main = ".open-next/worker.js"
 compatibility_date = "2024-09-26"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".open-next/assets"
-
-[assets]
-directory = ".open-next/assets"
-binding = "STATIC_ASSETS"
 
 [observability]
 enabled = true

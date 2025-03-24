@@ -1,5 +1,5 @@
 [build]
-command = "npm run cloudflare:build"
+command = "npm run cloudflare:pages"
 base = "/"
 output_directory = "./.open-next/assets"
 
