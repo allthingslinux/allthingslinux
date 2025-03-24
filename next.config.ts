@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
   // Performance optimizations
   compress: true,
   compiler: {
-    removeConsole: true,
+    // Don't remove console logs in production as they help with debugging
+    // Cloudflare Workers need these for proper diagnostics
+    removeConsole: {
+      exclude: ['error', 'warn', 'log'],
+    },
   },
 
   // Build optimizations
@@ -37,14 +41,33 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Add webpack configuration for non-Turbo builds
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'contentlayer/generated': './.contentlayer/generated',
-    };
-    return config;
+  // Add headers for API endpoints
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,OPTIONS' },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value:
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
+          },
+        ],
+      },
+    ];
   },
+
+  // Add webpack configuration for non-Turbo builds
+  // webpack: (config) => {
+  //   config.resolve.alias = {
+  //     ...config.resolve.alias,
+  //     'contentlayer/generated': './.contentlayer/generated',
+  //   };
+  //   return config;
+  // },
 
   // Image optimizations
   images: {

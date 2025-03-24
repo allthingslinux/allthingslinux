@@ -121,10 +121,20 @@ function StepperFormContent({
             '[aria-invalid="true"]'
           );
           if (firstErrorField) {
+            // Make sure we scroll with smooth behavior
             firstErrorField.scrollIntoView({
               behavior: 'smooth',
               block: 'center',
             });
+
+            // Also try to focus the element for better accessibility
+            if (firstErrorField instanceof HTMLElement) {
+              try {
+                firstErrorField.focus();
+              } catch (e) {
+                console.warn('Unable to focus error field:', e);
+              }
+            }
           }
         }, 100);
 
@@ -139,8 +149,10 @@ function StepperFormContent({
     // Navigate to the requested step
     methods.goTo(targetStep);
 
-    // Always scroll to top when changing steps
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Make sure to scroll to top with a slight delay to ensure DOM updates
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 50);
   };
 
   // Handle form submission
@@ -321,7 +333,7 @@ function StepForm({
             '[aria-invalid="true"]'
           );
           if (firstErrorField) {
-            // Ensure the field is visible in the viewport
+            // Ensure the field is visible in the viewport with a reliable scroll
             firstErrorField.scrollIntoView({
               behavior: 'smooth',
               block: 'center',
@@ -329,7 +341,11 @@ function StepForm({
 
             // Try to focus the field for better accessibility
             if (firstErrorField instanceof HTMLElement) {
-              firstErrorField.focus();
+              try {
+                firstErrorField.focus();
+              } catch (e) {
+                console.warn('Unable to focus error field:', e);
+              }
             }
           } else {
             // If no specific field error is found, scroll to the form
@@ -338,7 +354,7 @@ function StepForm({
               form.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
           }
-        }, 100);
+        }, 150); // Slightly longer timeout to ensure DOM is ready
 
         return;
       }
@@ -347,8 +363,10 @@ function StepForm({
         await onSubmit(data);
       } else if (onNext) {
         onNext();
-        // Scroll to top when moving to next step
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Make sure to scroll to top after transitioning to next step
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 50);
       }
     } catch (error) {
       console.error('Form error:', error);
