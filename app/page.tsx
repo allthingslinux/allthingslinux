@@ -13,14 +13,43 @@ export const metadata = getPageMetadata('home');
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      <main>
-        <div className="grow mx-auto px-4 py-8 flex flex-col gap-8 container">
-          <Hero />
-          <Testimonials />
-          <Projects />
-          <Stats />
-          <DonateCta />
-        </div>
+      <main className="w-full">
+        {/* Hero - regular background */}
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <Hero />
+          </div>
+        </section>
+
+        {/* Testimonials - dot grid pattern */}
+        <section className="py-16 md:py-24 relative">
+          <div className="absolute inset-0 bg-[radial-gradient(#333_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>
+          <div className="container mx-auto px-4 relative z-10">
+            <Testimonials />
+          </div>
+        </section>
+
+        {/* Projects - regular background */}
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <Projects />
+          </div>
+        </section>
+
+        {/* Stats - grid line pattern */}
+        <section className="py-16 md:py-24 relative">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] [background-size:40px_40px] opacity-10"></div>
+          <div className="container mx-auto px-4 relative z-10">
+            <Stats />
+          </div>
+        </section>
+
+        {/* Donate CTA - regular background */}
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <DonateCta />
+          </div>
+        </section>
       </main>
     </div>
   );

@@ -225,9 +225,9 @@ const CodeOfConductContent = memo(function CodeOfConductContent({
   lastUpdated,
 }: CodeOfConductContentProps) {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto pt-24 sm:pt-28 md:pt-32 lg:pt-36 pb-16 sm:pb-20 md:pb-24 lg:pb-32 px-3 sm:px-4 md:px-6 lg:px-8">
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
-      <article className="prose max-w-3xl mx-auto [&_p]:text-base [&_p]:leading-7">
+      <article className="prose max-w-3xl mx-auto space-y-8 [&_p]:text-base [&_p]:leading-7">
         <div className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
           <span>Last updated:</span>
           <time dateTime={lastUpdated}>{lastUpdated}</time>

@@ -27,7 +27,7 @@ export default async function CodeOfConductPage() {
   ]);
 
   return (
-    <main className="flex-1">
+    <main>
       <Suspense fallback={<CodeOfConductLoading />}>
         <CodeOfConductContent content={content} lastUpdated={lastUpdated} />
       </Suspense>
