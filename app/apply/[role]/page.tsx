@@ -67,9 +67,12 @@ export default function RoleApplicationPage() {
           // Only try to parse JSON if content-type is application/json
           const contentType = response.headers.get('content-type');
           if (contentType && contentType.includes('application/json')) {
-            const errorData = await response.json();
+            const errorData = (await response.json()) as Record<
+              string,
+              unknown
+            >;
             errorDetails = errorData;
-            if (errorData && errorData.error) {
+            if (errorData && typeof errorData.error === 'string') {
               errorMessage = errorData.error;
             }
           }
