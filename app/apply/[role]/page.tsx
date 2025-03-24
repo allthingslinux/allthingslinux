@@ -45,26 +45,34 @@ export default function RoleApplicationPage() {
       Object.entries(data).forEach(([key, value]) => {
         if (value instanceof File) {
           formData.append(key, value);
-        } else {
+        } else if (value === null || value === undefined) {
+          // Skip null or undefined values
+          console.log(`Skipping null/undefined field: ${key}`);
+        } else if (typeof value === 'object') {
+          // Convert objects to JSON strings
           formData.append(key, JSON.stringify(value));
+        } else {
+          // Convert primitives to strings
+          formData.append(key, String(value));
         }
       });
 
-      // Use absolute URL for the API endpoint
-      const baseUrl =
-        process.env.NEXT_PUBLIC_URL ||
-        (typeof window !== 'undefined'
-          ? window.location.origin
-          : 'http://localhost:3000');
+      console.log(`Submitting application for role: ${role.slug}`);
 
-      const response = await fetch(`${baseUrl}/api/forms/${role.slug}`, {
+      // Use relative URL instead of absolute for better compatibility with Workers
+      const response = await fetch(`/api/forms/${role.slug}`, {
         method: 'POST',
         body: formData,
       });
 
+      console.log(`Response status: ${response.status}`);
+
       if (response.ok) {
         setIsSubmitted(true);
-        window.scrollTo(0, 0); // Scroll to top to show success message
+        // Ensure scroll to top happens after state update
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 10);
       } else {
         // Safely get error data from response
         let errorMessage = response.statusText || 'Unknown error';
@@ -81,7 +89,12 @@ export default function RoleApplicationPage() {
             errorDetails = errorData;
             if (errorData && typeof errorData.error === 'string') {
               errorMessage = errorData.error;
+            } else if (errorData && typeof errorData.details === 'string') {
+              errorMessage = errorData.details;
             }
+          } else {
+            // Try to get text response if not JSON
+            errorMessage = await response.text();
           }
         } catch (parseError) {
           console.error('Error parsing error response:', parseError);
@@ -93,19 +106,25 @@ export default function RoleApplicationPage() {
           console.error('Error details:', errorDetails);
         }
 
-        // Show user-friendly error message
+        // Show user-friendly error message and scroll to it
         alert(
           `There was an error submitting your application: ${errorMessage}. Please try again later.`
         );
+
+        // Scroll to top to ensure error alert is visible
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
       // Handle network or other errors
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       console.error('Error submitting form:', errorMessage);
+
+      // Show alert and scroll to top
       alert(
         'There was an error submitting your application. Please check your network connection and try again.'
       );
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -194,7 +213,7 @@ export default function RoleApplicationPage() {
             departmentalQuestions={role.questions}
             roleQuestions={[]}
             role={role}
-            onSubmit={onSubmit}
+            onSubmitAction={onSubmit}
           />
         </div>
       </div>

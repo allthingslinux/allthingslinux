@@ -32,13 +32,13 @@ export default function StepperForm({
   departmentalQuestions,
   roleQuestions: _unused,
   role,
-  onSubmit,
+  onSubmitAction,
 }: {
   generalQuestions: FormQuestion[];
   departmentalQuestions: FormQuestion[];
   roleQuestions: FormQuestion[];
   role: Role;
-  onSubmit: (data: Record<string, unknown>) => Promise<void>;
+  onSubmitAction: (data: Record<string, unknown>) => Promise<void>;
 }) {
   return (
     <Scoped initialStep="general">
@@ -46,7 +46,7 @@ export default function StepperForm({
         generalQuestions={generalQuestions}
         roleQuestions={departmentalQuestions}
         role={role}
-        onSubmit={onSubmit}
+        onSubmitAction={onSubmitAction}
       />
     </Scoped>
   );
@@ -56,12 +56,12 @@ function StepperFormContent({
   generalQuestions,
   roleQuestions,
   role,
-  onSubmit,
+  onSubmitAction,
 }: {
   generalQuestions: FormQuestion[];
   roleQuestions: FormQuestion[];
   role: Role;
-  onSubmit: (data: Record<string, unknown>) => Promise<void>;
+  onSubmitAction: (data: Record<string, unknown>) => Promise<void>;
 }) {
   const methods = useStepper();
   const [formData, setFormData] = useState<Record<string, unknown>>({});
@@ -138,6 +138,8 @@ function StepperFormContent({
 
     // Navigate to the requested step
     methods.goTo(targetStep);
+
+    // Always scroll to top when changing steps
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -154,7 +156,10 @@ function StepperFormContent({
 
       if (validationResult.success) {
         try {
-          await onSubmit(finalData);
+          await onSubmitAction(finalData);
+
+          // Scroll to top after successful submission
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
           console.error('Error in form submission:', error);
           setSubmissionError(
@@ -180,6 +185,12 @@ function StepperFormContent({
               behavior: 'smooth',
               block: 'center',
             });
+          } else {
+            // If no specific field is found, scroll to top of form
+            const form = document.querySelector('form');
+            if (form) {
+              form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
           }
         }, 100);
 
@@ -310,10 +321,22 @@ function StepForm({
             '[aria-invalid="true"]'
           );
           if (firstErrorField) {
+            // Ensure the field is visible in the viewport
             firstErrorField.scrollIntoView({
               behavior: 'smooth',
               block: 'center',
             });
+
+            // Try to focus the field for better accessibility
+            if (firstErrorField instanceof HTMLElement) {
+              firstErrorField.focus();
+            }
+          } else {
+            // If no specific field error is found, scroll to the form
+            const form = document.querySelector('form');
+            if (form) {
+              form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
           }
         }, 100);
 
@@ -324,6 +347,8 @@ function StepForm({
         await onSubmit(data);
       } else if (onNext) {
         onNext();
+        // Scroll to top when moving to next step
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
       console.error('Form error:', error);

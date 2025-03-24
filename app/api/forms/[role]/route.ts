@@ -144,44 +144,87 @@ async function sendToDiscordWebhook(
       // Create a unique filename with role, username and timestamp
       const fileName = `application-${roleData.slug}-${formData.discord_username.replace(/[^a-z0-9]/gi, '_')}-${timestamp.replace(/[:.]/g, '-')}.json`;
 
-      // Create a FormData object for the multipart request (required for file uploads)
-      const formDataPayload = new FormData();
-
-      // Create a more informative message now that we're only using Discord
+      // Create the discord message
       const discordMessage = `**NEW APPLICATION**
 Role: ${roleData.name}
 Department: ${roleData.department}
 Applicant: ${formData.discord_username} (${formData.discord_id})
 Timestamp: ${timestamp}`;
 
-      // Add the more detailed message in payload JSON
-      formDataPayload.append(
-        'payload_json',
-        JSON.stringify({
-          content: discordMessage,
-        })
-      );
+      // Try multipart upload first
+      try {
+        console.log('Trying multipart upload to Discord webhook...');
 
-      // Create a file from the JSON string and attach it
-      const file = new File([jsonString], fileName, {
-        type: 'application/json',
-      });
-      formDataPayload.append('file', file);
+        // Cloudflare Workers compatible approach for multipart/form-data
+        const boundary = `----FormBoundary${Math.random().toString(16).substr(2)}`;
 
-      // Send to Discord webhook
-      const response = await fetch(DISCORD_WEBHOOK_URL, {
-        method: 'POST',
-        body: formDataPayload,
-      });
+        // Build multipart form-data manually
+        const parts = [
+          // Add the JSON payload part
+          `--${boundary}\r\n`,
+          `Content-Disposition: form-data; name="payload_json"\r\n`,
+          `Content-Type: application/json\r\n\r\n`,
+          `${JSON.stringify({ content: discordMessage })}\r\n`,
 
-      if (!response.ok) {
+          // Add the file part
+          `--${boundary}\r\n`,
+          `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n`,
+          `Content-Type: application/json\r\n\r\n`,
+          `${jsonString}\r\n`,
+
+          // End boundary
+          `--${boundary}--\r\n`,
+        ];
+
+        // Convert parts array to Uint8Array for compatibility
+        const encoder = new TextEncoder();
+        const formDataString = parts.join('');
+        const formDataBytes = encoder.encode(formDataString);
+
+        // Send to Discord webhook
+        const response = await fetch(DISCORD_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': `multipart/form-data; boundary=${boundary}`,
+          },
+          body: formDataBytes,
+        });
+
+        if (response.ok) {
+          console.log('Multipart upload to Discord webhook succeeded');
+          return true;
+        }
+
         throw new Error(
           `Discord webhook error: ${response.status} ${response.statusText}`
         );
-      }
+      } catch (multipartError) {
+        console.error(
+          'Multipart upload failed, trying fallback method:',
+          multipartError
+        );
 
-      // Success!
-      return true;
+        // Fallback: Send message-only without file attachment
+        // This is more likely to work in limited environments
+        const fallbackResponse = await fetch(DISCORD_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: `${discordMessage}\n\n**APPLICATION DATA (JSON):**\n\`\`\`json\n${jsonString.substring(0, 1500)}...\n\`\`\``,
+          }),
+        });
+
+        if (!fallbackResponse.ok) {
+          throw new Error(
+            `Discord fallback webhook error: ${fallbackResponse.status} ${fallbackResponse.statusText}`
+          );
+        }
+
+        console.log('Fallback Discord webhook method succeeded');
+        return true;
+      }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       console.error(
@@ -216,19 +259,36 @@ export async function POST(
   context: { params: { role: string } }
 ) {
   try {
+    console.log('POST request received for application submission');
+
     // Get role and questions
     const roleSlug = context.params.role;
+    console.log(`Processing application for role: ${roleSlug}`);
+
     const roleData = roles.find((r) => r.slug === roleSlug);
 
     if (!roleData) {
+      console.error(`Invalid role slug: ${roleSlug}`);
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
     // Combine general and role-specific questions
     const allQuestions = [...generalQuestions, ...roleData.questions];
+    console.log(`Total questions to process: ${allQuestions.length}`);
 
     // Process form data
-    const formData = await req.formData();
+    let formData;
+    try {
+      formData = await req.formData();
+      console.log('Form data successfully parsed');
+    } catch (formError) {
+      console.error('Error parsing form data:', formError);
+      return NextResponse.json(
+        { error: 'Could not parse form data' },
+        { status: 400 }
+      );
+    }
+
     const formObject = Object.fromEntries(
       Array.from(formData.entries()).map(([key, value]) => [
         key,
@@ -236,23 +296,46 @@ export async function POST(
       ])
     ) as FormData;
 
+    console.log(`Processed ${Object.keys(formObject).length} form fields`);
+
     // Validate required fields
     const requiredFields = ['discord_username', 'discord_id'];
     const missingFields = requiredFields.filter((field) => !formObject[field]);
 
     if (missingFields.length > 0) {
+      console.error(`Missing required fields: ${missingFields.join(', ')}`);
       return NextResponse.json(
         { error: `Missing required fields: ${missingFields.join(', ')}` },
         { status: 400 }
       );
     }
 
-    // Verify all required questions have answers
+    // Verify all required questions have answers, handling conditional fields
     const unansweredRequiredQuestions = allQuestions
-      .filter((q) => !q.optional && !formObject[q.name])
+      .filter((q) => {
+        // Skip validation for fields that end with "_other" if their parent field doesn't have "other" selected
+        if (q.name.endsWith('_other')) {
+          // Extract the parent field name (remove _other suffix)
+          const parentFieldName = q.name.replace('_other', '');
+
+          // Check if parent field exists and doesn't have "other" selected
+          const parentValue = formObject[parentFieldName];
+
+          // If parent value doesn't contain "other", this field is not required
+          if (parentValue && !parentValue.toLowerCase().includes('other')) {
+            return false;
+          }
+        }
+
+        // Regular required field validation
+        return !q.optional && !formObject[q.name];
+      })
       .map((q) => q.name);
 
     if (unansweredRequiredQuestions.length > 0) {
+      console.error(
+        `Missing answers for required questions: ${unansweredRequiredQuestions.join(', ')}`
+      );
       return NextResponse.json(
         {
           error: `Missing answers for required questions: ${unansweredRequiredQuestions.join(
@@ -265,21 +348,28 @@ export async function POST(
 
     // Create timestamp for this submission
     const timestamp = new Date().toISOString();
+    console.log(`Application timestamp: ${timestamp}`);
 
     // Flag to track if initial backup was sent successfully
     let initialBackupSent = false;
 
-    // Store backup of submission in Discord (instead of files)
+    // Log environment status for debugging
+    console.log(`Discord webhook configured: ${!!DISCORD_WEBHOOK_URL}`);
+    console.log(`Monday.com API client initialized: ${!!monday}`);
+
+    // Store backup of submission in Discord
     try {
+      console.log('Attempting to send application data to Discord webhook');
       // Send backup to Discord webhook immediately with retries
       initialBackupSent = await sendToDiscordWebhook(
         roleData,
         formObject,
         timestamp
       );
-    } catch (_backupError) {
+      console.log(`Discord webhook success: ${initialBackupSent}`);
+    } catch (backupError) {
       // Log backup error but continue - this doesn't need to block the response
-      console.error('Error creating initial backup:', _backupError);
+      console.error('Error creating initial backup:', backupError);
       initialBackupSent = false;
     }
 
@@ -302,15 +392,28 @@ export async function POST(
     // Start background processing but don't await it
     processFormInBackground();
 
+    console.log(
+      'Successfully processed application, returning success response'
+    );
     // Immediately return success response
     return NextResponse.json({
       success: true,
       message: 'Application received',
     });
   } catch (error) {
-    console.error('Error processing application:', error);
+    // Detailed error logging
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : 'No stack trace';
+
+    console.error('Unhandled error processing application:');
+    console.error(`Message: ${errorMessage}`);
+    console.error(`Stack: ${errorStack}`);
+
     return NextResponse.json(
-      { error: 'Server error processing the application' },
+      {
+        error: 'Server error processing the application',
+        details: errorMessage,
+      },
       { status: 500 }
     );
   }

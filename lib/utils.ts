@@ -14,6 +14,9 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
   return z.object(
     questions.reduce(
       (acc, curr) => {
+        // Check if this is an "other" field that depends on a parent field
+        const isOtherField = curr.name.endsWith('_other');
+
         // If the question has showIf condition, make it conditionally required
         const isConditional = !!curr.showIf;
 
@@ -21,10 +24,19 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
           case 'short':
           case 'paragraph':
             // If it's conditional or optional, make it optional in schema
-            acc[curr.name] =
-              curr.optional || isConditional
-                ? z.string().optional()
-                : z.string().min(1, { message: 'This field is required' });
+            // Special handling for "_other" fields - they should be conditionally required
+            if (isOtherField && isConditional) {
+              // Make it optional by default
+              acc[curr.name] = z.string().optional();
+
+              // We'll handle this with the form display logic instead of validation
+              // The server-side validation will intelligently check these fields
+            } else {
+              acc[curr.name] =
+                curr.optional || isConditional
+                  ? z.string().optional()
+                  : z.string().min(1, { message: 'This field is required' });
+            }
             break;
 
           case 'digits-only':
