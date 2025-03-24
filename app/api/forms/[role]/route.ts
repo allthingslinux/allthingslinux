@@ -79,13 +79,19 @@ async function storeApplicationDataOnGitHub(
   formData: FormData,
   timestamp: string
 ) {
-  if (!env.GITHUB_TOKEN) {
-    console.log('GitHub token not configured, skipping GitHub storage');
-    return false;
-  }
-
   try {
+    // Safely check for required env variables
+    if (!env?.GITHUB_TOKEN) {
+      console.log('GitHub token not configured, skipping GitHub storage');
+      return false;
+    }
+
     console.log('Attempting to store application data on GitHub...');
+
+    // Use nullish coalescing operators for safety
+    const repoOwner = env?.GITHUB_REPO_OWNER ?? 'allthingslinux';
+    const repoName = env?.GITHUB_REPO_NAME ?? 'applications';
+    const githubToken = env?.GITHUB_TOKEN ?? '';
 
     // Create application data object
     const applicationData = {
@@ -160,13 +166,13 @@ async function storeApplicationDataOnGitHub(
 
     console.log(`Attempting to create file: ${filename}`);
 
-    // Create the file via GitHub API
+    // Create the file via GitHub API - using the safe variables
     const response = await fetch(
-      `https://api.github.com/repos/${env.GITHUB_REPO_OWNER}/${env.GITHUB_REPO_NAME}/contents/${filename}`,
+      `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filename}`,
       {
         method: 'PUT',
         headers: {
-          Authorization: `token ${env.GITHUB_TOKEN}`,
+          Authorization: `token ${githubToken}`,
           'Content-Type': 'application/json',
           Accept: 'application/vnd.github.v3+json',
           'User-Agent': 'Cloudflare-Worker',
@@ -204,135 +210,143 @@ async function sendToDiscordWebhook(
   timestamp: string,
   maxRetries = 3
 ) {
-  if (!env.DISCORD_WEBHOOK_URL) {
-    console.log('Discord webhook URL not configured, skipping backup');
-    return false;
-  }
+  try {
+    // Safely check for required env variables
+    if (!env?.DISCORD_WEBHOOK_URL) {
+      console.log('Discord webhook URL not configured, skipping backup');
+      return false;
+    }
 
-  // Track retries
-  let retryCount = 0;
-  let lastError: Error | null = null;
+    const webhookUrl = env.DISCORD_WEBHOOK_URL;
 
-  // Retry loop
-  while (retryCount <= maxRetries) {
-    try {
-      // Create a complete backup JSON file with all data
-      const backupData = {
-        timestamp: timestamp,
-        application: {
-          role: {
-            name: roleData.name,
-            slug: roleData.slug,
-            department: roleData.department,
-            description: roleData.description,
+    // Track retries
+    let retryCount = 0;
+    let lastError: Error | null = null;
+
+    // Retry loop
+    while (retryCount <= maxRetries) {
+      try {
+        // Create a complete backup JSON file with all data
+        const backupData = {
+          timestamp: timestamp,
+          application: {
+            role: {
+              name: roleData.name,
+              slug: roleData.slug,
+              department: roleData.department,
+              description: roleData.description,
+            },
+            applicant: {
+              discord_username: formData.discord_username,
+              discord_id: formData.discord_id,
+            },
+            // Include all form data organized by questions
+            generalAnswers: generalQuestions
+              .filter((q: Question) => formData[q.name])
+              .map((q: Question) => ({
+                question: q.question,
+                answer: formData[q.name],
+                name: q.name,
+                optional: q.optional || false,
+              })),
+            roleAnswers: roleData.questions
+              .filter((q: Question) => formData[q.name])
+              .map((q: Question) => ({
+                question: q.question,
+                answer: formData[q.name],
+                name: q.name,
+                optional: q.optional || false,
+              })),
+            // Include raw form data for complete backup
+            rawFormData: formData,
           },
-          applicant: {
-            discord_username: formData.discord_username,
-            discord_id: formData.discord_id,
-          },
-          // Include all form data organized by questions
-          generalAnswers: generalQuestions
-            .filter((q: Question) => formData[q.name])
-            .map((q: Question) => ({
-              question: q.question,
-              answer: formData[q.name],
-              name: q.name,
-              optional: q.optional || false,
-            })),
-          roleAnswers: roleData.questions
-            .filter((q: Question) => formData[q.name])
-            .map((q: Question) => ({
-              question: q.question,
-              answer: formData[q.name],
-              name: q.name,
-              optional: q.optional || false,
-            })),
-          // Include raw form data for complete backup
-          rawFormData: formData,
-        },
-      };
+        };
 
-      // Stringify the JSON data with nice formatting
-      const jsonString = JSON.stringify(backupData, null, 2);
+        // Stringify the JSON data with nice formatting
+        const jsonString = JSON.stringify(backupData, null, 2);
 
-      // First send a simple header message
-      const headerResponse = await fetch(env.DISCORD_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: `**NEW APPLICATION**\nRole: ${roleData.name}\nDepartment: ${roleData.department}\nApplicant: ${formData.discord_username} (${formData.discord_id})\nTimestamp: ${timestamp}`,
-        }),
-      });
-
-      if (!headerResponse.ok) {
-        throw new Error(
-          `Discord webhook error: ${headerResponse.status} ${headerResponse.statusText}`
-        );
-      }
-
-      // Split the JSON data into manageable chunks for Discord
-      const chunkSize = 1950; // Leave room for markdown code block syntax
-      const chunks = [];
-
-      for (let i = 0; i < jsonString.length; i += chunkSize) {
-        chunks.push(jsonString.substring(i, i + chunkSize));
-      }
-
-      // Send each chunk as a code block
-      for (let i = 0; i < chunks.length; i++) {
-        const chunkResponse = await fetch(env.DISCORD_WEBHOOK_URL, {
+        // First send a simple header message - using the safe variable
+        const headerResponse = await fetch(webhookUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            content: `**Application Data (Part ${i + 1}/${chunks.length})**\n\`\`\`json\n${chunks[i]}\n\`\`\``,
+            content: `**NEW APPLICATION**\nRole: ${roleData.name}\nDepartment: ${roleData.department}\nApplicant: ${formData.discord_username} (${formData.discord_id})\nTimestamp: ${timestamp}`,
           }),
         });
 
-        if (!chunkResponse.ok) {
-          console.warn(
-            `Failed to send data chunk ${i + 1}: ${chunkResponse.status}`
+        if (!headerResponse.ok) {
+          throw new Error(
+            `Discord webhook error: ${headerResponse.status} ${headerResponse.statusText}`
           );
         }
 
-        // Add a small delay between chunk messages to avoid rate limiting
-        if (i < chunks.length - 1) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
+        // Split the JSON data into manageable chunks for Discord
+        const chunkSize = 1950; // Leave room for markdown code block syntax
+        const chunks = [];
+
+        for (let i = 0; i < jsonString.length; i += chunkSize) {
+          chunks.push(jsonString.substring(i, i + chunkSize));
         }
+
+        // Send each chunk as a code block - using the safe variable
+        for (let i = 0; i < chunks.length; i++) {
+          const chunkResponse = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              content: `**Application Data (Part ${i + 1}/${chunks.length})**\n\`\`\`json\n${chunks[i]}\n\`\`\``,
+            }),
+          });
+
+          if (!chunkResponse.ok) {
+            console.warn(
+              `Failed to send data chunk ${i + 1}: ${chunkResponse.status}`
+            );
+          }
+
+          // Add a small delay between chunk messages to avoid rate limiting
+          if (i < chunks.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          }
+        }
+
+        console.log('Successfully sent application data to Discord webhook');
+        return true;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.error(
+          `Error sending to Discord webhook (attempt ${retryCount + 1}/${maxRetries + 1}):`,
+          error
+        );
+
+        // If we've reached max retries, break out of the loop
+        if (retryCount >= maxRetries) {
+          break;
+        }
+
+        // Exponential backoff for retry
+        const backoffDelay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+
+        // Increment retry counter
+        retryCount++;
       }
-
-      console.log('Successfully sent application data to Discord webhook');
-      return true;
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      console.error(
-        `Error sending to Discord webhook (attempt ${retryCount + 1}/${maxRetries + 1}):`,
-        error
-      );
-
-      // If we've reached max retries, break out of the loop
-      if (retryCount >= maxRetries) {
-        break;
-      }
-
-      // Exponential backoff for retry
-      const backoffDelay = Math.min(1000 * Math.pow(2, retryCount), 10000);
-      await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-
-      // Increment retry counter
-      retryCount++;
     }
-  }
 
-  // If we reach here, all retries failed
-  console.error(
-    `All ${maxRetries + 1} attempts to send Discord webhook failed:`,
-    lastError
-  );
-  return false;
+    // If we reach here, all retries failed
+    console.error(
+      `All ${maxRetries + 1} attempts to send Discord webhook failed:`,
+      lastError
+    );
+    return false;
+  } catch (error) {
+    console.error('Error sending to Discord webhook:', error);
+    return false;
+  }
 }
 
 export async function POST(
@@ -342,25 +356,48 @@ export async function POST(
   try {
     console.log('POST request received for application submission');
 
-    // Log environment variables status - now typesafe!
-    console.log('Environment variables in API route:');
-    console.log(
-      'DISCORD_WEBHOOK_URL:',
-      env.DISCORD_WEBHOOK_URL ? '✓ Set' : '✗ Not set'
-    );
-    console.log('GITHUB_TOKEN:', env.GITHUB_TOKEN ? '✓ Set' : '✗ Not set');
-    console.log('GITHUB_REPO_OWNER:', env.GITHUB_REPO_OWNER);
-    console.log('GITHUB_REPO_NAME:', env.GITHUB_REPO_NAME);
-    console.log('MONDAY_API_KEY:', env.MONDAY_API_KEY ? '✓ Set' : '✗ Not set');
-    console.log(
-      'MONDAY_BOARD_ID:',
-      env.MONDAY_BOARD_ID ? '✓ Set' : '✗ Not set'
-    );
+    // Extra safety for accessing env object
+    const safeEnv = env ?? {};
 
-    // Initialize Monday client if API key exists
+    // Safely log environment variables with additional fallbacks
+    console.log('Environment variables in API route:');
+    try {
+      console.log(
+        'DISCORD_WEBHOOK_URL:',
+        safeEnv.DISCORD_WEBHOOK_URL ? '✓ Set' : '✗ Not set'
+      );
+      console.log(
+        'GITHUB_TOKEN:',
+        safeEnv.GITHUB_TOKEN ? '✓ Set' : '✗ Not set'
+      );
+      console.log(
+        'GITHUB_REPO_OWNER:',
+        safeEnv.GITHUB_REPO_OWNER ?? 'allthingslinux'
+      );
+      console.log(
+        'GITHUB_REPO_NAME:',
+        safeEnv.GITHUB_REPO_NAME ?? 'applications'
+      );
+      console.log(
+        'MONDAY_API_KEY:',
+        safeEnv.MONDAY_API_KEY ? '✓ Set' : '✗ Not set'
+      );
+      console.log(
+        'MONDAY_BOARD_ID:',
+        safeEnv.MONDAY_BOARD_ID ? '✓ Set' : '✗ Not set'
+      );
+    } catch (envError) {
+      console.error('Error accessing environment variables:', envError);
+    }
+
+    // Initialize Monday client if API key exists - with more safety checks
     let monday: ApiClient | null = null;
-    if (env.MONDAY_API_KEY) {
-      monday = new ApiClient({ token: env.MONDAY_API_KEY });
+    if (safeEnv.MONDAY_API_KEY) {
+      try {
+        monday = new ApiClient({ token: safeEnv.MONDAY_API_KEY });
+      } catch (mondayError) {
+        console.error('Error initializing Monday client:', mondayError);
+      }
     }
 
     // Get role and questions
@@ -456,9 +493,9 @@ export async function POST(
     let initialBackupSent = false;
     let githubStorageSuccess = false;
 
-    // Log environment status for debugging
-    console.log(`Discord webhook configured: ${!!env.DISCORD_WEBHOOK_URL}`);
-    console.log(`GitHub token configured: ${!!env.GITHUB_TOKEN}`);
+    // Log environment status for debugging with additional safety checks
+    console.log(`Discord webhook configured: ${!!safeEnv.DISCORD_WEBHOOK_URL}`);
+    console.log(`GitHub token configured: ${!!safeEnv.GITHUB_TOKEN}`);
     console.log(`Monday.com API client initialized: ${!!monday}`);
 
     // Store application data in GitHub
