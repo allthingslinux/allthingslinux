@@ -2,6 +2,7 @@ name = "allthingslinux"
 main = ".open-next/worker.js"
 compatibility_date = "2024-09-26"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".open-next/assets"
 
 [assets]
 directory = ".open-next/assets"
@@ -10,8 +11,7 @@ binding = "ASSETS"
 [observability]
 enabled = true
 
-# KV Namespaces for caching
-# Uncomment and add your KV ID to enable caching
+# Enable caching
 # [[kv_namespaces]]
 # binding = "NEXT_CACHE_WORKERS_KV"
 # id = "<BINDING_ID>" 
