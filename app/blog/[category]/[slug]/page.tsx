@@ -5,8 +5,8 @@ import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
 
-// Use dynamic rendering
-export const dynamic = 'force-dynamic';
+// Use Edge Runtime as required by Cloudflare Pages
+export const runtime = 'edge';
 
 interface PostPageProps {
   params: {
