@@ -1,51 +1,29 @@
-import { readFileSync } from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
-
 /**
- * Process markdown content by removing HTML comments and headers
+ * This file has been updated to be compatible with Cloudflare Workers.
+ * It uses fetch with absolute URLs instead of file system operations.
+ * The actual content is pre-generated during build time and stored as a JSON file.
  */
-function processMarkdownContent(content: string): string {
-  // Remove header content before "Code of Conduct"
-  const contentStartIndex = content.indexOf('# Code of Conduct');
-  if (contentStartIndex !== -1) {
-    content = content.slice(contentStartIndex);
-  }
-
-  // Remove HTML comments and table of contents section
-  content = content.replace(/<!--[\s\S]*?-->/g, '');
-  const tocStart = content.indexOf('**Table of Contents**');
-  const tocEnd = content.indexOf('## Preface');
-  if (tocStart !== -1 && tocEnd !== -1) {
-    content = content.slice(0, tocStart) + content.slice(tocEnd);
-  }
-
-  // Remove everything after "Above all, exercise good judgment and common sense."
-  const endIndex = content.indexOf(
-    'Above all, exercise good judgment and common sense.'
-  );
-  if (endIndex !== -1) {
-    content = content.slice(
-      0,
-      endIndex + 'Above all, exercise good judgment and common sense.'.length
-    );
-  }
-
-  return content.trim();
-}
 
 /**
  * Get the processed content of the Code of Conduct
  */
 export async function getCodeOfConductContent(): Promise<string> {
-  const readmePath = path.join(process.cwd(), 'code-of-conduct', 'README.md');
+  try {
+    // In Cloudflare Workers, we need to use absolute URLs
+    // We'll use the process.env.NEXT_PUBLIC_URL if available, or a fallback for development
+    const baseUrl =
+      process.env.NEXT_PUBLIC_URL ||
+      (typeof window !== 'undefined'
+        ? window.location.origin
+        : 'http://localhost:3000');
 
-  // Read and process the contents of the README.md file
-  const readmeContent = processMarkdownContent(
-    readFileSync(readmePath, 'utf8')
-  );
-
-  return readmeContent;
+    const response = await fetch(`${baseUrl}/code-of-conduct.json`);
+    const data = await response.json();
+    return data.content;
+  } catch (error) {
+    console.error('Error loading code of conduct content:', error);
+    return '# Code of Conduct\n\nError loading code of conduct.';
+  }
 }
 
 /**
@@ -53,23 +31,18 @@ export async function getCodeOfConductContent(): Promise<string> {
  */
 export async function getLastUpdated(): Promise<string> {
   try {
-    // Get the last commit date for the README.md file in the submodule
-    const gitCommand = `git -C ${path.join(
-      process.cwd(),
-      'code-of-conduct'
-    )} log -1 --format=%cd --date=format:'%B %d, %Y' -- README.md`;
+    // Same approach for absolute URL as above
+    const baseUrl =
+      process.env.NEXT_PUBLIC_URL ||
+      (typeof window !== 'undefined'
+        ? window.location.origin
+        : 'http://localhost:3000');
 
-    const lastUpdated = execSync(gitCommand).toString().trim();
-
-    // If empty (no commits yet), use a fallback
-    if (!lastUpdated) {
-      throw new Error('No commit history found');
-    }
-
-    return lastUpdated;
+    const response = await fetch(`${baseUrl}/code-of-conduct.json`);
+    const data = await response.json();
+    return data.lastUpdated;
   } catch (error) {
-    console.error('Error getting last commit date:', error);
-    // Fallback date
+    console.error('Error loading last updated date:', error);
     return 'Not available';
   }
 }

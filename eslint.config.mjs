@@ -28,6 +28,11 @@ const eslintConfig = [
     ],
     parser: '@typescript-eslint/parser',
     plugins: ['@typescript-eslint'],
+    env: {
+      browser: true,
+      node: true,
+      worker: true,
+    },
     rules: {
       // Next.js specific rules
       '@next/next/no-html-link-for-pages': 'error',

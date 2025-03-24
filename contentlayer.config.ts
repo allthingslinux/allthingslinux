@@ -86,15 +86,9 @@ export default makeSource({
   documentTypes: [BlogPost],
   mdx: {
     esbuildOptions: (options) => {
-      // Mark all imports from @/components as external
-      options.external = [
-        '@/components/*',
-        '@/components/ui/*',
-        '@/components/mdx/*',
-        ...(options.external || []),
-      ];
+      options.external = ['@/components/*', ...(options.external || [])];
       return options;
     },
   },
-  disableImportAliasWarning: true,
+  disableImportAliasWarning: false,
 });

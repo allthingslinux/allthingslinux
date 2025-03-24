@@ -1,9 +1,4 @@
-import { getPageMetadata } from '../metadata';
 import Values from '@/components/pages/about/values';
-
-export const metadata = getPageMetadata('about');
-
-export const dynamic = 'force-static';
 
 export default function About() {
   return (

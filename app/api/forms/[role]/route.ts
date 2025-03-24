@@ -3,9 +3,13 @@ import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
 import { ApiClient } from '@mondaydotcomorg/api';
 
-const monday = new ApiClient({
-  token: process.env.MONDAY_API_KEY!,
-});
+// Conditionally initialize Monday.com API client
+let monday: ApiClient | null = null;
+if (process.env.MONDAY_API_KEY) {
+  monday = new ApiClient({
+    token: process.env.MONDAY_API_KEY,
+  });
+}
 
 // Define Discord webhook URL from environment variable
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
@@ -261,7 +265,6 @@ export async function POST(
     // Store backup of submission in Discord (instead of files)
     try {
       // Send backup to Discord webhook immediately with retries
-      // This happens before we try to process with Monday.com as an immediate backup
       initialBackupSent = await sendToDiscordWebhook(
         roleData,
         formObject,
@@ -282,8 +285,15 @@ export async function POST(
           await sendToDiscordWebhook(roleData, formObject, timestamp, 5); // More retries
         } catch (retryError) {
           console.error('Retry of initial backup also failed:', retryError);
-          // Continue with processing - we'll still try to save to Monday.com
         }
+      }
+
+      // Monday.com integration is optional, only proceed if the client is initialized
+      if (!monday || !process.env.MONDAY_BOARD_ID) {
+        console.log(
+          'Monday.com API not configured, skipping Monday integration'
+        );
+        return;
       }
 
       try {
@@ -825,81 +835,23 @@ export async function POST(
 
         // Success! Processing is complete - no success notification needed
       } catch (error) {
-        // Send error notification to Discord if Monday processing failed
-        if (DISCORD_WEBHOOK_URL) {
-          // Create detailed error data object
-          const errorData = {
-            timestamp: new Date().toISOString(),
-            status: 'error',
-            errorType: 'Monday.com Processing Error',
-            error: error instanceof Error ? error.message : 'Unknown error',
-            errorStack: error instanceof Error ? error.stack : undefined,
-            application: {
-              role: {
-                name: roleData.name,
-                slug: roleData.slug,
-                department: roleData.department,
-                description: roleData.description,
-              },
-              applicant: {
-                discord_username: formObject.discord_username,
-                discord_id: formObject.discord_id,
-              },
-              // Include all form data for reference
-              formData: formObject,
-            },
-          };
-
-          // Stringify the error data to JSON
-          const errorJsonString = JSON.stringify(errorData, null, 2);
-
-          // Create a unique error log filename
-          const errorFileName = `process-error-${roleData.slug}-${formObject.discord_username.replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-
-          // Create a FormData object for the multipart request
-          const errorFormData = new FormData();
-
-          // Add simple message - no embeds
-          errorFormData.append(
-            'payload_json',
-            JSON.stringify({
-              content: `Application processing failed: ${roleData.name} - ${formObject.discord_username}`,
-            })
-          );
-
-          // Create a file from the JSON string and attach it
-          const errorFile = new File([errorJsonString], errorFileName, {
-            type: 'application/json',
-          });
-          errorFormData.append('file', errorFile);
-
-          // Send to Discord webhook
-          fetch(DISCORD_WEBHOOK_URL, {
-            method: 'POST',
-            body: errorFormData,
-          }).catch((e) =>
-            console.error('Failed to send error notification to Discord:', e)
-          );
-        }
+        // Handle any errors from Monday.com operations
+        console.error('Error in background processing:', error);
       }
     };
 
-    // Start the background processing without awaiting completion
-    processFormInBackground().catch((_error) => {
-      // Optional: send to error monitoring service
-    });
+    // Start background processing but don't await it
+    processFormInBackground();
 
-    // Return success immediately so the client can redirect
+    // Immediately return success response
     return NextResponse.json({
       success: true,
-      message: 'Form submitted successfully. Processing in background.',
+      message: 'Application received',
     });
   } catch (error) {
+    console.error('Error processing application:', error);
     return NextResponse.json(
-      {
-        error: 'Failed to submit application',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
+      { error: 'Server error processing the application' },
       { status: 500 }
     );
   }

@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { Mdx } from '@/components/mdx-components';
-import type { Metadata } from 'next';
 import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
@@ -11,8 +10,6 @@ interface PostPageProps {
     slug: string;
   };
 }
-
-export const revalidate = 3600;
 
 // Simple date formatter function
 function formatDate(dateString: string): string {
@@ -37,38 +34,6 @@ function formatDate(dateString: string): string {
     console.error('Error formatting date:', e);
     return dateString;
   }
-}
-
-export async function generateMetadata({
-  params,
-}: PostPageProps): Promise<Metadata> {
-  // Properly await params
-  const resolvedParams = await Promise.resolve(params);
-  const { category, slug } = resolvedParams;
-
-  const post = await getPost(category, slug);
-
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-      description: 'The post you are looking for does not exist.',
-    };
-  }
-
-  return {
-    title: `${post.title} | All Things Linux Blog`,
-    description:
-      post.description || `Read ${post.title} on All Things Linux Blog`,
-    authors: [{ name: post.author }],
-    openGraph: {
-      type: 'article',
-      title: post.title,
-      description:
-        post.description || `Read ${post.title} on All Things Linux Blog`,
-      publishedTime: post.date,
-      authors: [post.author],
-    },
-  };
 }
 
 export default async function PostPage({ params }: PostPageProps) {

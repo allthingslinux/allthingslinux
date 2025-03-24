@@ -8,7 +8,6 @@ import { Separator } from '@/components/ui/separator';
 import type { Post } from '@/types/blog';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface BlogPostsProps {
   initialPosts: Post[];
@@ -228,56 +227,46 @@ export default function BlogPosts({
             className="lg:col-span-3 relative min-h-[300px]"
             ref={contentRef}
           >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={`${currentContent.category}-${currentContent.page}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-              >
-                {currentContent.posts.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-lg text-muted-foreground">
-                      No posts found in this category.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    {currentContent.posts.map((post) => (
-                      <BlogPostItem
-                        key={post.slug}
-                        post={post}
-                        onNavigate={() => setIsNavigating(true)}
-                      />
-                    ))}
+            {currentContent.posts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-lg text-muted-foreground">
+                  No posts found in this category.
+                </p>
+              </div>
+            ) : (
+              <>
+                {currentContent.posts.map((post) => (
+                  <BlogPostItem
+                    key={post.slug}
+                    post={post}
+                    onNavigate={() => setIsNavigating(true)}
+                  />
+                ))}
 
-                    {/* Pagination controls */}
-                    {totalPages > 1 && (
-                      <div className="flex justify-center gap-2 mt-12">
-                        <Button
-                          variant="outline"
-                          disabled={page <= 1 || isNavigating}
-                          onClick={() => handlePageChange(page - 1)}
-                        >
-                          Previous
-                        </Button>
-                        <span className="flex items-center px-4">
-                          Page {page} of {totalPages}
-                        </span>
-                        <Button
-                          variant="outline"
-                          disabled={page >= totalPages || isNavigating}
-                          onClick={() => handlePageChange(page + 1)}
-                        >
-                          Next
-                        </Button>
-                      </div>
-                    )}
-                  </>
+                {/* Pagination controls */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-12">
+                    <Button
+                      variant="outline"
+                      disabled={page <= 1 || isNavigating}
+                      onClick={() => handlePageChange(page - 1)}
+                    >
+                      Previous
+                    </Button>
+                    <span className="flex items-center px-4">
+                      Page {page} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      disabled={page >= totalPages || isNavigating}
+                      onClick={() => handlePageChange(page + 1)}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 )}
-              </motion.div>
-            </AnimatePresence>
+              </>
+            )}
 
             {/* Fixed overlay that stays in position during loading */}
             {(isNavigating || loadingPosts) && (

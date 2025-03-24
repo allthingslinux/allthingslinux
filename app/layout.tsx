@@ -1,5 +1,3 @@
-import type { Metadata } from 'next';
-
 import { Inter, JetBrains_Mono } from 'next/font/google';
 
 import './globals.css';
@@ -24,12 +22,6 @@ const jetbrainsMono = JetBrains_Mono({
   preload: true,
   variable: '--font-mono',
 });
-
-export const metadata: Metadata = {
-  title: 'All Things Linux',
-  description:
-    'All Things Linux is a 501(c)(3) non-profit organization with a mission to empower the Linux ecosystem through education, collaboration, and support.',
-};
 
 export default function RootLayout({
   children,
