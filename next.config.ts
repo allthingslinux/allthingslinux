@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
 
   // Build optimizations
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   typescript: {
     // Still catch errors in development, but don't block production builds

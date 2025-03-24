@@ -18,9 +18,8 @@
     "build:content": "contentlayer2 build",
     "open-next:build": "contentlayer2 build && NODE_VERSION=20 TURBO=0 open-next build",
     "cloudflare:build": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 npx @opennextjs/cloudflare",
-    "cloudflare:pages": "NODE_VERSION=20 npm run cloudflare:build",
-    "cloudflare:dev": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 npx @opennextjs/cloudflare && wrangler pages dev .open-next/assets",
-    "cloudflare:deploy": "NODE_VERSION=20 npm run cloudflare:build && wrangler pages deploy .open-next/assets",
+    "cloudflare:dev": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 npx @opennextjs/cloudflare && wrangler dev",
+    "cloudflare:deploy": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 npx @opennextjs/cloudflare && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
