@@ -11,3 +11,16 @@ preserve_file_names = true
 
 observability = { enabled = true }
 
+# Explicitly define the environment variables that need to be made available 
+# These variables are just placeholders - actual values are set in the dashboard
+[vars]
+NEXT_PUBLIC_URL = "https://allthingslinux.org"
+
+# Secrets defined in the Cloudflare dashboard
+# - DISCORD_WEBHOOK_URL
+# - GITHUB_TOKEN
+# - GITHUB_REPO_OWNER
+# - GITHUB_REPO_NAME
+# - MONDAY_API_KEY
+# - MONDAY_BOARD_ID
+

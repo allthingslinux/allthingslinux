@@ -2,9 +2,15 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  // Debug middleware execution
+  console.log('Middleware running for path:', request.nextUrl.pathname);
+
   // Only apply to /api routes
   if (request.nextUrl.pathname.startsWith('/api/')) {
-    console.log('Middleware processing API request:', request.nextUrl.pathname);
+    console.log(
+      'Middleware running for API request:',
+      request.nextUrl.pathname
+    );
 
     // Handle OPTIONS requests (preflight)
     if (request.method === 'OPTIONS') {
@@ -21,7 +27,7 @@ export function middleware(request: NextRequest) {
       });
     }
 
-    // Get response for the request
+    // Get response with CORS headers
     const response = NextResponse.next();
 
     // Add CORS headers to all API responses

@@ -2,22 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
 import { ApiClient } from '@mondaydotcomorg/api';
-
-// Conditionally initialize Monday.com API client
-let monday: ApiClient | null = null;
-if (process.env.MONDAY_API_KEY) {
-  monday = new ApiClient({
-    token: process.env.MONDAY_API_KEY,
-  });
-}
-
-// Define Discord webhook URL from environment variable
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
-
-// Define GitHub API credentials from environment variables
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const GITHUB_REPO_OWNER = process.env.GITHUB_REPO_OWNER || 'allthingslinux';
-const GITHUB_REPO_NAME = process.env.GITHUB_REPO_NAME || 'application-data';
+import { env } from '@/env'; // Import the env object
 
 // Define types needed for Monday.com API interactions
 type Column = {
@@ -94,7 +79,7 @@ async function storeApplicationDataOnGitHub(
   formData: FormData,
   timestamp: string
 ) {
-  if (!GITHUB_TOKEN) {
+  if (!env.GITHUB_TOKEN) {
     console.log('GitHub token not configured, skipping GitHub storage');
     return false;
   }
@@ -177,11 +162,11 @@ async function storeApplicationDataOnGitHub(
 
     // Create the file via GitHub API
     const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/${filename}`,
+      `https://api.github.com/repos/${env.GITHUB_REPO_OWNER}/${env.GITHUB_REPO_NAME}/contents/${filename}`,
       {
         method: 'PUT',
         headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
+          Authorization: `token ${env.GITHUB_TOKEN}`,
           'Content-Type': 'application/json',
           Accept: 'application/vnd.github.v3+json',
           'User-Agent': 'Cloudflare-Worker',
@@ -219,7 +204,7 @@ async function sendToDiscordWebhook(
   timestamp: string,
   maxRetries = 3
 ) {
-  if (!DISCORD_WEBHOOK_URL) {
+  if (!env.DISCORD_WEBHOOK_URL) {
     console.log('Discord webhook URL not configured, skipping backup');
     return false;
   }
@@ -271,7 +256,7 @@ async function sendToDiscordWebhook(
       const jsonString = JSON.stringify(backupData, null, 2);
 
       // First send a simple header message
-      const headerResponse = await fetch(DISCORD_WEBHOOK_URL, {
+      const headerResponse = await fetch(env.DISCORD_WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -297,7 +282,7 @@ async function sendToDiscordWebhook(
 
       // Send each chunk as a code block
       for (let i = 0; i < chunks.length; i++) {
-        const chunkResponse = await fetch(DISCORD_WEBHOOK_URL, {
+        const chunkResponse = await fetch(env.DISCORD_WEBHOOK_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -356,6 +341,27 @@ export async function POST(
 ) {
   try {
     console.log('POST request received for application submission');
+
+    // Log environment variables status - now typesafe!
+    console.log('Environment variables in API route:');
+    console.log(
+      'DISCORD_WEBHOOK_URL:',
+      env.DISCORD_WEBHOOK_URL ? '✓ Set' : '✗ Not set'
+    );
+    console.log('GITHUB_TOKEN:', env.GITHUB_TOKEN ? '✓ Set' : '✗ Not set');
+    console.log('GITHUB_REPO_OWNER:', env.GITHUB_REPO_OWNER);
+    console.log('GITHUB_REPO_NAME:', env.GITHUB_REPO_NAME);
+    console.log('MONDAY_API_KEY:', env.MONDAY_API_KEY ? '✓ Set' : '✗ Not set');
+    console.log(
+      'MONDAY_BOARD_ID:',
+      env.MONDAY_BOARD_ID ? '✓ Set' : '✗ Not set'
+    );
+
+    // Initialize Monday client if API key exists
+    let monday: ApiClient | null = null;
+    if (env.MONDAY_API_KEY) {
+      monday = new ApiClient({ token: env.MONDAY_API_KEY });
+    }
 
     // Get role and questions
     const roleSlug = context.params.role;
@@ -451,8 +457,8 @@ export async function POST(
     let githubStorageSuccess = false;
 
     // Log environment status for debugging
-    console.log(`Discord webhook configured: ${!!DISCORD_WEBHOOK_URL}`);
-    console.log(`GitHub token configured: ${!!GITHUB_TOKEN}`);
+    console.log(`Discord webhook configured: ${!!env.DISCORD_WEBHOOK_URL}`);
+    console.log(`GitHub token configured: ${!!env.GITHUB_TOKEN}`);
     console.log(`Monday.com API client initialized: ${!!monday}`);
 
     // Store application data in GitHub
@@ -500,7 +506,12 @@ export async function POST(
       if (!initialBackupSent) {
         try {
           console.log('Retrying initial backup in background process...');
-          await sendToDiscordWebhook(roleData, formObject, timestamp, 5); // More retries
+          await sendToDiscordWebhook(
+            roleData,
+            formObject,
+            timestamp,
+            5 // More retries
+          );
         } catch (retryError) {
           console.error('Retry of initial backup also failed:', retryError);
         }
