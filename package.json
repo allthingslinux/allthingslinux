@@ -16,10 +16,10 @@
     "check:mdx": "remark content/blog/*.mdx --quiet",
     "check:ts": "tsc --noEmit",
     "build:content": "contentlayer2 build",
-    "open-next:build": "contentlayer2 build && open-next build",
-    "cloudflare:build": "npm run open-next:build && npx @opennextjs/cloudflare",
-    "cloudflare:dev": "npm run open-next:build && opennextjs-cloudflare && wrangler dev .open-next/worker.js",
-    "cloudflare:deploy": "npm run open-next:build && opennextjs-cloudflare && wrangler deploy",
+    "open-next:build": "contentlayer2 build && NODE_VERSION=20 open-next build",
+    "cloudflare:build": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 npx @opennextjs/cloudflare",
+    "cloudflare:dev": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 opennextjs-cloudflare && wrangler dev .open-next/worker.js",
+    "cloudflare:deploy": "NODE_VERSION=20 npm run open-next:build && NODE_VERSION=20 opennextjs-cloudflare && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
