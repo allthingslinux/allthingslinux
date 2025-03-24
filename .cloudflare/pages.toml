@@ -1,6 +1,5 @@
 [build]
-command = "npm run cloudflare:pages"
-base = "/"
+command = "NODE_VERSION=20 npm run build:content && NODE_VERSION=20 npm run build && NODE_VERSION=20 npx @opennextjs/cloudflare"
 output_directory = "./.open-next/assets"
 
 [build.environment]

@@ -37,8 +37,7 @@
     ".contentlayer/generated",
     "types/**/*.d.ts",
     "**/*.mjs",
-    "**/*.cjs",
-    ".archive/error.tsx"
+    "**/*.cjs"
   ],
   "exclude": ["node_modules"]
 }
