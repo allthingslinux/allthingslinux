@@ -5,8 +5,8 @@ import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
 
-// Configure Edge Runtime for Cloudflare Pages
-export const runtime = 'edge';
+// Use dynamic rendering
+export const dynamic = 'force-dynamic';
 
 interface PostPageProps {
   params: {
@@ -17,7 +17,7 @@ interface PostPageProps {
 
 export const revalidate = 3600;
 
-// Simple date formatter function for edge runtime
+// Simple date formatter function
 function formatDate(dateString: string): string {
   try {
     const date = new Date(dateString);

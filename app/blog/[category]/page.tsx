@@ -13,11 +13,8 @@ const POSTS_PER_PAGE = 6;
 // Enable ISR for blog pages with revalidation every hour
 export const revalidate = 3600;
 
-// Configure Edge Runtime for Cloudflare Pages
-export const runtime = 'edge';
-
-// Remove generateStaticParams since it's incompatible with Edge Runtime
-// We'll rely on ISR instead for dynamic paths
+// Use dynamic rendering
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,
