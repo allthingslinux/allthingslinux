@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
 import { ApiClient } from '@mondaydotcomorg/api';
-import { env } from '@/env'; // Import the env object
 
 // Define types needed for Monday.com API interactions
 type Column = {
@@ -73,6 +72,22 @@ type Role = {
   questions: Question[];
 };
 
+// Helper function to get environment variables safely
+function getEnvVar(key: string): string {
+  // Try to get from process.env first
+  const value = process.env[key];
+  if (value) return value;
+
+  // If not found, try to get from Cloudflare environment
+  // @ts-expect-error - Cloudflare Workers specific global
+  if (typeof env !== 'undefined' && env[key]) {
+    // @ts-expect-error - Cloudflare Workers specific global
+    return env[key];
+  }
+
+  return '';
+}
+
 // Helper function to store application data in GitHub
 async function storeApplicationDataOnGitHub(
   roleData: Role,
@@ -80,8 +95,7 @@ async function storeApplicationDataOnGitHub(
   timestamp: string
 ) {
   try {
-    // Safely check for required env variables, trying both regular and NEXT_PUBLIC_ versions
-    const githubToken = env?.GITHUB_TOKEN || env?.NEXT_PUBLIC_GITHUB_TOKEN;
+    const githubToken = getEnvVar('GITHUB_TOKEN');
     if (!githubToken) {
       console.log('GitHub token not configured, skipping GitHub storage');
       return false;
@@ -89,15 +103,8 @@ async function storeApplicationDataOnGitHub(
 
     console.log('Attempting to store application data on GitHub...');
 
-    // Use nullish coalescing operators for safety, trying both variable versions
-    const repoOwner =
-      env?.GITHUB_REPO_OWNER ||
-      env?.NEXT_PUBLIC_GITHUB_REPO_OWNER ||
-      'allthingslinux';
-    const repoName =
-      env?.GITHUB_REPO_NAME ||
-      env?.NEXT_PUBLIC_GITHUB_REPO_NAME ||
-      'applications';
+    const repoOwner = getEnvVar('GITHUB_REPO_OWNER') || 'allthingslinux';
+    const repoName = getEnvVar('GITHUB_REPO_NAME') || 'applications';
 
     // Create application data object
     const applicationData = {
@@ -217,9 +224,7 @@ async function sendToDiscordWebhook(
   maxRetries = 3
 ) {
   try {
-    // Safely check for required env variables, trying both regular and NEXT_PUBLIC_ versions
-    const webhookUrl =
-      env?.DISCORD_WEBHOOK_URL || env?.NEXT_PUBLIC_DISCORD_WEBHOOK_URL;
+    const webhookUrl = getEnvVar('DISCORD_WEBHOOK_URL');
     if (!webhookUrl) {
       console.log('Discord webhook URL not configured, skipping backup');
       return false;
@@ -362,57 +367,36 @@ export async function POST(
   try {
     console.log('POST request received for application submission');
 
-    // Extra safety for accessing env object
-    const safeEnv = env ?? {};
-
-    // Safely log environment variables with additional fallbacks - try both variations
+    // Log environment variables
     console.log('Environment variables in API route:');
-    try {
-      // Log both regular and NEXT_PUBLIC_ versions
-      console.log(
-        'DISCORD_WEBHOOK_URL:',
-        safeEnv.DISCORD_WEBHOOK_URL || safeEnv.NEXT_PUBLIC_DISCORD_WEBHOOK_URL
-          ? '✓ Set'
-          : '✗ Not set'
-      );
-      console.log(
-        'GITHUB_TOKEN:',
-        safeEnv.GITHUB_TOKEN || safeEnv.NEXT_PUBLIC_GITHUB_TOKEN
-          ? '✓ Set'
-          : '✗ Not set'
-      );
-      console.log(
-        'GITHUB_REPO_OWNER:',
-        safeEnv.GITHUB_REPO_OWNER ||
-          safeEnv.NEXT_PUBLIC_GITHUB_REPO_OWNER ||
-          'allthingslinux'
-      );
-      console.log(
-        'GITHUB_REPO_NAME:',
-        safeEnv.GITHUB_REPO_NAME ||
-          safeEnv.NEXT_PUBLIC_GITHUB_REPO_NAME ||
-          'applications'
-      );
-      console.log(
-        'MONDAY_API_KEY:',
-        safeEnv.MONDAY_API_KEY || safeEnv.NEXT_PUBLIC_MONDAY_API_KEY
-          ? '✓ Set'
-          : '✗ Not set'
-      );
-      console.log(
-        'MONDAY_BOARD_ID:',
-        safeEnv.MONDAY_BOARD_ID || safeEnv.NEXT_PUBLIC_MONDAY_BOARD_ID
-          ? '✓ Set'
-          : '✗ Not set'
-      );
-    } catch (envError) {
-      console.error('Error accessing environment variables:', envError);
-    }
+    console.log(
+      'DISCORD_WEBHOOK_URL:',
+      getEnvVar('DISCORD_WEBHOOK_URL') ? '✓ Set' : '✗ Not set'
+    );
+    console.log(
+      'GITHUB_TOKEN:',
+      getEnvVar('GITHUB_TOKEN') ? '✓ Set' : '✗ Not set'
+    );
+    console.log(
+      'GITHUB_REPO_OWNER:',
+      getEnvVar('GITHUB_REPO_OWNER') || 'allthingslinux'
+    );
+    console.log(
+      'GITHUB_REPO_NAME:',
+      getEnvVar('GITHUB_REPO_NAME') || 'applications'
+    );
+    console.log(
+      'MONDAY_API_KEY:',
+      getEnvVar('MONDAY_API_KEY') ? '✓ Set' : '✗ Not set'
+    );
+    console.log(
+      'MONDAY_BOARD_ID:',
+      getEnvVar('MONDAY_BOARD_ID') ? '✓ Set' : '✗ Not set'
+    );
 
-    // Initialize Monday client if API key exists - with more safety checks
+    // Initialize Monday client if API key exists
     let monday: ApiClient | null = null;
-    const mondayApiKey =
-      safeEnv.MONDAY_API_KEY || safeEnv.NEXT_PUBLIC_MONDAY_API_KEY;
+    const mondayApiKey = getEnvVar('MONDAY_API_KEY');
     if (mondayApiKey) {
       try {
         monday = new ApiClient({ token: mondayApiKey });
@@ -516,10 +500,11 @@ export async function POST(
 
     // Log environment status for debugging with additional safety checks
     const discordWebhookConfigured = !!(
-      safeEnv.DISCORD_WEBHOOK_URL || safeEnv.NEXT_PUBLIC_DISCORD_WEBHOOK_URL
+      getEnvVar('DISCORD_WEBHOOK_URL') ||
+      getEnvVar('NEXT_PUBLIC_DISCORD_WEBHOOK_URL')
     );
     const githubTokenConfigured = !!(
-      safeEnv.GITHUB_TOKEN || safeEnv.NEXT_PUBLIC_GITHUB_TOKEN
+      getEnvVar('GITHUB_TOKEN') || getEnvVar('NEXT_PUBLIC_GITHUB_TOKEN')
     );
 
     console.log(`Discord webhook configured: ${discordWebhookConfigured}`);

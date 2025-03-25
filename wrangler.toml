@@ -11,30 +11,5 @@ preserve_file_names = true
 
 observability = { enabled = true }
 
-# Define all environment variables with placeholder values
-# This ensures they always exist in the Workers environment, even if empty
-[vars]
-NEXT_PUBLIC_URL = "https://allthingslinux.org"
-DISCORD_WEBHOOK_URL = ""  # Will be overridden by secret
-GITHUB_TOKEN = ""  # Will be overridden by secret  
-GITHUB_REPO_OWNER = "allthingslinux"
-GITHUB_REPO_NAME = "applications"
-MONDAY_API_KEY = ""  # Will be overridden by secret
-MONDAY_BOARD_ID = ""  # Will be overridden by secret
-SKIP_ENV_VALIDATION = "true"  # Skip validation in production
-
-# Add duplicate entries with NEXT_PUBLIC_ prefix
-NEXT_PUBLIC_DISCORD_WEBHOOK_URL = ""
-NEXT_PUBLIC_GITHUB_TOKEN = ""
-NEXT_PUBLIC_GITHUB_REPO_OWNER = "allthingslinux"
-NEXT_PUBLIC_GITHUB_REPO_NAME = "applications"
-NEXT_PUBLIC_MONDAY_API_KEY = ""
-NEXT_PUBLIC_MONDAY_BOARD_ID = ""
-
-# Secrets defined in the Cloudflare dashboard (not directly in this file)
-# - DISCORD_WEBHOOK_URL
-# - GITHUB_TOKEN
-# - GITHUB_REPO_OWNER (optional, falls back to default)
-# - GITHUB_REPO_NAME (optional, falls back to default)
-# - MONDAY_API_KEY
-# - MONDAY_BOARD_ID
+# Environment variables are managed through the Cloudflare dashboard
+# and wrangler secrets, not defined here
