@@ -18,24 +18,30 @@ type Board = {
 };
 
 type GetColumnsResponse = {
-  boards: Board[];
+  data: {
+    boards: Board[];
+  };
 };
 
 type CreateItemResponse = {
-  create_item: {
-    id: string;
-    name: string;
-    board: {
+  data: {
+    create_item: {
       id: string;
       name: string;
+      board: {
+        id: string;
+        name: string;
+      };
     };
   };
 };
 
 type CreateDocResponse = {
-  create_doc: {
-    id: string;
-    object_id: string;
+  data: {
+    create_doc: {
+      id: string;
+      object_id: string;
+    };
   };
 };
 
@@ -47,9 +53,11 @@ type FormData = {
 };
 
 type CreateDocBlockResult = {
-  create_doc_block: {
-    id: string;
-    type: string;
+  data: {
+    create_doc_block: {
+      id: string;
+      type: string;
+    };
   };
 };
 
@@ -360,6 +368,138 @@ async function sendToDiscordWebhook(
   }
 }
 
+// Helper function to store application data in Monday.com
+async function storeApplicationInMonday(
+  monday: ApiClient,
+  roleData: Role,
+  formData: FormData,
+  timestamp: string
+) {
+  try {
+    const boardId = getEnvVar('MONDAY_BOARD_ID');
+    if (!boardId) {
+      console.log(
+        'Monday.com board ID not configured, skipping Monday storage'
+      );
+      return false;
+    }
+
+    console.log('Attempting to store application in Monday.com...');
+
+    // Get board columns to understand the structure
+    const columnsQuery = `query {
+      boards(ids: [${boardId}]) {
+        columns {
+          id
+          title
+          type
+          settings_str
+        }
+      }
+    }`;
+
+    const columnsResponse =
+      await monday.request<GetColumnsResponse>(columnsQuery);
+    const columns = columnsResponse.data.boards[0]?.columns || [];
+
+    // Create the main item in Monday.com
+    const itemName = `${roleData.name} - ${formData.discord_username}`;
+    const createItemQuery = `mutation {
+      create_item (
+        board_id: ${boardId},
+        item_name: "${itemName}",
+        column_values: ${JSON.stringify(
+          JSON.stringify({
+            status: { label: 'New' },
+            text: formData.discord_username,
+            text1: formData.discord_id,
+            date4: new Date(timestamp).toISOString().split('T')[0],
+            dropdown: roleData.department,
+          })
+        )}
+      ) {
+        id
+        name
+        board {
+          id
+          name
+        }
+      }
+    }`;
+
+    const itemResponse =
+      await monday.request<CreateItemResponse>(createItemQuery);
+    const itemId = itemResponse.data.create_item.id;
+
+    // Create a detailed doc with all application information
+    const createDocQuery = `mutation {
+      create_doc(
+        item_id: ${itemId},
+        name: "Application Details"
+      ) {
+        id
+        object_id
+      }
+    }`;
+
+    const docResponse = await monday.request<CreateDocResponse>(createDocQuery);
+    const docId = docResponse.data.create_doc.id;
+
+    // Format application data for the doc
+    const docContent = [
+      { title: 'Application Details', type: 'h1' },
+      { text: `Submitted: ${timestamp}`, type: 'p' },
+      { title: 'Role Information', type: 'h2' },
+      { text: `Name: ${roleData.name}`, type: 'p' },
+      { text: `Department: ${roleData.department}`, type: 'p' },
+      { text: `Description: ${roleData.description}`, type: 'p' },
+      { title: 'Applicant Information', type: 'h2' },
+      { text: `Discord Username: ${formData.discord_username}`, type: 'p' },
+      { text: `Discord ID: ${formData.discord_id}`, type: 'p' },
+      { title: 'General Questions', type: 'h2' },
+      ...generalQuestions
+        .filter((q: Question) => formData[q.name])
+        .map((q: Question) => [
+          { text: q.question, type: 'h3' },
+          { text: formData[q.name], type: 'p' },
+        ])
+        .flat(),
+      { title: 'Role-Specific Questions', type: 'h2' },
+      ...roleData.questions
+        .filter((q: Question) => formData[q.name])
+        .map((q: Question) => [
+          { text: q.question, type: 'h3' },
+          { text: formData[q.name], type: 'p' },
+        ])
+        .flat(),
+    ];
+
+    // Add each block to the doc
+    for (const block of docContent) {
+      const createBlockQuery = `mutation {
+        create_doc_block(
+          doc_id: ${docId},
+          type: "${block.type}",
+          content: ${JSON.stringify(JSON.stringify({ text: block.text || block.title }))}
+        ) {
+          id
+          type
+        }
+      }`;
+
+      const blockResponse =
+        await monday.request<CreateDocBlockResult>(createBlockQuery);
+      // No need to check blockResponse since we only care if it succeeds
+    }
+
+    console.log('Successfully stored application in Monday.com');
+    return true;
+  } catch (error) {
+    console.error('Error storing application in Monday.com:', error);
+    return false;
+  }
+}
+
 export async function POST(
   req: NextRequest,
   context: { params: { role: string } }
@@ -567,8 +707,25 @@ export async function POST(
         }
       }
 
-      // Skip Monday.com integration entirely
-      console.log('Skipping Monday.com integration as requested');
+      // Store application in Monday.com if client is initialized
+      if (monday) {
+        try {
+          console.log('Attempting to store application in Monday.com...');
+          await storeApplicationInMonday(
+            monday,
+            roleData,
+            formObject,
+            timestamp
+          );
+        } catch (mondayError) {
+          console.error(
+            'Error storing application in Monday.com:',
+            mondayError
+          );
+        }
+      } else {
+        console.log('Monday.com client not initialized, skipping integration');
+      }
     };
 
     // Start background processing but don't await it
