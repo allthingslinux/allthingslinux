@@ -1,15 +1,81 @@
+# Main configuration
 name = "allthingslinux"
-main = ".open-next/worker.js"
+account_id = "53d9d9e6ebc5a0dddeeb59477445ea0c"
 
+# Base configuration shared between environments
+main = ".open-next/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-
 assets = { directory = ".open-next/assets", binding = "ASSETS" }
-
 find_additional_modules = true
 preserve_file_names = true
-
 observability = { enabled = true }
 
-# Environment variables are managed through the Cloudflare dashboard
-# and wrangler secrets, not defined here
+# Production environment
+[env.production]
+name = "allthingslinux-production"
+route = { pattern = "allthingslinux.org/*", custom_domain = true }
+workers_dev = false  # Disable *.workers.dev subdomain
+minify = true       # Minify worker code
+
+# Public env vars (available to browser)
+[env.production.vars]
+NEXT_PUBLIC_URL = "https://allthingslinux.org"
+NEXT_PUBLIC_API_URL = "https://allthingslinux.org/api"
+NEXT_PUBLIC_GITHUB_REPO_OWNER = "allthingslinux"
+NEXT_PUBLIC_GITHUB_REPO_NAME = "applications"
+NODE_ENV = "production"
+
+# For private env vars (not exposed to browser), set in Cloudflare dashboard:
+# - GITHUB_TOKEN
+# - MONDAY_API_KEY
+# - MONDAY_BOARD_ID
+# - DISCORD_WEBHOOK_URL
+
+# Development environment (workers.dev subdomain)
+[env.development]
+name = "allthingslinux-development"
+workers_dev = true   # Enable *.workers.dev subdomain for testing
+minify = false      # Don't minify for easier debugging
+
+# Public env vars (available to browser)
+[env.development.vars]
+NEXT_PUBLIC_URL = "https://allthingslinux-development.allthingslinux.workers.dev"
+NEXT_PUBLIC_API_URL = "https://allthingslinux-development.allthingslinux.workers.dev/api"
+NEXT_PUBLIC_GITHUB_REPO_OWNER = "allthingslinux"
+NEXT_PUBLIC_GITHUB_REPO_NAME = "applications"
+NODE_ENV = "production"
+
+# Local development environment
+[env.local]
+name = "allthingslinux-local"
+workers_dev = true
+minify = false
+
+# Public env vars (available to browser)
+[env.local.vars]
+NEXT_PUBLIC_URL = "http://localhost:8788"
+NEXT_PUBLIC_API_URL = "http://localhost:8788/api"
+NEXT_PUBLIC_GITHUB_REPO_OWNER = "allthingslinux"
+NEXT_PUBLIC_GITHUB_REPO_NAME = "applications"
+NODE_ENV = "development"
+
+# For local development private env vars, see .dev.vars file
+
+# Define KV Namespaces (if you need them)
+# kv_namespaces = [
+#   { binding = "MY_KV", id = "xxx", preview_id = "xxx" }
+# ]
+
+# Define R2 Buckets (if you need them)
+# [[r2_buckets]]
+# binding = 'MY_BUCKET'
+# bucket_name = 'my-bucket'
+# preview_bucket_name = 'my-bucket-dev'  # Optional, for dev environment
+
+# Define D1 Databases (if you need them)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-database"
+# database_id = "xxx"
+
