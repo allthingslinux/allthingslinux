@@ -116,7 +116,7 @@ export const systemsRoles: Role[] = [
     name: 'Python Developer',
     department: 'Systems',
     description:
-      'Python Developers are responsible for developing and maintaing Python related projects like our Discord bot, Tux. Experience with discord.py, httpx, poetry, and strict typing is desired.',
+      'Python Developers are responsible for developing and maintaing Python related projects like our Discord bot, Tux. Experience with discord.py, prisma, asyncio, httpx, poetry, and strict typing is desired.',
     questions: [...systemsQuestions],
   },
 ];
