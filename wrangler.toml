@@ -10,6 +10,7 @@ assets = { directory = ".open-next/assets", binding = "ASSETS" }
 find_additional_modules = true
 preserve_file_names = true
 observability = { enabled = true }
+logpush = true
 
 # Production environment
 [env.production]
