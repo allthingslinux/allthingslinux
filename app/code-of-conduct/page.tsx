@@ -3,12 +3,6 @@ import { CodeOfConductContent } from './CodeOfConductContent';
 import { getCodeOfConductContent, getLastUpdated } from './actions';
 import { LoadingSpinner } from '../../components/ui/loading-spinner';
 
-export const metadata = {
-  title: 'Code of Conduct | AllThingsLinux',
-  description:
-    'Our Code of Conduct outlines the standards of behavior for our community to create a respectful and inclusive environment for all participants.',
-};
-
 // Loading component to display while content is loading
 function CodeOfConductLoading() {
   return (

@@ -3,12 +3,35 @@ import { Mdx } from '@/components/mdx-components';
 import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
+import JsonLd from '@/app/components/JsonLd';
+import { getDynamicMetadata } from '@/app/metadata';
+import type { Metadata } from 'next';
 
 interface PostPageProps {
   params: {
     category: string;
     slug: string;
   };
+}
+
+// Generate metadata for the post
+export async function generateMetadata({
+  params,
+}: PostPageProps): Promise<Metadata> {
+  const { category, slug } = params;
+  const post = await getPost(category, slug);
+
+  if (!post) {
+    return getDynamicMetadata({
+      title: 'Post Not Found',
+      description: 'The requested blog post could not be found.',
+    });
+  }
+
+  return getDynamicMetadata({
+    title: post.title,
+    description: post.description || `Read our post about ${post.title}`,
+  });
 }
 
 // Simple date formatter function
@@ -49,6 +72,16 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
+      <JsonLd
+        articleSchema={{
+          title: post.title,
+          description: post.description || `Read our post about ${post.title}`,
+          imageUrl: 'https://allthingslinux.org/images/og.png',
+          datePublished: post.date,
+          dateModified: post.date,
+          authorName: post.author || 'All Things Linux',
+        }}
+      />
       <div className="absolute left-[-200px] top-14 hidden xl:block">
         <BackToAllPostsButton />
       </div>
