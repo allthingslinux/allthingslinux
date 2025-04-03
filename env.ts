@@ -1,75 +1,105 @@
 import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
+/**
+ * Environment variable configuration using T3 Env
+ * @see https://env.t3.gg/docs/nextjs
+ *
+ * This configuration works with both Next.js and Cloudflare Workers.
+ * - For local development, use .env.local file
+ * - For Cloudflare deployment, variables are set in the Cloudflare dashboard
+ *   and/or in wrangler.toml vars section
+ */
 export const env = createEnv({
+  /**
+   * Server-side environment variables (not exposed to browser)
+   */
   server: {
-    DISCORD_WEBHOOK_URL: z
-      .string()
-      .url()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
-    GITHUB_TOKEN: z
-      .string()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
-    GITHUB_REPO_OWNER: z.string().default('allthingslinux'),
-    GITHUB_REPO_NAME: z.string().default('applications'),
-    MONDAY_API_KEY: z
-      .string()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
-    MONDAY_BOARD_ID: z
-      .string()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
+    // Private API tokens and keys
+    GITHUB_TOKEN: z.string().optional(),
+    MONDAY_API_KEY: z.string().optional(),
+    MONDAY_BOARD_ID: z.string().optional(),
+    DISCORD_WEBHOOK_URL: z.string().url().optional(),
+
+    // Server configuration
+    NODE_ENV: z
+      .enum(['development', 'production', 'test'])
+      .default('development'),
   },
+
+  /**
+   * Client-side variables (accessible in browser)
+   */
   client: {
+    // Application URLs and public configuration
     NEXT_PUBLIC_URL: z.string().url().default('https://allthingslinux.org'),
-    NEXT_PUBLIC_DISCORD_WEBHOOK_URL: z
+    NEXT_PUBLIC_API_URL: z
       .string()
       .url()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
-    NEXT_PUBLIC_GITHUB_TOKEN: z
-      .string()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
+      .default('https://allthingslinux.org/api'),
+
+    // Public repository information (no tokens, just public identifiers)
     NEXT_PUBLIC_GITHUB_REPO_OWNER: z.string().default('allthingslinux'),
     NEXT_PUBLIC_GITHUB_REPO_NAME: z.string().default('applications'),
-    NEXT_PUBLIC_MONDAY_API_KEY: z
-      .string()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
-    NEXT_PUBLIC_MONDAY_BOARD_ID: z
-      .string()
-      .optional()
-      .or(z.string().refine((val) => val === '', { message: 'Empty string' }))
-      .catch(''),
   },
-  // This destructures the environment variables for use in edge functions
+
+  /**
+   * Map environment variables to the schemas
+   */
   runtimeEnv: {
-    DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
+    // Server variables
+    NODE_ENV: process.env.NODE_ENV,
     GITHUB_TOKEN: process.env.GITHUB_TOKEN,
-    GITHUB_REPO_OWNER: process.env.GITHUB_REPO_OWNER,
-    GITHUB_REPO_NAME: process.env.GITHUB_REPO_NAME,
     MONDAY_API_KEY: process.env.MONDAY_API_KEY,
     MONDAY_BOARD_ID: process.env.MONDAY_BOARD_ID,
+    DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
+
+    // Client variables
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
-    NEXT_PUBLIC_DISCORD_WEBHOOK_URL:
-      process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_URL,
-    NEXT_PUBLIC_GITHUB_TOKEN: process.env.NEXT_PUBLIC_GITHUB_TOKEN,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_GITHUB_REPO_OWNER: process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER,
     NEXT_PUBLIC_GITHUB_REPO_NAME: process.env.NEXT_PUBLIC_GITHUB_REPO_NAME,
-    NEXT_PUBLIC_MONDAY_API_KEY: process.env.NEXT_PUBLIC_MONDAY_API_KEY,
-    NEXT_PUBLIC_MONDAY_BOARD_ID: process.env.NEXT_PUBLIC_MONDAY_BOARD_ID,
   },
-  skipValidation: process.env.SKIP_ENV_VALIDATION === 'true',
+
+  /**
+   * Configuration options
+   */
+  skipValidation:
+    process.env.SKIP_ENV_VALIDATION === 'true' ||
+    process.env.NODE_ENV !== 'production',
   emptyStringAsUndefined: true,
+  onValidationError: (error) => {
+    console.error('❌ Invalid environment variables:', error);
+    throw new Error('Invalid environment variables, check server logs');
+  },
 });
+
+/**
+ * Cloudflare Workers environment fallback
+ * This provides direct access to environment variables when running in Cloudflare Workers
+ * since the t3-env validation may not work correctly in that environment
+ */
+export const cloudflareEnv = {
+  // Server variables
+  NODE_ENV: process.env.NODE_ENV,
+  GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+  MONDAY_API_KEY: process.env.MONDAY_API_KEY,
+  MONDAY_BOARD_ID: process.env.MONDAY_BOARD_ID,
+  DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
+
+  // Client variables
+  NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  NEXT_PUBLIC_GITHUB_REPO_OWNER: process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER,
+  NEXT_PUBLIC_GITHUB_REPO_NAME: process.env.NEXT_PUBLIC_GITHUB_REPO_NAME,
+};
+
+// Helper function to detect if running in Cloudflare Workers environment
+export const isCloudflareWorker = () =>
+  typeof process !== 'undefined' &&
+  typeof process.env !== 'undefined' &&
+  (process.env.CLOUDFLARE_WORKER === 'true' ||
+    typeof globalThis.caches !== 'undefined');
+
+// Combined environment that automatically selects the right source
+export const runtimeEnv = isCloudflareWorker() ? cloudflareEnv : env;

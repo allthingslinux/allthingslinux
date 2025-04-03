@@ -1,364 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
-import { ApiClient } from '@mondaydotcomorg/api';
-
-// Define types needed for Monday.com API interactions
-type Column = {
-  id: string;
-  title: string;
-  type: string;
-  settings_str: string;
-};
-
-type Board = {
-  id: string;
-  name: string;
-  columns: Column[];
-};
-
-type GetColumnsResponse = {
-  boards: Board[];
-};
-
-type CreateItemResponse = {
-  create_item: {
-    id: string;
-    name: string;
-    board: {
-      id: string;
-      name: string;
-    };
-  };
-};
-
-type CreateDocResponse = {
-  create_doc: {
-    id: string;
-    object_id: string;
-  };
-};
-
-// Define a type for form data
-type FormData = {
-  discord_username: string;
-  discord_id: string;
-  [key: string]: string;
-};
-
-type CreateDocBlockResult = {
-  create_doc_block: {
-    id: string;
-    type: string;
-  };
-};
-
-// Define the Question type based on what's used in the code
-type Question = {
-  name: string;
-  question: string;
-  optional?: boolean;
-  type?: string;
-  description?: string;
-  options?: string[];
-};
-
-// Define Role type to replace 'any'
-type Role = {
-  name: string;
-  slug: string;
-  department: string;
-  description: string;
-  questions: Question[];
-};
-
-// Helper function to get environment variables safely
-function getEnvVar(key: string): string {
-  // Try to get from process.env first
-  const value = process.env[key];
-  if (value) return value;
-
-  // If not found, try to get from Cloudflare environment
-  // @ts-expect-error - Cloudflare Workers specific global
-  if (typeof env !== 'undefined' && env[key]) {
-    // @ts-expect-error - Cloudflare Workers specific global
-    return env[key];
-  }
-
-  return '';
-}
-
-// Helper function to store application data in GitHub
-async function storeApplicationDataOnGitHub(
-  roleData: Role,
-  formData: FormData,
-  timestamp: string
-) {
-  try {
-    const githubToken = getEnvVar('GITHUB_TOKEN');
-    if (!githubToken) {
-      console.log('GitHub token not configured, skipping GitHub storage');
-      return false;
-    }
-
-    console.log('Attempting to store application data on GitHub...');
-
-    const repoOwner = getEnvVar('GITHUB_REPO_OWNER') || 'allthingslinux';
-    const repoName = getEnvVar('GITHUB_REPO_NAME') || 'applications';
-
-    // Create application data object
-    const applicationData = {
-      timestamp,
-      role: {
-        name: roleData.name,
-        slug: roleData.slug,
-        department: roleData.department,
-        description: roleData.description,
-      },
-      applicant: {
-        discord_username: formData.discord_username,
-        discord_id: formData.discord_id,
-      },
-      // Include all form data organized by questions
-      generalAnswers: generalQuestions
-        .filter((q: Question) => formData[q.name])
-        .map((q: Question) => ({
-          question: q.question,
-          answer: formData[q.name],
-          name: q.name,
-          optional: q.optional || false,
-        })),
-      roleAnswers: roleData.questions
-        .filter((q: Question) => formData[q.name])
-        .map((q: Question) => ({
-          question: q.question,
-          answer: formData[q.name],
-          name: q.name,
-          optional: q.optional || false,
-        })),
-      // Include simplified form data for complete backup
-      rawFormData: Object.fromEntries(
-        Object.entries(formData).map(([key, value]) => [key, String(value)])
-      ),
-    };
-
-    // Format timestamp for filename
-    const safeTimestamp = timestamp.replace(/[:.]/g, '-');
-    const safeUsername = formData.discord_username.replace(/[^a-z0-9]/gi, '_');
-    const filename = `applications/${roleData.slug}/${safeUsername}-${safeTimestamp}.json`;
-    const content = JSON.stringify(applicationData, null, 2);
-
-    // Cloudflare Workers compatible Base64 encoding
-    // First convert the string to UTF-8 bytes
-    const encoder = new TextEncoder();
-    const data = encoder.encode(content);
-
-    // Then encode those bytes to base64
-    let contentEncoded = '';
-    try {
-      // Try the modern approach first (supported in most environments)
-      contentEncoded = btoa(
-        Array.from(data)
-          .map((byte) => String.fromCharCode(byte))
-          .join('')
-      );
-    } catch (encodeError) {
-      console.error(
-        'Error with btoa encoding, trying Buffer fallback:',
-        encodeError
-      );
-
-      // Fallback for environments that support Buffer
-      try {
-        contentEncoded = Buffer.from(content).toString('base64');
-      } catch (bufferError) {
-        console.error('Buffer fallback also failed:', bufferError);
-        throw new Error('Unable to base64 encode content');
-      }
-    }
-
-    console.log(`Attempting to create file: ${filename}`);
-
-    // Create the file via GitHub API - using the safe variables
-    const response = await fetch(
-      `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filename}`,
-      {
-        method: 'PUT',
-        headers: {
-          Authorization: `token ${githubToken}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/vnd.github.v3+json',
-          'User-Agent': 'Cloudflare-Worker',
-        },
-        body: JSON.stringify({
-          message: `Application submission: ${roleData.name} - ${formData.discord_username}`,
-          content: contentEncoded,
-          branch: 'main',
-        }),
-      }
-    );
-
-    console.log(`GitHub API response status: ${response.status}`);
-
-    if (!response.ok) {
-      const responseData = await response.json();
-      console.error('GitHub API error details:', JSON.stringify(responseData));
-      throw new Error(
-        `GitHub API error: ${response.status} - ${JSON.stringify(responseData)}`
-      );
-    }
-
-    console.log(`Successfully stored application in GitHub at ${filename}`);
-    return true;
-  } catch (error) {
-    console.error('Error storing application data on GitHub:', error);
-    return false;
-  }
-}
-
-// Helper function to send application data to Discord webhook with retries
-async function sendToDiscordWebhook(
-  roleData: Role,
-  formData: FormData,
-  timestamp: string,
-  maxRetries = 3
-) {
-  try {
-    const webhookUrl = getEnvVar('DISCORD_WEBHOOK_URL');
-    if (!webhookUrl) {
-      console.log('Discord webhook URL not configured, skipping backup');
-      return false;
-    }
-
-    // Track retries
-    let retryCount = 0;
-    let lastError: Error | null = null;
-
-    // Retry loop
-    while (retryCount <= maxRetries) {
-      try {
-        // Create a complete backup JSON file with all data
-        const backupData = {
-          timestamp: timestamp,
-          application: {
-            role: {
-              name: roleData.name,
-              slug: roleData.slug,
-              department: roleData.department,
-              description: roleData.description,
-            },
-            applicant: {
-              discord_username: formData.discord_username,
-              discord_id: formData.discord_id,
-            },
-            // Include all form data organized by questions
-            generalAnswers: generalQuestions
-              .filter((q: Question) => formData[q.name])
-              .map((q: Question) => ({
-                question: q.question,
-                answer: formData[q.name],
-                name: q.name,
-                optional: q.optional || false,
-              })),
-            roleAnswers: roleData.questions
-              .filter((q: Question) => formData[q.name])
-              .map((q: Question) => ({
-                question: q.question,
-                answer: formData[q.name],
-                name: q.name,
-                optional: q.optional || false,
-              })),
-            // Include raw form data for complete backup
-            rawFormData: formData,
-          },
-        };
-
-        // Stringify the JSON data with nice formatting
-        const jsonString = JSON.stringify(backupData, null, 2);
-
-        // First send a simple header message - using the safe variable
-        const headerResponse = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            content: `**NEW APPLICATION**\nRole: ${roleData.name}\nDepartment: ${roleData.department}\nApplicant: ${formData.discord_username} (${formData.discord_id})\nTimestamp: ${timestamp}`,
-          }),
-        });
-
-        if (!headerResponse.ok) {
-          throw new Error(
-            `Discord webhook error: ${headerResponse.status} ${headerResponse.statusText}`
-          );
-        }
-
-        // Split the JSON data into manageable chunks for Discord
-        const chunkSize = 1950; // Leave room for markdown code block syntax
-        const chunks = [];
-
-        for (let i = 0; i < jsonString.length; i += chunkSize) {
-          chunks.push(jsonString.substring(i, i + chunkSize));
-        }
-
-        // Send each chunk as a code block - using the safe variable
-        for (let i = 0; i < chunks.length; i++) {
-          const chunkResponse = await fetch(webhookUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              content: `**Application Data (Part ${i + 1}/${chunks.length})**\n\`\`\`json\n${chunks[i]}\n\`\`\``,
-            }),
-          });
-
-          if (!chunkResponse.ok) {
-            console.warn(
-              `Failed to send data chunk ${i + 1}: ${chunkResponse.status}`
-            );
-          }
-
-          // Add a small delay between chunk messages to avoid rate limiting
-          if (i < chunks.length - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 500));
-          }
-        }
-
-        console.log('Successfully sent application data to Discord webhook');
-        return true;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-        console.error(
-          `Error sending to Discord webhook (attempt ${retryCount + 1}/${maxRetries + 1}):`,
-          error
-        );
-
-        // If we've reached max retries, break out of the loop
-        if (retryCount >= maxRetries) {
-          break;
-        }
-
-        // Exponential backoff for retry
-        const backoffDelay = Math.min(1000 * Math.pow(2, retryCount), 10000);
-        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-
-        // Increment retry counter
-        retryCount++;
-      }
-    }
-
-    // If we reach here, all retries failed
-    console.error(
-      `All ${maxRetries + 1} attempts to send Discord webhook failed:`,
-      lastError
-    );
-    return false;
-  } catch (error) {
-    console.error('Error sending to Discord webhook:', error);
-    return false;
-  }
-}
+import type { FormData, Role } from '@/lib/types';
+import { storeApplicationDataOnGitHub } from '@/lib/integrations/github';
+import { sendToDiscordWebhook } from '@/lib/integrations/discord';
+import { storeApplicationInMonday } from '@/lib/integrations/monday-graphql';
 
 export async function POST(
   req: NextRequest,
@@ -367,43 +13,32 @@ export async function POST(
   try {
     console.log('POST request received for application submission');
 
-    // Log environment variables
+    // Log environment variables in API route:
     console.log('Environment variables in API route:');
     console.log(
       'DISCORD_WEBHOOK_URL:',
-      getEnvVar('DISCORD_WEBHOOK_URL') ? '✓ Set' : '✗ Not set'
+      process.env.DISCORD_WEBHOOK_URL ? '✓ Set' : '✗ Not set'
     );
     console.log(
       'GITHUB_TOKEN:',
-      getEnvVar('GITHUB_TOKEN') ? '✓ Set' : '✗ Not set'
+      process.env.GITHUB_TOKEN ? '✓ Set' : '✗ Not set'
     );
     console.log(
       'GITHUB_REPO_OWNER:',
-      getEnvVar('GITHUB_REPO_OWNER') || 'allthingslinux'
+      process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER || 'allthingslinux'
     );
     console.log(
       'GITHUB_REPO_NAME:',
-      getEnvVar('GITHUB_REPO_NAME') || 'applications'
+      process.env.NEXT_PUBLIC_GITHUB_REPO_NAME || 'applications'
     );
     console.log(
       'MONDAY_API_KEY:',
-      getEnvVar('MONDAY_API_KEY') ? '✓ Set' : '✗ Not set'
+      process.env.MONDAY_API_KEY ? '✓ Set' : '✗ Not set'
     );
     console.log(
       'MONDAY_BOARD_ID:',
-      getEnvVar('MONDAY_BOARD_ID') ? '✓ Set' : '✗ Not set'
+      process.env.MONDAY_BOARD_ID ? '✓ Set' : '✗ Not set'
     );
-
-    // Initialize Monday client if API key exists
-    let monday: ApiClient | null = null;
-    const mondayApiKey = getEnvVar('MONDAY_API_KEY');
-    if (mondayApiKey) {
-      try {
-        monday = new ApiClient({ token: mondayApiKey });
-      } catch (mondayError) {
-        console.error('Error initializing Monday client:', mondayError);
-      }
-    }
 
     // Get role and questions
     const roleSlug = context.params.role;
@@ -415,6 +50,17 @@ export async function POST(
       console.error(`Invalid role slug: ${roleSlug}`);
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
+
+    // Debug log for department value
+    console.log(
+      `Role data: name=${roleData.name}, department=${roleData.department}`
+    );
+
+    // Add general questions to the role data for integration modules
+    const roleWithGeneralQuestions = {
+      ...roleData,
+      generalQuestions: generalQuestions,
+    } as Role;
 
     // Combine general and role-specific questions
     const allQuestions = [...generalQuestions, ...roleData.questions];
@@ -499,89 +145,114 @@ export async function POST(
     let githubStorageSuccess = false;
 
     // Log environment status for debugging with additional safety checks
-    const discordWebhookConfigured = !!(
-      getEnvVar('DISCORD_WEBHOOK_URL') ||
-      getEnvVar('NEXT_PUBLIC_DISCORD_WEBHOOK_URL')
-    );
-    const githubTokenConfigured = !!(
-      getEnvVar('GITHUB_TOKEN') || getEnvVar('NEXT_PUBLIC_GITHUB_TOKEN')
-    );
+    const discordWebhookConfigured = !!process.env.DISCORD_WEBHOOK_URL;
+    const githubTokenConfigured = !!process.env.GITHUB_TOKEN;
+    const mondayConfigured =
+      !!process.env.MONDAY_API_KEY && !!process.env.MONDAY_BOARD_ID;
 
     console.log(`Discord webhook configured: ${discordWebhookConfigured}`);
     console.log(`GitHub token configured: ${githubTokenConfigured}`);
-    console.log(`Monday.com API client initialized: ${!!monday}`);
+    console.log(`Monday.com configured: ${mondayConfigured}`);
 
-    // Store application data in GitHub
+    // Process all integrations sequentially
     try {
-      githubStorageSuccess = await storeApplicationDataOnGitHub(
-        roleData,
-        formObject,
-        timestamp
-      );
-      console.log(`GitHub storage success: ${githubStorageSuccess}`);
-    } catch (githubError) {
-      console.error('Error storing application in GitHub:', githubError);
-      githubStorageSuccess = false;
-    }
+      console.log('Starting integrations processing...');
 
-    // Store backup of submission in Discord
-    try {
-      console.log('Attempting to send application data to Discord webhook');
-      // Send backup to Discord webhook immediately with retries
-      initialBackupSent = await sendToDiscordWebhook(
-        roleData,
-        formObject,
-        timestamp
-      );
-      console.log(`Discord webhook success: ${initialBackupSent}`);
-    } catch (backupError) {
-      // Log backup error but continue - this doesn't need to block the response
-      console.error('Error creating initial backup:', backupError);
-      initialBackupSent = false;
-    }
+      // 1. GitHub Storage
+      if (githubTokenConfigured) {
+        console.log('Attempting to store application in GitHub...');
+        githubStorageSuccess = await storeApplicationDataOnGitHub(
+          roleWithGeneralQuestions,
+          formObject,
+          timestamp
+        );
+        console.log(
+          `GitHub storage result: ${githubStorageSuccess ? 'Success' : 'Failed'}`
+        );
+      } else {
+        console.log('GitHub token not configured, skipping GitHub storage');
+      }
 
-    // Define the background processing function
-    const processFormInBackground = async () => {
-      // If initial GitHub storage failed, try again in the background
-      if (!githubStorageSuccess) {
+      // 2. Discord Webhook
+      if (discordWebhookConfigured) {
+        console.log('Attempting to send application to Discord webhook...');
+        initialBackupSent = await sendToDiscordWebhook(
+          roleWithGeneralQuestions,
+          formObject,
+          timestamp
+        );
+        console.log(
+          `Discord webhook result: ${initialBackupSent ? 'Success' : 'Failed'}`
+        );
+      } else {
+        console.log(
+          'Discord webhook not configured, skipping webhook notification'
+        );
+      }
+
+      // 3. Monday.com
+      if (mondayConfigured) {
+        console.log('Attempting to store application in Monday.com...');
+        const mondayResult = await storeApplicationInMonday(
+          roleWithGeneralQuestions,
+          formObject,
+          timestamp
+        );
+        console.log(
+          `Monday.com integration result: ${mondayResult ? 'Success' : 'Failed'}`
+        );
+      } else {
+        console.log(
+          'Monday.com not configured, skipping Monday.com integration'
+        );
+      }
+
+      // Retry GitHub if it failed
+      if (githubTokenConfigured && !githubStorageSuccess) {
+        console.log('Retrying GitHub storage...');
         try {
-          console.log('Retrying GitHub storage in background process...');
-          await storeApplicationDataOnGitHub(roleData, formObject, timestamp);
+          await storeApplicationDataOnGitHub(
+            roleWithGeneralQuestions,
+            formObject,
+            timestamp
+          );
         } catch (retryError) {
           console.error('Retry of GitHub storage also failed:', retryError);
         }
       }
 
-      // If initial backup failed, try one more time immediately in the background process
-      if (!initialBackupSent) {
+      // Retry Discord if it failed
+      if (discordWebhookConfigured && !initialBackupSent) {
+        console.log('Retrying Discord webhook backup...');
         try {
-          console.log('Retrying initial backup in background process...');
           await sendToDiscordWebhook(
-            roleData,
+            roleWithGeneralQuestions,
             formObject,
             timestamp,
             5 // More retries
           );
         } catch (retryError) {
-          console.error('Retry of initial backup also failed:', retryError);
+          console.error('Retry of Discord webhook also failed:', retryError);
         }
       }
 
-      // Skip Monday.com integration entirely
-      console.log('Skipping Monday.com integration as requested');
-    };
+      console.log('All integrations completed');
+    } catch (error) {
+      console.error('Error in application storage process:', error);
+    }
 
-    // Start background processing but don't await it
-    processFormInBackground();
-
+    // Return success response after all processing is complete
     console.log(
       'Successfully processed application, returning success response'
     );
-    // Immediately return success response
-    return NextResponse.json({
-      success: true,
-      message: 'Application received',
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Application submitted successfully',
+        timestamp,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     // Detailed error logging
     const errorMessage = error instanceof Error ? error.message : String(error);
