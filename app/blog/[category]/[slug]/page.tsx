@@ -3,7 +3,7 @@ import { Mdx } from '@/components/mdx-components';
 import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
-import JsonLd from '@/app/components/JsonLd';
+import { ArticleSchema } from '@/components/structured-data';
 import { getDynamicMetadata } from '@/app/metadata';
 import type { Metadata } from 'next';
 
@@ -18,7 +18,9 @@ interface PostPageProps {
 export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
-  const { category, slug } = params;
+  const resolvedParams = await Promise.resolve(params);
+  const { category, slug } = resolvedParams;
+
   const post = await getPost(category, slug);
 
   if (!post) {
@@ -72,15 +74,13 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
-      <JsonLd
-        articleSchema={{
-          title: post.title,
-          description: post.description || `Read our post about ${post.title}`,
-          imageUrl: 'https://allthingslinux.org/images/og.png',
-          datePublished: post.date,
-          dateModified: post.date,
-          authorName: post.author || 'All Things Linux',
-        }}
+      <ArticleSchema
+        title={post.title}
+        description={post.description || `Read our post about ${post.title}`}
+        imageUrl="https://allthingslinux.org/images/og.png"
+        datePublished={post.date}
+        dateModified={post.date}
+        authorName={post.author || 'All Things Linux'}
       />
       <div className="absolute left-[-200px] top-14 hidden xl:block">
         <BackToAllPostsButton />

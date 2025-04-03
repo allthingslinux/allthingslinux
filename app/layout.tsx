@@ -4,7 +4,10 @@ import './globals.css';
 
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
-import JsonLd from '@/components/JsonLd';
+import {
+  OrganizationSchema,
+  WebsiteSchema,
+} from '@/components/structured-data';
 
 import { GoogleTagManager } from '@next/third-parties/google';
 import { defaultMetadata, viewport } from './metadata';
@@ -35,9 +38,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <GoogleTagManager gtmId="GTM-KK56FB5V" />
-      <JsonLd organizationSchema websiteSchema />
       <body>
+        <GoogleTagManager gtmId="GTM-KK56FB5V" />
+        <OrganizationSchema />
+        <WebsiteSchema />
         <Header />
         {children}
         <Footer />
