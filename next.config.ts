@@ -79,6 +79,18 @@ const nextConfig: NextConfig = {
         protocol: 'https' as const,
         hostname: '**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+      },
+      {
+        protocol: 'https',
+        hostname: 'allthingslinux.org',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment' as const,

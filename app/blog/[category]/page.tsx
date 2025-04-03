@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getDynamicMetadata } from '@/app/metadata';
+import { getApiUrl, getBaseUrl } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 export const revalidate = 3600;
@@ -27,10 +28,36 @@ export async function generateMetadata({
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  return getDynamicMetadata({
-    title: `${categoryTitle} Articles`,
-    description: `Browse all our articles on ${categoryTitle}`,
-  });
+  // Build dynamic OG image URL with query parameters
+  const ogImageUrl = new URL(getApiUrl('/api/og'));
+  ogImageUrl.searchParams.append('title', `${categoryTitle} Articles`);
+  ogImageUrl.searchParams.append('category', 'Blog');
+
+  return {
+    ...getDynamicMetadata({
+      title: `${categoryTitle} Articles`,
+      description: `Browse all our articles on ${categoryTitle}`,
+    }),
+    openGraph: {
+      title: `${categoryTitle} Articles`,
+      description: `Browse all our articles on ${categoryTitle}`,
+      url: `${getBaseUrl()}/blog/${category}`,
+      images: [
+        {
+          url: ogImageUrl.toString(),
+          width: 1200,
+          height: 630,
+          alt: `${categoryTitle} Articles`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${categoryTitle} Articles`,
+      description: `Browse all our articles on ${categoryTitle}`,
+      images: [ogImageUrl.toString()],
+    },
+  };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
@@ -98,42 +125,50 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {posts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.categorySlug}/${post.slug}`}
-                className="group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
-              >
-                <div className="relative h-48 overflow-hidden bg-muted">
-                  <Image
-                    src="https://allthingslinux.org/images/og.png"
-                    alt={post.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="flex flex-col flex-grow p-5">
-                  <Badge variant="outline" className="w-fit mb-2">
-                    {post.category}
-                  </Badge>
-                  <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                    {post.title}
-                  </h3>
-                  {post.description && (
-                    <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
-                      {post.description}
-                    </p>
-                  )}
-                  <div className="mt-auto flex items-center gap-2 text-sm pt-3 border-t">
-                    <span className="font-medium">{post.author}</span>
-                    <span className="text-muted-foreground">
-                      • {post.dateFormatted}
-                    </span>
+            {posts.map((post) => {
+              // Generate dynamic OG image URL for this post
+              const postImageUrl = new URL(getApiUrl('/api/og'));
+              postImageUrl.searchParams.append('title', post.title);
+              postImageUrl.searchParams.append('category', post.category);
+              postImageUrl.searchParams.append('date', post.date);
+
+              return (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.categorySlug}/${post.slug}`}
+                  className="group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
+                >
+                  <div className="relative h-48 overflow-hidden bg-muted">
+                    <Image
+                      src={postImageUrl.toString()}
+                      alt={post.title}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
                   </div>
-                </div>
-              </Link>
-            ))}
+                  <div className="flex flex-col flex-grow p-5">
+                    <Badge variant="outline" className="w-fit mb-2">
+                      {post.category}
+                    </Badge>
+                    <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                      {post.title}
+                    </h3>
+                    {post.description && (
+                      <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
+                        {post.description}
+                      </p>
+                    )}
+                    <div className="mt-auto flex items-center gap-2 text-sm pt-3 border-t">
+                      <span className="font-medium">{post.author}</span>
+                      <span className="text-muted-foreground">
+                        • {post.dateFormatted}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

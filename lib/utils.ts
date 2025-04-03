@@ -127,3 +127,41 @@ export function getRolesByDepartment(roles: Role[]): Record<string, Role[]> {
     {} as Record<string, Role[]>
   );
 }
+
+/**
+ * Generates absolute URLs for the application.
+ * - In development: uses localhost:3000
+ * - In production: uses NEXT_PUBLIC_APP_URL env var or falls back to allthingslinux.org
+ */
+export function getBaseUrl(): string {
+  // Check if we're running on the server and in development mode
+  if (typeof window === 'undefined' && process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+
+  // Check if window is available (client side)
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
+  // In production server-side rendering, use the environment variable or fallback
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://allthingslinux.org';
+}
+
+/**
+ * Creates URLs for the API with correct absolute paths and cache busting in development
+ */
+export function getApiUrl(path: string): string {
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+
+  // Add cache busting in development mode
+  if (process.env.NODE_ENV === 'development') {
+    const cacheBuster = `_cb=${Date.now()}`;
+    return url.includes('?')
+      ? `${url}&${cacheBuster}`
+      : `${url}?${cacheBuster}`;
+  }
+
+  return url;
+}
