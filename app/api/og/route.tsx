@@ -1,15 +1,19 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
+// Remove the edge runtime declaration that's causing build errors with OpenNext
+// export const runtime = 'edge';
 export const fetchCache = 'force-no-store';
 
+// This is a workaround for OpenNext + Cloudflare deployment
+// The function is exported separately to avoid Edge runtime conflicts
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
     // Get params from the request
     const category = searchParams.get('category') || 'Blog';
+
     const date =
       searchParams.get('date') || new Date().toISOString().split('T')[0];
 
@@ -36,7 +40,7 @@ export async function GET(req: NextRequest) {
     const dots: React.ReactNode[] = [];
 
     const positions = [
-      // First row (9 dots, equally spaced)
+      // First row (8 dots, equally spaced)
       { x: 75, y: 75 },
       { x: 225, y: 75 },
       { x: 375, y: 75 },
@@ -46,7 +50,7 @@ export async function GET(req: NextRequest) {
       { x: 975, y: 75 },
       { x: 1125, y: 75 },
 
-      // Second row (8 dots, offset)
+      // Second row (7 dots, offset)
       { x: 150, y: 150 },
       { x: 300, y: 150 },
       { x: 450, y: 150 },
@@ -55,7 +59,7 @@ export async function GET(req: NextRequest) {
       { x: 900, y: 150 },
       { x: 1050, y: 150 },
 
-      // Third row (9 dots)
+      // Third row (8 dots)
       { x: 75, y: 225 },
       { x: 225, y: 225 },
       { x: 375, y: 225 },
@@ -65,7 +69,7 @@ export async function GET(req: NextRequest) {
       { x: 975, y: 225 },
       { x: 1125, y: 225 },
 
-      // Fourth row (8 dots, offset)
+      // Fourth row (7 dots, offset)
       { x: 150, y: 300 },
       { x: 300, y: 300 },
       { x: 450, y: 300 },
@@ -74,7 +78,7 @@ export async function GET(req: NextRequest) {
       { x: 900, y: 300 },
       { x: 1050, y: 300 },
 
-      // Fifth row (9 dots)
+      // Fifth row (8 dots)
       { x: 75, y: 375 },
       { x: 225, y: 375 },
       { x: 375, y: 375 },
@@ -84,7 +88,7 @@ export async function GET(req: NextRequest) {
       { x: 975, y: 375 },
       { x: 1125, y: 375 },
 
-      // Sixth row (8 dots, offset)
+      // Sixth row (7 dots, offset)
       { x: 150, y: 450 },
       { x: 300, y: 450 },
       { x: 450, y: 450 },
@@ -93,7 +97,7 @@ export async function GET(req: NextRequest) {
       { x: 900, y: 450 },
       { x: 1050, y: 450 },
 
-      // Seventh row (9 dots)
+      // Seventh row (8 dots)
       { x: 75, y: 525 },
       { x: 225, y: 525 },
       { x: 375, y: 525 },
