@@ -79,18 +79,8 @@ export async function storeApplicationDataOnGitHub(
           .join('')
       );
     } catch (encodeError) {
-      console.error(
-        'Error with btoa encoding, trying Buffer fallback:',
-        encodeError
-      );
-
-      // Fallback for environments that support Buffer
-      try {
-        contentEncoded = Buffer.from(content).toString('base64');
-      } catch (bufferError) {
-        console.error('Buffer fallback also failed:', bufferError);
-        throw new Error('Unable to base64 encode content');
-      }
+      console.error('Error with btoa encoding:', encodeError);
+      throw new Error('Unable to base64 encode content for GitHub API');
     }
 
     console.log(`Attempting to create file: ${filename}`);

@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 // Remove the edge runtime declaration that's causing build errors with OpenNext
 // export const runtime = 'edge';
 export const fetchCache = 'force-no-store';
+export const dynamic = 'force-dynamic';
 
 // This is a workaround for OpenNext + Cloudflare deployment
 // The function is exported separately to avoid Edge runtime conflicts
