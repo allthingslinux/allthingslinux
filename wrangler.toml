@@ -8,12 +8,29 @@ preserve_file_names = true
 observability = { enabled = true }
 logpush = true
 
+# Service binding for worker self-reference (required for OpenNext)
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "allthingslinux-production"
+environment = "production"
+
+# R2 Bucket for Next.js incremental cache
+[[r2_buckets]]
+binding = "NEXT_INC_CACHE_R2_BUCKET"
+bucket_name = "allthingslinux-cache-production"
+preview_bucket_name = "allthingslinux-cache-dev"
+
 # Production environment
 [env.production]
 name = "allthingslinux-production"
 route = { pattern = "allthingslinux.org/*", custom_domain = true }
 workers_dev = false  # Disable *.workers.dev subdomain
 minify = true       # Minify worker code
+
+# Services for production
+[[env.production.services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "allthingslinux-production"
 
 # Public env vars (available to browser)
 [env.production.vars]
@@ -35,6 +52,11 @@ name = "allthingslinux-development"
 workers_dev = true   # Enable *.workers.dev subdomain for testing
 minify = false      # Don't minify for easier debugging
 
+# Services for development
+[[env.development.services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "allthingslinux-development"
+
 # Public env vars (available to browser)
 [env.development.vars]
 NEXT_PUBLIC_URL = "https://allthingslinux-development.allthingslinux.workers.dev"
@@ -48,6 +70,11 @@ NODE_ENV = "production"
 name = "allthingslinux-local"
 workers_dev = true
 minify = false
+
+# Services for local development
+[[env.local.services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "allthingslinux-local"
 
 # Public env vars (available to browser)
 [env.local.vars]
@@ -63,12 +90,6 @@ NODE_ENV = "development"
 # kv_namespaces = [
 #   { binding = "MY_KV", id = "xxx", preview_id = "xxx" }
 # ]
-
-# Define R2 Buckets (if you need them)
-# [[r2_buckets]]
-# binding = 'MY_BUCKET'
-# bucket_name = 'my-bucket'
-# preview_bucket_name = 'my-bucket-dev'  # Optional, for dev environment
 
 # Define D1 Databases (if you need them)
 # [[d1_databases]]
