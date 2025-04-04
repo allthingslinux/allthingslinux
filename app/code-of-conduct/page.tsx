@@ -3,6 +3,11 @@ import { CodeOfConductContent } from './CodeOfConductContent';
 import { getCodeOfConductContent, getLastUpdated } from './actions';
 import { LoadingSpinner } from '../../components/ui/loading-spinner';
 
+import { getPageMetadata } from '../metadata';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = getPageMetadata('code-of-conduct');
+
 // Loading component to display while content is loading
 function CodeOfConductLoading() {
   return (
