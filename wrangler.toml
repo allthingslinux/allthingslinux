@@ -4,8 +4,10 @@ main = ".open-next/worker.js"
 compatibility_date = "2025-04-02"
 compatibility_flags = ["nodejs_compat"]
 
+# Worker size and performance optimizations 
 find_additional_modules = true
 preserve_file_names = true
+minify = true # Enable minification globally
 
 assets = { directory = ".open-next/assets", binding = "ASSETS" }
 
@@ -55,7 +57,7 @@ NODE_ENV = "production"
 [env.development]
 name = "allthingslinux-development"
 workers_dev = true   # Enable *.workers.dev subdomain for testing
-minify = false      # Don't minify for easier debugging
+minify = true      # Enable minification for development too
 
 # Services for development
 [[env.development.services]]

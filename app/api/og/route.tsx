@@ -1,4 +1,3 @@
-import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 // Remove edge runtime declaration that causes build errors
@@ -6,8 +5,8 @@ import { NextRequest } from 'next/server';
 export const fetchCache = 'force-no-store';
 export const dynamic = 'force-dynamic';
 
-// Optimize for Cloudflare Workers - lazy load heavy operations
-let imageResponsePromise: Promise<typeof ImageResponse> | null = null;
+// Only declare the promise at top level, don't initialize it
+let imageResponsePromise: Promise<any> | null = null;
 
 // This is a workaround for OpenNext + Cloudflare deployment
 export async function GET(req: NextRequest) {
@@ -43,9 +42,9 @@ export async function GET(req: NextRequest) {
       imageResponsePromise = import('next/og').then((mod) => mod.ImageResponse);
     }
 
-    const ImageResponseConstructor = await imageResponsePromise;
+    const { ImageResponse } = await imageResponsePromise;
 
-    return new ImageResponseConstructor(
+    return new ImageResponse(
       (
         <div
           style={{
@@ -149,6 +148,7 @@ export async function GET(req: NextRequest) {
     );
   } catch (e) {
     console.error(e);
+    // Create the Response inside the function body, not at top level
     return new Response(`Failed to generate image`, {
       status: 500,
     });

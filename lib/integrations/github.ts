@@ -1,5 +1,18 @@
 import type { Role, FormData, Question } from '../types';
 
+// Create a function for base64 encoding that is Cloudflare-compatible
+function base64Encode(str: string): string {
+  // Use Cloudflare-compatible approach
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+
+  return btoa(
+    Array.from(data)
+      .map((byte) => String.fromCharCode(byte))
+      .join('')
+  );
+}
+
 /**
  * Stores application data in GitHub repository
  */
@@ -64,24 +77,8 @@ export async function storeApplicationDataOnGitHub(
     const filename = `applications/${roleData.slug}/${safeUsername}-${safeTimestamp}.json`;
     const content = JSON.stringify(applicationData, null, 2);
 
-    // Cloudflare Workers compatible Base64 encoding
-    // First convert the string to UTF-8 bytes
-    const encoder = new TextEncoder();
-    const data = encoder.encode(content);
-
-    // Then encode those bytes to base64
-    let contentEncoded = '';
-    try {
-      // Try the modern approach first (supported in most environments)
-      contentEncoded = btoa(
-        Array.from(data)
-          .map((byte) => String.fromCharCode(byte))
-          .join('')
-      );
-    } catch (encodeError) {
-      console.error('Error with btoa encoding:', encodeError);
-      throw new Error('Unable to base64 encode content for GitHub API');
-    }
+    // Use the separate function for encoding
+    const contentEncoded = base64Encode(content);
 
     console.log(`Attempting to create file: ${filename}`);
 
