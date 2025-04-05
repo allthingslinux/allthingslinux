@@ -93,7 +93,7 @@ const nextConfig: NextConfig = {
         hostname: 'allthingslinux.org',
       },
     ],
-    dangerouslyAllowSVG: true,
+    // dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment' as const,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Image optimization settings

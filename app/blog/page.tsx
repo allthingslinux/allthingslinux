@@ -9,26 +9,26 @@ import type { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
   // Build dynamic OG image URL with query parameters
-  const ogImageUrl = new URL(getApiUrl('/api/og'));
-  ogImageUrl.searchParams.append('title', 'Latest Insights & Updates');
-  ogImageUrl.searchParams.append('category', 'Blog');
+  // const ogImageUrl = new URL(getApiUrl('/api/og'));
+  // ogImageUrl.searchParams.append('title', 'Latest Insights & Updates');
+  // ogImageUrl.searchParams.append('category', 'Blog');
 
   return {
     ...getPageMetadata('blog'),
     openGraph: {
       ...getPageMetadata('blog').openGraph,
-      images: [
-        {
-          url: ogImageUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: 'All Things Linux Blog',
-        },
-      ],
+      // images: [
+      //   {
+      //     url: ogImageUrl.toString(),
+      //     width: 1200,
+      //     height: 630,
+      //     alt: 'All Things Linux Blog',
+      //   },
+      // ],
     },
     twitter: {
       ...getPageMetadata('blog').twitter,
-      images: [ogImageUrl.toString()],
+      // images: [ogImageUrl.toString()],
     },
   };
 }
@@ -87,10 +87,11 @@ export default async function BlogPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map((post) => {
               // Generate dynamic OG image URL for this post
-              const postImageUrl = new URL(getApiUrl('/api/og'));
-              postImageUrl.searchParams.append('title', post.title);
-              postImageUrl.searchParams.append('category', post.category);
-              postImageUrl.searchParams.append('date', post.date);
+              // const postImageUrl = new URL(getApiUrl('/api/og'));
+
+              // postImageUrl.searchParams.append('title', post.title);
+              // postImageUrl.searchParams.append('category', post.category);
+              // postImageUrl.searchParams.append('date', post.date);
 
               return (
                 <Link
@@ -98,7 +99,7 @@ export default async function BlogPage() {
                   href={`/blog/${post.categorySlug}/${post.slug}`}
                   className="group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
                 >
-                  <div className="relative h-48 overflow-hidden bg-muted">
+                  {/* <div className="relative h-48 overflow-hidden bg-muted">
                     <Image
                       src={postImageUrl.toString()}
                       alt={post.title}
@@ -106,7 +107,7 @@ export default async function BlogPage() {
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
-                  </div>
+                  </div> */}
                   <div className="flex flex-col flex-grow p-5">
                     <Badge variant="outline" className="w-fit mb-2">
                       {post.category}

@@ -5,7 +5,7 @@ import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
 import { ArticleSchema } from '@/components/structured-data';
 import { getDynamicMetadata } from '@/app/metadata';
-import { getApiUrl, getBaseUrl } from '@/lib/utils';
+import { getBaseUrl } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 interface PostPageProps {
@@ -31,18 +31,18 @@ export async function generateMetadata({
   }
 
   // Convert category slug to proper name for display
-  const categoryName =
-    post.category ||
-    category
-      .split('-')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  // const categoryName =
+  //   post.category ||
+  //   category
+  //     .split('-')
+  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  //     .join(' ');
 
   // Build dynamic OG image URL with query parameters
-  const ogImageUrl = new URL(getApiUrl('/api/og'));
-  ogImageUrl.searchParams.append('title', post.title);
-  ogImageUrl.searchParams.append('category', categoryName);
-  ogImageUrl.searchParams.append('date', post.date);
+  // const ogImageUrl = new URL(getApiUrl('/api/og'));
+  // ogImageUrl.searchParams.append('title', post.title);
+  // ogImageUrl.searchParams.append('category', categoryName);
+  // ogImageUrl.searchParams.append('date', post.date);
 
   return {
     ...getDynamicMetadata({
@@ -54,14 +54,14 @@ export async function generateMetadata({
       description: post.description || `Read our post about ${post.title}`,
       type: 'article',
       url: `${getBaseUrl()}/blog/${category}/${slug}`,
-      images: [
-        {
-          url: ogImageUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      // images: [
+      //   {
+      //     url: ogImageUrl.toString(),
+      //     width: 1200,
+      //     height: 630,
+      //     alt: post.title,
+      //   },
+      // ],
       publishedTime: post.date,
       modifiedTime: post.date,
       authors: [post.author || 'All Things Linux'],
@@ -70,7 +70,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: post.title,
       description: post.description || `Read our post about ${post.title}`,
-      images: [ogImageUrl.toString()],
+      // images: [ogImageUrl.toString()],
     },
   };
 }

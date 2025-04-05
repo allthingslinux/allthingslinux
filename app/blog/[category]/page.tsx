@@ -1,11 +1,10 @@
 import { notFound } from 'next/navigation';
 import { getPostsByCategory, getAllCategories } from '@/lib/blog';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getDynamicMetadata } from '@/app/metadata';
-import { getApiUrl, getBaseUrl } from '@/lib/utils';
+import { getBaseUrl } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 export const revalidate = 3600;
@@ -29,9 +28,9 @@ export async function generateMetadata({
     .join(' ');
 
   // Build dynamic OG image URL with query parameters
-  const ogImageUrl = new URL(getApiUrl('/api/og'));
-  ogImageUrl.searchParams.append('title', `${categoryTitle} Articles`);
-  ogImageUrl.searchParams.append('category', 'Blog');
+  // const ogImageUrl = new URL(getApiUrl('/api/og'));
+  // ogImageUrl.searchParams.append('title', `${categoryTitle} Articles`);
+  // ogImageUrl.searchParams.append('category', 'Blog');
 
   return {
     ...getDynamicMetadata({
@@ -42,20 +41,20 @@ export async function generateMetadata({
       title: `${categoryTitle} Articles`,
       description: `Browse all our articles on ${categoryTitle}`,
       url: `${getBaseUrl()}/blog/${category}`,
-      images: [
-        {
-          url: ogImageUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: `${categoryTitle} Articles`,
-        },
-      ],
+      // images: [
+      //   {
+      //     url: ogImageUrl.toString(),
+      //     width: 1200,
+      //     height: 630,
+      //     alt: `${categoryTitle} Articles`,
+      //   },
+      // ],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${categoryTitle} Articles`,
       description: `Browse all our articles on ${categoryTitle}`,
-      images: [ogImageUrl.toString()],
+      // images: [ogImageUrl.toString()],
     },
   };
 }
@@ -127,10 +126,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map((post) => {
               // Generate dynamic OG image URL for this post
-              const postImageUrl = new URL(getApiUrl('/api/og'));
-              postImageUrl.searchParams.append('title', post.title);
-              postImageUrl.searchParams.append('category', post.category);
-              postImageUrl.searchParams.append('date', post.date);
+              // const postImageUrl = new URL(getApiUrl('/api/og'));
+              // postImageUrl.searchParams.append('title', post.title);
+              // postImageUrl.searchParams.append('category', post.category);
+              // postImageUrl.searchParams.append('date', post.date);
 
               return (
                 <Link
@@ -138,7 +137,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   href={`/blog/${post.categorySlug}/${post.slug}`}
                   className="group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
                 >
-                  <div className="relative h-48 overflow-hidden bg-muted">
+                  {/* <div className="relative h-48 overflow-hidden bg-muted">
                     <Image
                       src={postImageUrl.toString()}
                       alt={post.title}
@@ -146,7 +145,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
-                  </div>
+                  </div> */}
                   <div className="flex flex-col flex-grow p-5">
                     <Badge variant="outline" className="w-fit mb-2">
                       {post.category}
