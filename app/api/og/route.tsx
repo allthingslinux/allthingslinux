@@ -1,20 +1,21 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-// Remove the edge runtime declaration that's causing build errors with OpenNext
+// Remove edge runtime declaration that causes build errors
 // export const runtime = 'edge';
 export const fetchCache = 'force-no-store';
 export const dynamic = 'force-dynamic';
 
+// Optimize for Cloudflare Workers - lazy load heavy operations
+let imageResponsePromise: Promise<typeof ImageResponse> | null = null;
+
 // This is a workaround for OpenNext + Cloudflare deployment
-// The function is exported separately to avoid Edge runtime conflicts
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
     // Get params from the request
     const category = searchParams.get('category') || 'Blog';
-
     const date =
       searchParams.get('date') || new Date().toISOString().split('T')[0];
 
@@ -27,107 +28,24 @@ export async function GET(req: NextRequest) {
 
     // Define category colors
     const categoryColors: Record<string, string> = {
-      news: '#7C4DFF', // Enhanced Deep purple (more saturation)
-      tutorials: '#00BFA5', // Enhanced Teal
-      community: '#FF9100', // Enhanced Orange
-      projects: '#2979FF', // Enhanced Blue
-      guides: '#00C853', // Enhanced Green
+      news: '#7C4DFF',
+      tutorials: '#00BFA5',
+      community: '#FF9100',
+      projects: '#2979FF',
+      guides: '#00C853',
     };
 
     // Get color based on category or use default
     const accentColor = categoryColors[category.toLowerCase()] || '#90A4AE';
 
-    // Create an evenly distributed dot grid
-    const dots: React.ReactNode[] = [];
+    // Lazy-load ImageResponse to improve startup time
+    if (!imageResponsePromise) {
+      imageResponsePromise = import('next/og').then((mod) => mod.ImageResponse);
+    }
 
-    const positions = [
-      // First row (8 dots, equally spaced)
-      { x: 75, y: 75 },
-      { x: 225, y: 75 },
-      { x: 375, y: 75 },
-      { x: 525, y: 75 },
-      { x: 675, y: 75 },
-      { x: 825, y: 75 },
-      { x: 975, y: 75 },
-      { x: 1125, y: 75 },
+    const ImageResponseConstructor = await imageResponsePromise;
 
-      // Second row (7 dots, offset)
-      { x: 150, y: 150 },
-      { x: 300, y: 150 },
-      { x: 450, y: 150 },
-      { x: 600, y: 150 },
-      { x: 750, y: 150 },
-      { x: 900, y: 150 },
-      { x: 1050, y: 150 },
-
-      // Third row (8 dots)
-      { x: 75, y: 225 },
-      { x: 225, y: 225 },
-      { x: 375, y: 225 },
-      { x: 525, y: 225 },
-      { x: 675, y: 225 },
-      { x: 825, y: 225 },
-      { x: 975, y: 225 },
-      { x: 1125, y: 225 },
-
-      // Fourth row (7 dots, offset)
-      { x: 150, y: 300 },
-      { x: 300, y: 300 },
-      { x: 450, y: 300 },
-      { x: 600, y: 300 },
-      { x: 750, y: 300 },
-      { x: 900, y: 300 },
-      { x: 1050, y: 300 },
-
-      // Fifth row (8 dots)
-      { x: 75, y: 375 },
-      { x: 225, y: 375 },
-      { x: 375, y: 375 },
-      { x: 525, y: 375 },
-      { x: 675, y: 375 },
-      { x: 825, y: 375 },
-      { x: 975, y: 375 },
-      { x: 1125, y: 375 },
-
-      // Sixth row (7 dots, offset)
-      { x: 150, y: 450 },
-      { x: 300, y: 450 },
-      { x: 450, y: 450 },
-      { x: 600, y: 450 },
-      { x: 750, y: 450 },
-      { x: 900, y: 450 },
-      { x: 1050, y: 450 },
-
-      // Seventh row (8 dots)
-      { x: 75, y: 525 },
-      { x: 225, y: 525 },
-      { x: 375, y: 525 },
-      { x: 525, y: 525 },
-      { x: 675, y: 525 },
-      { x: 825, y: 525 },
-      { x: 975, y: 525 },
-      { x: 1125, y: 525 },
-    ];
-
-    positions.forEach((pos, i) => {
-      dots.push(
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            left: pos.x,
-            top: pos.y,
-            width: 6,
-            height: 6,
-            borderRadius: 4,
-            backgroundColor: accentColor,
-            opacity: 0.5,
-          }}
-        />
-      );
-    });
-
-    return new ImageResponse(
+    return new ImageResponseConstructor(
       (
         <div
           style={{
@@ -137,14 +55,11 @@ export async function GET(req: NextRequest) {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#0A0E15', // Darker background for better contrast
+            backgroundColor: '#0A0E15',
             position: 'relative',
             overflow: 'hidden',
           }}
         >
-          {/* Render simplified dot pattern */}
-          {dots}
-
           {/* Background accent */}
           <div
             style={{
@@ -187,9 +102,10 @@ export async function GET(req: NextRequest) {
                 backgroundColor: accentColor,
                 color: '#0A0E15',
                 padding: '10px 20px',
-                borderRadius: 8,
-                fontSize: 32,
+                borderRadius: 50,
+                fontSize: 28,
                 fontWeight: 'bold',
+                marginTop: 20,
                 marginBottom: 40,
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
               }}

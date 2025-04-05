@@ -1,12 +1,17 @@
 # Base configuration shared between environments
 main = ".open-next/worker.js"
+
 compatibility_date = "2025-04-02"
 compatibility_flags = ["nodejs_compat"]
-assets = { directory = ".open-next/assets", binding = "ASSETS" }
+
 find_additional_modules = true
 preserve_file_names = true
-observability = { enabled = true }
-logpush = true
+
+assets = { directory = ".open-next/assets", binding = "ASSETS" }
+
+[observability]
+enabled = true
+logs.invocation_logs = true
 
 # Service binding for worker self-reference (required for OpenNext)
 [[services]]
