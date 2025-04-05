@@ -46,3 +46,4 @@ form-backups/**
 .open-next
 
 .dev.vars
+.wrangler
