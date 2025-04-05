@@ -6,6 +6,10 @@ import { storeApplicationDataOnGitHub } from '@/lib/integrations/github';
 import { sendToDiscordWebhook } from '@/lib/integrations/discord';
 import { storeApplicationInMonday } from '@/lib/integrations/monday-graphql';
 
+// Add dynamic and cache controls for better Cloudflare compatibility
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function POST(
   req: NextRequest,
   context: { params: { role: string } }

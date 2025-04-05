@@ -49,85 +49,86 @@ export const defaultMetadata: Metadata = {
     creator: '@allthingslinux',
   },
   icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      {
-        url: '/favicon-16x16-light.png',
-        sizes: '16x16',
-        type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/favicon-16x16-dark.png',
-        sizes: '16x16',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/favicon-32x32-light.png',
-        sizes: '32x32',
-        type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/favicon-32x32-dark.png',
-        sizes: '32x32',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon-light.png',
-        sizes: '48x48',
-        type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark.png',
-        sizes: '48x48',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-    ],
-    apple: [
-      {
-        url: '/apple-touch-icon-light.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/apple-touch-icon-dark.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-    ],
-    other: [
-      {
-        rel: 'android-chrome',
-        url: '/android-chrome-192x192-light.png',
-        sizes: '192x192',
-        type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        rel: 'android-chrome',
-        url: '/android-chrome-192x192-dark.png',
-        sizes: '192x192',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        rel: 'android-chrome',
-        url: '/android-chrome-512x512-light.png',
-        sizes: '512x512',
-        type: 'image/png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        rel: 'android-chrome',
-        url: '/android-chrome-512x512-dark.png',
-        sizes: '512x512',
-        type: 'image/png',
-        media: '(prefers-color-scheme: dark)',
-      },
-    ],
+    // icon: [
+    //   { url: '/favicon.ico' },
+    //   {
+    //     url: '/favicon-16x16-light.png',
+    //     sizes: '16x16',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: light)',
+    //   },
+    //   {
+    //     url: '/favicon-16x16-dark.png',
+    //     sizes: '16x16',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: dark)',
+    //   },
+    //   {
+    //     url: '/favicon-32x32-light.png',
+    //     sizes: '32x32',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: light)',
+    //   },
+    //   {
+    //     url: '/favicon-32x32-dark.png',
+    //     sizes: '32x32',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: dark)',
+    //   },
+    //   {
+    //     url: '/icon-light.png',
+    //     sizes: '48x48',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: light)',
+    //   },
+    //   {
+    //     url: '/icon-dark.png',
+    //     sizes: '48x48',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: dark)',
+    //   },
+    // ],
+    // apple: [
+    //   {
+    //     url: '/apple-touch-icon-light.png',
+    //     media: '(prefers-color-scheme: light)',
+    //   },
+    //   {
+    //     url: '/apple-touch-icon-dark.png',
+    //     media: '(prefers-color-scheme: dark)',
+    //   },
+    // ],
+    // other: [
+    //   {
+    //     rel: 'android-chrome',
+    //     url: '/android-chrome-192x192-light.png',
+    //     sizes: '192x192',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: light)',
+    //   },
+    //   {
+    //     rel: 'android-chrome',
+    //     url: '/android-chrome-192x192-dark.png',
+    //     sizes: '192x192',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: dark)',
+    //   },
+    //   {
+    //     rel: 'android-chrome',
+    //     url: '/android-chrome-512x512-light.png',
+    //     sizes: '512x512',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: light)',
+    //   },
+    //   {
+    //     rel: 'android-chrome',
+    //     url: '/android-chrome-512x512-dark.png',
+    //     sizes: '512x512',
+    //     type: 'image/png',
+    //     media: '(prefers-color-scheme: dark)',
+    //   },
+    // ],
+    icon: '/images/logo.png',
   },
   manifest: '/site.webmanifest',
   metadataBase: new URL(siteConfig.url),
@@ -167,6 +168,11 @@ export const getPageMetadata = (page: string): Metadata => {
       title: 'Blog',
       description:
         'Stay updated with the latest news, tutorials, and insights about Linux and open source software.',
+    },
+    'get-involved': {
+      title: 'Get Involved',
+      description:
+        'Learn how to get involved with All Things Linux and contribute to our projects.',
     },
   };
 

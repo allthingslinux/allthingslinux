@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  productionBrowserSourceMaps: false,
 
   // Performance optimizations
   compress: true,
@@ -79,8 +80,20 @@ const nextConfig: NextConfig = {
         protocol: 'https' as const,
         hostname: '**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+      },
+      {
+        protocol: 'https',
+        hostname: 'allthingslinux.org',
+      },
     ],
-    dangerouslyAllowSVG: true,
+    // dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment' as const,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Image optimization settings

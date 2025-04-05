@@ -1,4 +1,8 @@
 import Values from '@/components/pages/about/values';
+import { getPageMetadata } from '../metadata';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = getPageMetadata('about');
 
 export default function About() {
   return (

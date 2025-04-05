@@ -1,15 +1,13 @@
 import type { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://allthingslinux.org';
-
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/'],
+      disallow: ['/admin', '/private', '/api'],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: 'https://allthingslinux.org/sitemap.xml',
+    host: 'https://allthingslinux.org',
   };
 }

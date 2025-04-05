@@ -3,11 +3,75 @@ import { Mdx } from '@/components/mdx-components';
 import { getPost } from '@/lib/blog';
 import { BackToAllPostsButton } from '@/components/blog/back-to-posts-button';
 import ClientScrollToTop from '@/components/blog/client-scroll-to-top';
+import { ArticleSchema } from '@/components/structured-data';
+import { getDynamicMetadata } from '@/app/metadata';
+import { getBaseUrl } from '@/lib/utils';
+import type { Metadata } from 'next';
 
 interface PostPageProps {
   params: {
     category: string;
     slug: string;
+  };
+}
+
+// Generate metadata for the post
+export async function generateMetadata({
+  params,
+}: PostPageProps): Promise<Metadata> {
+  const resolvedParams = await Promise.resolve(params);
+  const { category, slug } = resolvedParams;
+  const post = await getPost(category, slug);
+
+  if (!post) {
+    return getDynamicMetadata({
+      title: 'Post Not Found',
+      description: 'The requested blog post could not be found.',
+    });
+  }
+
+  // Convert category slug to proper name for display
+  // const categoryName =
+  //   post.category ||
+  //   category
+  //     .split('-')
+  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  //     .join(' ');
+
+  // Build dynamic OG image URL with query parameters
+  // const ogImageUrl = new URL(getApiUrl('/api/og'));
+  // ogImageUrl.searchParams.append('title', post.title);
+  // ogImageUrl.searchParams.append('category', categoryName);
+  // ogImageUrl.searchParams.append('date', post.date);
+
+  return {
+    ...getDynamicMetadata({
+      title: post.title,
+      description: post.description || `Read our post about ${post.title}`,
+    }),
+    openGraph: {
+      title: post.title,
+      description: post.description || `Read our post about ${post.title}`,
+      type: 'article',
+      url: `${getBaseUrl()}/blog/${category}/${slug}`,
+      // images: [
+      //   {
+      //     url: ogImageUrl.toString(),
+      //     width: 1200,
+      //     height: 630,
+      //     alt: post.title,
+      //   },
+      // ],
+      publishedTime: post.date,
+      modifiedTime: post.date,
+      authors: [post.author || 'All Things Linux'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description || `Read our post about ${post.title}`,
+      // images: [ogImageUrl.toString()],
+    },
   };
 }
 
@@ -49,6 +113,14 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
+      <ArticleSchema
+        title={post.title}
+        description={post.description || `Read our post about ${post.title}`}
+        imageUrl="https://allthingslinux.org/images/og.png"
+        datePublished={post.date}
+        dateModified={post.date}
+        authorName={post.author || 'All Things Linux'}
+      />
       <div className="absolute left-[-200px] top-14 hidden xl:block">
         <BackToAllPostsButton />
       </div>

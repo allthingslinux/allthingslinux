@@ -4,8 +4,13 @@ import './globals.css';
 
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
+import {
+  OrganizationSchema,
+  WebsiteSchema,
+} from '@/components/structured-data';
 
 import { GoogleTagManager } from '@next/third-parties/google';
+import { defaultMetadata, viewport } from './metadata';
 
 // Initialize font with subset for better performance
 const inter = Inter({
@@ -23,6 +28,9 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
 });
 
+export const metadata = defaultMetadata;
+export { viewport };
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,8 +38,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <GoogleTagManager gtmId="GTM-KK56FB5V" />
       <body>
+        <GoogleTagManager gtmId="GTM-KK56FB5V" />
+        <OrganizationSchema />
+        <WebsiteSchema />
         <Header />
         {children}
         <Footer />
