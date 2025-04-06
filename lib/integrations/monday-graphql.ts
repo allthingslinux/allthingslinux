@@ -51,11 +51,14 @@ interface MondayDropdownSettings {
  * Creates a GraphQL client for Monday.com
  */
 function createMondayClient(apiKey: string): GraphQLClient {
+  // Use a more basic fetch-based configuration to avoid any compatibility issues
   const client = new GraphQLClient('https://api.monday.com/v2', {
     headers: {
       'Content-Type': 'application/json',
       Authorization: apiKey,
     },
+    // Avoid any Node.js specific features
+    fetch: globalThis.fetch,
   });
   return client;
 }
