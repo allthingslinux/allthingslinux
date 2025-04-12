@@ -19,21 +19,33 @@ function base64Encode(str: string): string {
 export async function storeApplicationDataOnGitHub(
   roleData: Role,
   formData: FormData,
-  timestamp: string
-) {
+  timestamp: string,
+  // Add parameters for configuration
+  githubToken: string,
+  repoOwner: string,
+  repoName: string
+): Promise<boolean> {
   try {
-    // Direct access to process.env
-    const githubToken = process.env.GITHUB_TOKEN;
+    // Use passed-in parameters instead of process.env
+    // const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
-      console.log('GitHub token not configured, skipping GitHub storage');
+      console.log('GitHub token not provided, skipping GitHub storage');
       return false;
     }
 
     console.log('Attempting to store application data on GitHub...');
 
-    const repoOwner =
-      process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER || 'allthingslinux';
-    const repoName = process.env.NEXT_PUBLIC_GITHUB_REPO_NAME || 'applications';
+    // Use passed-in parameters
+    // const repoOwner =
+    //   process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER || 'allthingslinux';
+    // const repoName = process.env.NEXT_PUBLIC_GITHUB_REPO_NAME || 'applications';
+
+    if (!repoOwner || !repoName) {
+      console.error(
+        'GitHub repo owner or name not provided, skipping GitHub storage.'
+      );
+      return false;
+    }
 
     // Create application data object
     const applicationData = {

@@ -1,7 +1,8 @@
 # Base configuration shared between environments
 main = ".open-next/worker.js"
+name = "allthingslinux-production" # Default name, overridden per env
 
-compatibility_date = "2025-04-02"
+compatibility_date = "2024-04-05"
 compatibility_flags = ["nodejs_compat"]
 
 # Worker size and performance optimizations 
@@ -26,6 +27,17 @@ environment = "production"
 binding = "NEXT_INC_CACHE_R2_BUCKET"
 bucket_name = "allthingslinux-cache-production"
 preview_bucket_name = "allthingslinux-cache-dev"
+
+# --- Queues Configuration ---
+
+# Producer binding ONLY (can be defined globally and overridden per-env if needed)
+[[queues.producers]]
+binding = "SUBMISSION_QUEUE"
+queue = "application-submissions" # Default queue name
+
+# --- Consumer Configuration REMOVED - Handled by separate worker ---
+
+# --- Environment Specific Overrides --- 
 
 # Production environment
 [env.production]
@@ -53,6 +65,11 @@ NODE_ENV = "production"
 # - MONDAY_BOARD_ID
 # - DISCORD_WEBHOOK_URL
 
+# Production Producer binding (ensure it points to the correct queue)
+[[env.production.queues.producers]]
+binding = "SUBMISSION_QUEUE"
+queue = "application-submissions" # Explicitly the production queue name
+
 # Development environment (workers.dev subdomain)
 [env.development]
 name = "allthingslinux-development"
@@ -70,7 +87,12 @@ NEXT_PUBLIC_URL = "https://allthingslinux-development.allthingslinux.workers.dev
 NEXT_PUBLIC_API_URL = "https://allthingslinux-development.allthingslinux.workers.dev/api"
 NEXT_PUBLIC_GITHUB_REPO_OWNER = "allthingslinux"
 NEXT_PUBLIC_GITHUB_REPO_NAME = "applications"
-NODE_ENV = "production"
+NODE_ENV = "development"
+
+# R2 Bucket for Development (using preview name from top-level)
+[[env.development.r2_buckets]]
+binding = "NEXT_INC_CACHE_R2_BUCKET"
+bucket_name = "allthingslinux-cache-dev"
 
 # Local development environment
 [env.local]
@@ -103,4 +125,14 @@ NODE_ENV = "development"
 # binding = "DB"
 # database_name = "my-database"
 # database_id = "xxx"
+
+# Development Producer binding (points to the dev queue)
+[[env.development.queues.producers]]
+binding = "SUBMISSION_QUEUE"
+queue = "application-submissions-dev" # Use a separate dev queue name
+
+# REMOVED Consumer config for development
+# [[env.development.queues.consumers]]
+# queue = "application-submissions-dev"  # The dev queue name
+# script = "workers/form-consumer.ts"    # The script to run for consuming
 

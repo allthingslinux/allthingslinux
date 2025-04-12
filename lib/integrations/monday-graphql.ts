@@ -48,6 +48,20 @@ interface MondayDropdownSettings {
 }
 
 /**
+ * Splits a string into simple chunks of a maximum length.
+ */
+function splitTextIntoChunks(text: string, maxLength: number): string[] {
+  const chunks: string[] = [];
+  if (!text || maxLength <= 0) {
+    return [];
+  }
+  for (let i = 0; i < text.length; i += maxLength) {
+    chunks.push(text.substring(i, i + maxLength));
+  }
+  return chunks;
+}
+
+/**
  * Creates a GraphQL client for Monday.com
  */
 function createMondayClient(apiKey: string): GraphQLClient {
@@ -267,6 +281,8 @@ async function createMondayItem(
 /**
  * Adds application details directly to item instead of creating docs
  * (workaround for doc creation issues)
+ * Sends updates in reverse order (headers first, then questions oldest to newest)
+ * so they appear chronologically correct in Monday.com (newest first).
  */
 async function addDetailsToItem(
   client: GraphQLClient,
@@ -275,23 +291,103 @@ async function addDetailsToItem(
   formData: FormData,
   timestamp: string
 ): Promise<boolean> {
+  let allUpdatesSuccessful = true; // Track success across all updates
+
   try {
     console.log(
-      'Adding application details as updates to the item instead of doc...'
+      'Adding application details as individual updates to the item...'
     );
 
-    // Create update mutation for adding comments
-    const updateMutation = gql`
-      mutation CreateUpdate($itemId: ID!, $body: String!) {
-        create_update(item_id: $itemId, body: $body) {
-          id
+    // Reusable function to send an update, now with retry logic for length errors
+    const sendUpdate = async (body: string): Promise<boolean> => {
+      const updateMutation = gql`
+        mutation CreateUpdate($itemId: ID!, $body: String!) {
+          create_update(item_id: $itemId, body: $body) {
+            id
+          }
+        }
+      `;
+      try {
+        console.log(`Sending update with body: ${body.substring(0, 50)}...`);
+        await client.request(updateMutation, { itemId, body });
+        // Optional: Add a small delay between requests if rate limiting becomes an issue
+        // await new Promise(resolve => setTimeout(resolve, 200));
+        return true;
+      } catch (updateError: any) {
+        console.error(
+          'Initial error sending update:',
+          updateError,
+          'Body length:',
+          body.length
+        );
+
+        // Check if the error looks like a length/complexity limit
+        const errorMessage =
+          updateError.response?.errors?.[0]?.message?.toLowerCase() || '';
+        const isLengthError =
+          errorMessage.includes('limit') ||
+          errorMessage.includes('length') ||
+          errorMessage.includes('size') ||
+          errorMessage.includes('complexity') ||
+          errorMessage.includes('too long');
+        // Optionally check body.length > threshold if needed
+
+        if (isLengthError) {
+          console.warn(
+            'Potential length limit error detected. Attempting to split and retry...'
+          );
+          const RETRY_MAX_LENGTH = 1000; // Smaller chunk size for retry
+          const chunks = splitTextIntoChunks(body, RETRY_MAX_LENGTH);
+          let retrySuccessful = true;
+
+          if (chunks.length <= 1) {
+            console.error(
+              'Splitting resulted in 1 or 0 chunks, cannot retry meaningfully.'
+            );
+            return false; // Avoid infinite loops or pointless retries
+          }
+
+          for (let i = 0; i < chunks.length; i++) {
+            const chunkBody = chunks[i];
+            // Add prefix only if splitting happened
+            const retryPrefix = `(Split Part ${i + 1}/${chunks.length}) `;
+            try {
+              console.log(
+                `Retrying with chunk ${i + 1}/${chunks.length}: ${chunkBody.substring(0, 50)}...`
+              );
+              await client.request(updateMutation, {
+                itemId,
+                body: retryPrefix + chunkBody,
+              });
+              // Optional delay?
+              // await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (retryError) {
+              console.error(
+                `Retry failed for chunk ${i + 1}/${chunks.length}:`,
+                retryError
+              );
+              retrySuccessful = false;
+              break; // Stop retrying if one chunk fails
+            }
+          }
+
+          if (retrySuccessful) {
+            console.log('Retry successful after splitting the update.');
+            return true; // The overall update succeeded via splitting
+          } else {
+            console.error('Retry failed even after splitting.');
+            return false; // The overall update failed
+          }
+        } else {
+          // Not a length error, or retry failed, just return false
+          console.log('Error not identified as length limit, not retrying.');
+          return false;
         }
       }
-    `;
+    };
 
-    // Create a single update with everything in it, using a format Monday.com can handle as one comment
-    // Use a consistent format without too many line breaks
-    const updateBody =
+    // Prepare content blocks
+    const headerBody =
       `🔔 NEW APPLICATION RECEIVED - ${formData.discord_username}\n` +
       `Date: ${new Date(timestamp).toLocaleString()}\n\n` +
       `--- APPLICANT INFO ---\n` +
@@ -300,38 +396,75 @@ async function addDetailsToItem(
       `--- ROLE INFO ---\n` +
       `Role: ${roleData.name}\n` +
       `Department: ${roleData.department}\n` +
-      `Description: ${roleData.description}\n\n` +
-      `--- GENERAL QUESTIONS ---\n`;
+      `Description: ${roleData.description}`;
 
-    // Add general questions with minimal formatting
-    const generalQuestions = roleData.generalQuestions
-      .filter((q: Question) => formData[q.name])
-      .map((q: Question) => `Q: ${q.question}\nA: ${formData[q.name]}`)
-      .join('\n\n');
+    const generalQuestionsHeader = '--- GENERAL QUESTIONS ---';
+    const roleQuestionsHeader = '--- ROLE-SPECIFIC QUESTIONS ---';
 
-    // Add role-specific questions with minimal formatting
-    const roleQuestions = roleData.questions
-      .filter((q: Question) => formData[q.name])
-      .map((q: Question) => `Q: ${q.question}\nA: ${formData[q.name]}`)
-      .join('\n\n');
+    const generalQuestions = roleData.generalQuestions.filter(
+      (q: Question) => formData[q.name]
+    );
+    const roleQuestions = roleData.questions.filter(
+      (q: Question) => formData[q.name]
+    );
 
-    // Combine everything into a single string with minimal line breaks
-    const fullBody =
-      updateBody +
-      generalQuestions +
-      '\n\n--- ROLE-SPECIFIC QUESTIONS ---\n' +
-      roleQuestions;
+    // Send updates in reverse order for correct chronological display in Monday
 
-    // Send a single update
-    await client.request(updateMutation, {
-      itemId,
-      body: fullBody,
-    });
+    // 4. Send Role-Specific Questions (in reverse order)
+    for (let i = roleQuestions.length - 1; i >= 0; i--) {
+      const q = roleQuestions[i];
+      const questionBody = `Q: ${q.question}\nA: ${formData[q.name]}`;
+      if (!(await sendUpdate(questionBody))) {
+        allUpdatesSuccessful = false;
+      }
+    }
 
-    console.log('Successfully added application details as a single update');
-    return true;
+    // 3. Send Role-Specific Questions Header
+    if (roleQuestions.length > 0) {
+      // Only send header if there are questions
+      if (!(await sendUpdate(roleQuestionsHeader))) {
+        allUpdatesSuccessful = false;
+      }
+    }
+
+    // 2. Send General Questions (in reverse order)
+    for (let i = generalQuestions.length - 1; i >= 0; i--) {
+      const q = generalQuestions[i];
+      const questionBody = `Q: ${q.question}\nA: ${formData[q.name]}`;
+      if (!(await sendUpdate(questionBody))) {
+        allUpdatesSuccessful = false;
+      }
+    }
+
+    // 1. Send General Questions Header
+    if (generalQuestions.length > 0) {
+      // Only send header if there are questions
+      if (!(await sendUpdate(generalQuestionsHeader))) {
+        allUpdatesSuccessful = false;
+      }
+    }
+
+    // 0. Send Header Info (Sent last to appear first in Monday)
+    if (!(await sendUpdate(headerBody))) {
+      allUpdatesSuccessful = false;
+    }
+
+    if (allUpdatesSuccessful) {
+      console.log(
+        'Successfully added application details as individual updates'
+      );
+      return true;
+    } else {
+      console.warn(
+        'Some updates failed to be added during the application submission.'
+      );
+      return false; // Return false if any update failed
+    }
   } catch (error) {
-    console.error('Error adding application details as update:', error);
+    console.error(
+      'Error preparing or adding application details as individual updates:',
+      error
+    );
     return false;
   }
 }
@@ -342,13 +475,11 @@ async function addDetailsToItem(
 export async function storeApplicationInMonday(
   roleData: Role,
   formData: FormData,
-  timestamp: string
+  timestamp: string,
+  mondayApiKey: string,
+  boardId: string
 ): Promise<boolean> {
   try {
-    // Direct access to process.env
-    const mondayApiKey = process.env.MONDAY_API_KEY;
-    const boardId = process.env.MONDAY_BOARD_ID;
-
     if (!mondayApiKey || !boardId) {
       console.error(
         'Monday.com API key or board ID not configured, skipping integration'

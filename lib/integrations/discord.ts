@@ -7,13 +7,14 @@ export async function sendToDiscordWebhook(
   roleData: Role,
   formData: FormData,
   timestamp: string,
+  webhookUrl: string,
   maxRetries = 3
-) {
+): Promise<boolean> {
   try {
-    // Direct access to process.env
-    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    // Use passed-in webhookUrl instead of process.env
+    // const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) {
-      console.log('Discord webhook URL not configured, skipping backup');
+      console.log('Discord webhook URL not provided, skipping backup');
       return false;
     }
 
