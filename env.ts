@@ -20,6 +20,7 @@ export const env = createEnv({
     MONDAY_API_KEY: z.string().optional(),
     MONDAY_BOARD_ID: z.string().optional(),
     DISCORD_WEBHOOK_URL: z.string().url().optional(),
+    TRIGGER_SECRET_KEY: z.string().optional(),
 
     // Server configuration
     NODE_ENV: z
@@ -53,7 +54,7 @@ export const env = createEnv({
     MONDAY_API_KEY: process.env.MONDAY_API_KEY,
     MONDAY_BOARD_ID: process.env.MONDAY_BOARD_ID,
     DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
-
+    TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
     // Client variables
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -86,6 +87,7 @@ export const cloudflareEnv = {
   MONDAY_API_KEY: process.env.MONDAY_API_KEY,
   MONDAY_BOARD_ID: process.env.MONDAY_BOARD_ID,
   DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
+  TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
 
   // Client variables
   NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
