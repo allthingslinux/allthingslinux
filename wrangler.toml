@@ -2,7 +2,7 @@
 main = ".open-next/worker.js"
 name = "allthingslinux-production" # Default name, overridden per env
 
-compatibility_date = "2024-04-05"
+compatibility_date = "2025-04-02"
 compatibility_flags = ["nodejs_compat"]
 
 # Worker size and performance optimizations 
@@ -27,15 +27,6 @@ environment = "production"
 binding = "NEXT_INC_CACHE_R2_BUCKET"
 bucket_name = "allthingslinux-cache-production"
 preview_bucket_name = "allthingslinux-cache-dev"
-
-# --- Queues Configuration ---
-
-# Producer binding ONLY (can be defined globally and overridden per-env if needed)
-[[queues.producers]]
-binding = "SUBMISSION_QUEUE"
-queue = "application-submissions" # Default queue name
-
-# --- Consumer Configuration REMOVED - Handled by separate worker ---
 
 # --- Environment Specific Overrides --- 
 
@@ -64,11 +55,6 @@ NODE_ENV = "production"
 # - MONDAY_API_KEY
 # - MONDAY_BOARD_ID
 # - DISCORD_WEBHOOK_URL
-
-# Production Producer binding (ensure it points to the correct queue)
-[[env.production.queues.producers]]
-binding = "SUBMISSION_QUEUE"
-queue = "application-submissions" # Explicitly the production queue name
 
 # Development environment (workers.dev subdomain)
 [env.development]
@@ -125,14 +111,4 @@ NODE_ENV = "development"
 # binding = "DB"
 # database_name = "my-database"
 # database_id = "xxx"
-
-# Development Producer binding (points to the dev queue)
-[[env.development.queues.producers]]
-binding = "SUBMISSION_QUEUE"
-queue = "application-submissions-dev" # Use a separate dev queue name
-
-# REMOVED Consumer config for development
-# [[env.development.queues.consumers]]
-# queue = "application-submissions-dev"  # The dev queue name
-# script = "workers/form-consumer.ts"    # The script to run for consuming
 
