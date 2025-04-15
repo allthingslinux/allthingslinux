@@ -61,13 +61,6 @@
         "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
         "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
         "NODE_ENV": "development",
-
-        // Private vars (secrets) - Must be set via `wrangler secret put <KEY> --env development` or Cloudflare Dashboard
-        "GITHUB_TOKEN": "", // Secret placeholder
-        "MONDAY_API_KEY": "", // Secret placeholder
-        "MONDAY_BOARD_ID": "", // Secret placeholder
-        "DISCORD_WEBHOOK_URL": "", // Secret placeholder
-        "TRIGGER_SECRET_KEY": "", // Secret placeholder
       },
     },
   },

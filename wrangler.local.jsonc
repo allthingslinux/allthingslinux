@@ -50,12 +50,5 @@
     "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
     "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
     "NODE_ENV": "development",
-
-    // Private vars (secrets) - Values should be in the `.dev.vars` file for `wrangler dev`
-    "GITHUB_TOKEN": "", // Populated from .dev.vars
-    "MONDAY_API_KEY": "", // Populated from .dev.vars
-    "MONDAY_BOARD_ID": "", // Populated from .dev.vars
-    "DISCORD_WEBHOOK_URL": "", // Populated from .dev.vars
-    "TRIGGER_SECRET_KEY": "", // Populated from .dev.vars
   },
 }
