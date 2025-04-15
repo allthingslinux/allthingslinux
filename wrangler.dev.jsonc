@@ -9,8 +9,8 @@
   "compatibility_date": "2025-04-02",
   "compatibility_flags": ["nodejs_compat"],
 
-  "find_additional_modules": true,
-  "preserve_file_names": true,
+  // "find_additional_modules": true,
+  // "preserve_file_names": true,
   // Minify and workers_dev are defined within env.development
 
   "assets": {
