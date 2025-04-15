@@ -1,4 +1,4 @@
-# AllThingsLinux Website
+# All Things Linux Website
 
 This repository contains the source code for the All Things Linux website ([allthingslinux.org](https://allthingslinux.org)).
 
