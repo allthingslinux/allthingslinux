@@ -30,15 +30,13 @@ const nextConfig: NextConfig = {
       hmrRefreshes: true,
     },
   },
-  // Turbopack configuration
+  // Turbopack configuration moved from experimental
+  resolveAlias: {
+    'contentlayer/generated': './.contentlayer/generated',
+  },
   experimental: {
     // mdxRs: true,
     cssChunking: true,
-    turbo: {
-      resolveAlias: {
-        'contentlayer/generated': './.contentlayer/generated',
-      },
-    },
   },
 
   // Add headers for API endpoints
