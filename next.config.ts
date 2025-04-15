@@ -31,14 +31,10 @@ const nextConfig: NextConfig = {
     },
   },
   // Turbopack configuration moved from experimental
-  resolveAlias: {
-    'contentlayer/generated': './.contentlayer/generated',
-  },
   experimental: {
     // mdxRs: true,
     cssChunking: true,
   },
-
   // Add headers for API endpoints
   async headers() {
     return [
@@ -57,15 +53,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-
-  // Add webpack configuration for non-Turbo builds
-  // webpack: (config) => {
-  //   config.resolve.alias = {
-  //     ...config.resolve.alias,
-  //     'contentlayer/generated': './.contentlayer/generated',
-  //   };
-  //   return config;
-  // },
 
   // Image optimizations
   images: {
