@@ -29,7 +29,7 @@
     "production": {
       "name": "allthingslinux-production",
       "route": {
-        "pattern": "allthingslinux.org/*",
+        "pattern": "allthingslinux.org/",
         "custom_domain": true,
       },
       "workers_dev": false, // Disable *.workers.dev subdomain
