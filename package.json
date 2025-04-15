@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:wrangler": "wrangler dev --config wrangler.local.jsonc",
+    "dev:all": "concurrently \"npm:dev\" \"npm:dev:wrangler\" \"npm:trigger:dev\"",
     "turbo": "next dev --turbo",
     "start": "next start",
     "lint": "eslint .",
@@ -96,6 +97,7 @@
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.30.1",
     "@typescript-eslint/parser": "^8.30.1",
+    "concurrently": "^9.1.2",
     "eslint-config-next": "^15.3.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-mdx": "^3.4.0",
