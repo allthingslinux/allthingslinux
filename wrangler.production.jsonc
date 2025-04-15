@@ -28,10 +28,6 @@
   "env": {
     "production": {
       "name": "allthingslinux-production",
-      "route": {
-        "pattern": "allthingslinux.org",
-        "custom_domain": true,
-      },
       "workers_dev": false, // Disable *.workers.dev subdomain
       "minify": true, // Ensure minify is true for production
       "no_bundle": false,
