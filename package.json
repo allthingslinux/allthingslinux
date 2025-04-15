@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "dev:wrangler": "wrangler dev --config wrangler.local.jsonc",
     "turbo": "next dev --turbo",
     "start": "next start",
     "lint": "eslint .",
@@ -18,15 +19,17 @@
     "build:coc": "node scripts/generate-code-of-conduct.mjs",
     "build:content": "contentlayer2 build",
     "build": "npm run build:coc && npm run build:content && next build",
-    "preview": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare preview",
-    "deploy": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy",
-    "deploy:dev": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy -- --env development",
-    "deploy:prod": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy -- --env production",
+    "preview": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare preview -- --config wrangler.dev.jsonc",
+    "deploy": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy --config wrangler.jsonc",
+    "deploy:dev": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy --config wrangler.dev.jsonc -- --env development",
+    "deploy:prod": "npx @opennextjs/cloudflare build && npx @opennextjs/cloudflare deploy --config wrangler.jsonc -- --env production",
     "populate-cache:local": "npx @opennextjs/cloudflare populateCache local",
     "populate-cache:remote": "npx @opennextjs/cloudflare populateCache remote",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "cf-typegen": "wrangler types --config wrangler.local.jsonc --env-interface CloudflareEnv cloudflare-env.d.ts",
     "secrets:dev": "bash scripts/secrets.sh development",
-    "secrets:prod": "bash scripts/secrets.sh production"
+    "secrets:prod": "bash scripts/secrets.sh production",
+    "trigger:dev": "npx trigger.dev@v4-beta dev",
+    "trigger:deploy": "npx trigger.dev@v4-beta deploy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
