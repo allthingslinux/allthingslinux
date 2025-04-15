@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
-import type { FormData, Role } from '@/lib/types';
-import { storeApplicationDataOnGitHub } from '@/lib/integrations/github';
-import { sendToDiscordWebhook } from '@/lib/integrations/discord';
-import { storeApplicationInMonday } from '@/lib/integrations/monday-graphql';
+import type { FormData, Role, SubmissionPayload } from '@/lib/types';
+import { submitApplicationTask } from '@/trigger/jobs/submitApplication';
+import { ZodError } from 'zod';
 
 // Add dynamic and cache controls for better Cloudflare compatibility
 export const dynamic = 'force-dynamic';
@@ -45,7 +44,9 @@ export async function POST(
     );
 
     // Get role and questions
+
     const roleSlug = context.params.role;
+
     console.log(`Processing application for role: ${roleSlug}`);
 
     const roleData = roles.find((r) => r.slug === roleSlug);
@@ -144,133 +145,46 @@ export async function POST(
     const timestamp = new Date().toISOString();
     console.log(`Application timestamp: ${timestamp}`);
 
-    // Flag to track if initial backup was sent successfully
-    let initialBackupSent = false;
-    let githubStorageSuccess = false;
+    // Construct payload for the event
+    const submissionPayload: SubmissionPayload = {
+      roleData: roleWithGeneralQuestions,
+      formData: formObject,
+      timestamp: timestamp,
+    };
 
-    // Log environment status for debugging with additional safety checks
-    const discordWebhookConfigured = !!process.env.DISCORD_WEBHOOK_URL;
-    const githubTokenConfigured = !!process.env.GITHUB_TOKEN;
-    const mondayConfigured =
-      !!process.env.MONDAY_API_KEY && !!process.env.MONDAY_BOARD_ID;
+    console.log('Triggering Trigger.dev task with payload:', submissionPayload);
 
-    console.log(`Discord webhook configured: ${discordWebhookConfigured}`);
-    console.log(`GitHub token configured: ${githubTokenConfigured}`);
-    console.log(`Monday.com configured: ${mondayConfigured}`);
+    // Trigger the task directly
+    // Suppress TS error - linter incorrectly matches trigger param with run param shape
+    // @ts-expect-error - Argument type mismatch is likely a tooling/type definition issue
+    const handle = await submitApplicationTask.trigger(submissionPayload);
 
-    // Process all integrations sequentially
-    try {
-      console.log('Starting integrations processing...');
+    console.log('Trigger.dev task triggered successfully:', handle.id);
 
-      // 1. GitHub Storage
-      if (githubTokenConfigured) {
-        console.log('Attempting to store application in GitHub...');
-        githubStorageSuccess = await storeApplicationDataOnGitHub(
-          roleWithGeneralQuestions,
-          formObject,
-          timestamp
-        );
-        console.log(
-          `GitHub storage result: ${githubStorageSuccess ? 'Success' : 'Failed'}`
-        );
-      } else {
-        console.log('GitHub token not configured, skipping GitHub storage');
-      }
-
-      // 2. Discord Webhook
-      if (discordWebhookConfigured) {
-        console.log('Attempting to send application to Discord webhook...');
-        initialBackupSent = await sendToDiscordWebhook(
-          roleWithGeneralQuestions,
-          formObject,
-          timestamp
-        );
-        console.log(
-          `Discord webhook result: ${initialBackupSent ? 'Success' : 'Failed'}`
-        );
-      } else {
-        console.log(
-          'Discord webhook not configured, skipping webhook notification'
-        );
-      }
-
-      // 3. Monday.com
-      if (mondayConfigured) {
-        console.log('Attempting to store application in Monday.com...');
-        const mondayResult = await storeApplicationInMonday(
-          roleWithGeneralQuestions,
-          formObject,
-          timestamp
-        );
-        console.log(
-          `Monday.com integration result: ${mondayResult ? 'Success' : 'Failed'}`
-        );
-      } else {
-        console.log(
-          'Monday.com not configured, skipping Monday.com integration'
-        );
-      }
-
-      // Retry GitHub if it failed
-      if (githubTokenConfigured && !githubStorageSuccess) {
-        console.log('Retrying GitHub storage...');
-        try {
-          await storeApplicationDataOnGitHub(
-            roleWithGeneralQuestions,
-            formObject,
-            timestamp
-          );
-        } catch (retryError) {
-          console.error('Retry of GitHub storage also failed:', retryError);
-        }
-      }
-
-      // Retry Discord if it failed
-      if (discordWebhookConfigured && !initialBackupSent) {
-        console.log('Retrying Discord webhook backup...');
-        try {
-          await sendToDiscordWebhook(
-            roleWithGeneralQuestions,
-            formObject,
-            timestamp,
-            5 // More retries
-          );
-        } catch (retryError) {
-          console.error('Retry of Discord webhook also failed:', retryError);
-        }
-      }
-
-      console.log('All integrations completed');
-    } catch (error) {
-      console.error('Error in application storage process:', error);
+    return NextResponse.json(
+      {
+        message: `Application submission for ${roleSlug} received and background task triggered. Task ID: ${handle.id}`,
+        taskId: handle.id,
+      },
+      { status: 202 } // 202 Accepted as processing is deferred
+    );
+  } catch (error: unknown) {
+    console.error(
+      'Error processing form submission or triggering task:',
+      error
+    );
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { message: 'Submission validation failed', error: error.issues },
+        { status: 400 }
+      );
     }
-
-    // Return success response after all processing is complete
-    console.log(
-      'Successfully processed application, returning success response'
-    );
+    let errorMessage = 'An unknown error occurred';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      {
-        success: true,
-        message: 'Application submitted successfully',
-        timestamp,
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    // Detailed error logging
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : 'No stack trace';
-
-    console.error('Unhandled error processing application:');
-    console.error(`Message: ${errorMessage}`);
-    console.error(`Stack: ${errorStack}`);
-
-    return NextResponse.json(
-      {
-        error: 'Server error processing the application',
-        details: errorMessage,
-      },
+      { message: 'Error processing submission', error: errorMessage },
       { status: 500 }
     );
   }

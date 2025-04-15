@@ -37,7 +37,8 @@
     ".contentlayer/generated",
     "types/**/*.d.ts",
     "**/*.mjs",
-    "**/*.cjs"
+    "**/*.cjs",
+    "trigger.config.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "open-next.config.ts"]
 }

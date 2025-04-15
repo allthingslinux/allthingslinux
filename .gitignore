@@ -47,3 +47,5 @@ form-backups/**
 
 .dev.vars
 .wrangler
+
+.trigger

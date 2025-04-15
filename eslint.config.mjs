@@ -22,6 +22,8 @@ const eslintConfig = [
       'dist/**',
       '.contentlayer/**',
       '.open-next/**',
+      'worker-configuration.d.ts',
+      'cloudflare-env.d.ts',
     ],
   },
   ...compat.config({

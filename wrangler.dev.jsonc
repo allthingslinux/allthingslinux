@@ -1,0 +1,67 @@
+// wrangler.dev.jsonc - Configuration for Preview/Development Deployments
+{
+  "$schema": "https://unpkg.com/wrangler@4.10.0/config-schema.json", // Add schema reference
+
+  // --- Base Configuration (Inherited/Overridden by env.development) ---
+  // These are common settings, but 'env.development' defines the actual deployment target
+  "main": ".open-next/worker.js",
+  "name": "allthingslinux-development", // Default name reflecting the preview environment
+  "compatibility_date": "2025-04-02",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // "find_additional_modules": true,
+  // "preserve_file_names": true,
+  // Minify and workers_dev are defined within env.development
+
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets",
+  },
+
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "invocation_logs": true,
+    },
+  },
+
+  // Top-level vars, services, r2_buckets removed as they are specific to env.development below
+  // or handled by wrangler.local.jsonc + .dev.vars for local runs.
+
+  // --- Development Environment (for Preview Deployments using `wrangler deploy --env development`) ---
+  "env": {
+    "development": {
+      "name": "allthingslinux-development", // Explicit name for preview deployments
+      // Inherits: main, compatibility_date, compatibility_flags, find_additional_modules, preserve_file_names, assets, observability
+
+      "workers_dev": true, // Enable *.workers.dev route for preview
+      "minify": true, // Minify for preview deployments
+
+      // Services for development preview
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "allthingslinux-development",
+        },
+      ],
+
+      // R2 Bucket for development preview
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "allthingslinux-cache-development",
+        },
+      ],
+
+      // Environment variables for preview deployments
+      "vars": {
+        // Public vars (available to browser)
+        "NEXT_PUBLIC_URL": "https://allthingslinux-development.allthingslinux.workers.dev",
+        "NEXT_PUBLIC_API_URL": "https://allthingslinux-development.allthingslinux.workers.dev/api",
+        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+        "NODE_ENV": "development",
+      },
+    },
+  },
+}

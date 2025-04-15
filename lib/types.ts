@@ -24,3 +24,10 @@ export type Role = {
   questions: Question[];
   generalQuestions: Question[]; // Reference to general questions for processing
 };
+
+// Export the payload structure for queue messages
+export interface SubmissionPayload {
+  roleData: Role;
+  formData: FormData;
+  timestamp: string;
+}

@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin', '/private', '/api'],
+      disallow: ['/admin', '/private'],
     },
     sitemap: 'https://allthingslinux.org/sitemap.xml',
     host: 'https://allthingslinux.org',
