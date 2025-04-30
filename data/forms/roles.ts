@@ -4,6 +4,7 @@ import { moderationQuestions } from './questions/departmental/moderation';
 import { managementQuestions } from './questions/departmental/management';
 import { creativeQuestions } from './questions/departmental/creative';
 import { systemsQuestions } from './questions/departmental/systems';
+import { editorialQuestions } from './questions/departmental/editorial';
 
 export const moderationRoles: Role[] = [
   {
@@ -76,6 +77,14 @@ export const creativeRoles: Role[] = [
       'Pixel Artists are graphic designers who specialize in creating pixel/bitmap art. They are responsible for creating all pixel art used in our various projects and assets as needed.',
     questions: [...creativeQuestions],
   },
+  {
+    slug: 'editorial-manager',
+    name: 'Editorial Manager',
+    department: 'Creative',
+    description:
+      'The Editorial Manager is responsible for shaping and maintaining ATL’s voice across documentation, brand messaging, and internal-facing written materials to ensure clarity, consistency, and alignment with our values.',
+    questions: [...editorialQuestions],
+  }
 ];
 
 export const systemsRoles: Role[] = [
@@ -125,5 +134,5 @@ export const roles: Role[] = [
   ...moderationRoles,
   ...managementRoles,
   ...creativeRoles,
-  ...systemsRoles,
+  ...systemsRoles
 ];
