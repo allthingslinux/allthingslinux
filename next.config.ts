@@ -2,10 +2,10 @@ import type { NextConfig } from 'next';
 import { withContentlayer } from 'next-contentlayer2';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  productionBrowserSourceMaps: false,
 
   // Performance optimizations
   compress: true,
@@ -30,17 +30,11 @@ const nextConfig: NextConfig = {
       hmrRefreshes: true,
     },
   },
-  // Turbopack configuration
+  // Turbopack configuration moved from experimental
   experimental: {
     // mdxRs: true,
     cssChunking: true,
-    turbo: {
-      resolveAlias: {
-        'contentlayer/generated': './.contentlayer/generated',
-      },
-    },
   },
-
   // Add headers for API endpoints
   async headers() {
     return [
@@ -60,15 +54,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Add webpack configuration for non-Turbo builds
-  // webpack: (config) => {
-  //   config.resolve.alias = {
-  //     ...config.resolve.alias,
-  //     'contentlayer/generated': './.contentlayer/generated',
-  //   };
-  //   return config;
-  // },
-
   // Image optimizations
   images: {
     remotePatterns: [
@@ -80,8 +65,20 @@ const nextConfig: NextConfig = {
         protocol: 'https' as const,
         hostname: '**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+      },
+      {
+        protocol: 'https',
+        hostname: 'allthingslinux.org',
+      },
     ],
-    dangerouslyAllowSVG: true,
+    // dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment' as const,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Image optimization settings

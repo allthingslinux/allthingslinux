@@ -3,6 +3,10 @@ import Hero from '@/components/pages/home/hero';
 import Projects from '@/components/pages/home/projects';
 import Stats from '@/components/pages/home/stats';
 import Testimonials from '@/components/pages/home/testimonials';
+import { getPageMetadata } from './metadata';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = getPageMetadata('home');
 
 export default function Home() {
   return (

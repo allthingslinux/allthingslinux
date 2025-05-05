@@ -25,7 +25,7 @@ export const systemsQuestions: FormQuestion[] = [
     optional: true,
   },
   {
-    name: 'motivation',
+    name: 'technical_motivation',
     question:
       'What do you find most enjoyable or rewarding when working on technical projects, learning new technologies, or problem-solving?',
     type: 'paragraph',
