@@ -4,41 +4,20 @@ import type { MetadataRoute } from 'next';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://allthingslinux.org';
 
-  // Define static routes
-  const staticRoutes = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 1,
-      // Add Open Graph image to sitemap
-      images: [`${baseUrl}/images/og.png`],
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/code-of-conduct`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/get-involved`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    },
-  ];
+  // Core pages
+  const routes = [
+    '/',
+    '/about',
+    '/code-of-conduct',
+    '/blog',
+    '/get-involved',
+    // Add all other static routes here
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: route === '' ? 1 : 0.8,
+  }));
 
   // Add distribution logos to sitemap for better image SEO
   const distributionLogos = [
@@ -65,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Get all blog posts and add them to sitemap
   const posts = await getAllPostsAsPostType();
+
   const blogPosts = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.categorySlug}/${post.slug}`,
     lastModified: new Date(post.date),
@@ -83,10 +63,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [
-    ...staticRoutes,
-    ...distributionLogos,
-    ...categoryPages,
-    ...blogPosts,
-  ];
+  return [...routes, ...distributionLogos, ...categoryPages, ...blogPosts];
 }

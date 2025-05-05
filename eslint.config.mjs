@@ -16,7 +16,15 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   {
-    ignores: ['**/node_modules/**', '.next/**', 'dist/**', '.contentlayer/**'],
+    ignores: [
+      '**/node_modules/**',
+      '.next/**',
+      'dist/**',
+      '.contentlayer/**',
+      '.open-next/**',
+      'worker-configuration.d.ts',
+      'cloudflare-env.d.ts',
+    ],
   },
   ...compat.config({
     extends: [
