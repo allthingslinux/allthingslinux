@@ -4,6 +4,7 @@ import { moderationQuestions } from './questions/departmental/moderation';
 import { managementQuestions } from './questions/departmental/management';
 import { creativeQuestions } from './questions/departmental/creative';
 import { systemsQuestions } from './questions/departmental/systems';
+import { financeQuestions } from './questions/departmental/finance';
 
 export const moderationRoles: Role[] = [
   {
@@ -21,6 +22,17 @@ export const moderationRoles: Role[] = [
     description:
       'Moderators are responsible for enforcing our Code of Conduct and keeping the community safe and welcoming. They are the first line of defense and backbone of the community.',
     questions: [...moderationQuestions],
+  },
+];
+
+export const financeRoles: Role[] = [
+  {
+    slug: 'treasurer',
+    name: 'Treasurer',
+    department: 'Finance',
+    description:
+      'The Treasurer is responsible for overseeing the community’s finances. They manage the budget, track expenses, and ensure that we are financially responsible and sustainable.',
+    questions: [...financeQuestions, ...managementQuestions],
   },
 ];
 
@@ -126,4 +138,5 @@ export const roles: Role[] = [
   ...managementRoles,
   ...creativeRoles,
   ...systemsRoles,
+  ...financeRoles,
 ];
