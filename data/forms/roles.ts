@@ -32,7 +32,7 @@ export const financeRoles: Role[] = [
     department: 'Finance',
     description:
       'The Treasurer is responsible for overseeing the community’s finances. They manage the budget, track expenses, and ensure that we are financially responsible and sustainable.',
-    questions: [...financeQuestions, ...managementQuestions],
+    questions: [...financeQuestions],
   },
 ];
 
