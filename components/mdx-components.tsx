@@ -184,7 +184,7 @@ const CustomImage = ({
     <Image
       className="rounded-md border"
       alt={alt || ''}
-      src={src || ''}
+      src={typeof src === 'string' ? src : ''}
       width={width}
       height={height}
       loading="lazy"
@@ -228,14 +228,14 @@ const UnorderedList = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLUListElement>) => (
-  <ul className={cn('my-6 ml-6 list-disc', className)} {...props} />
+  <ul className={cn('my-6 ml-4 list-disc', className)} {...props} />
 );
 
 const OrderedList = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLOListElement>) => (
-  <ol className={cn('my-6 ml-6 list-decimal', className)} {...props} />
+  <ol className={cn('my-6 ml-4 list-decimal', className)} {...props} />
 );
 
 const ListItem = ({
@@ -424,7 +424,7 @@ export function Mdx({ code }: MdxProps) {
   // Use the proper error boundary
   return (
     <MDXErrorBoundary>
-      <div className="mdx prose prose-slate dark:prose-invert max-w-none prose-headings:font-semibold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl prose-a:text-primary prose-pre:bg-black prose-code:bg-muted prose-code:before:content-none prose-code:after:content-none">
+      <div className="mdx prose prose-invert max-w-none prose-headings:font-semibold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl prose-a:text-primary prose-pre:bg-black prose-code:bg-muted prose-code:before:content-none prose-code:after:content-none">
         <Component components={components} />
       </div>
     </MDXErrorBoundary>

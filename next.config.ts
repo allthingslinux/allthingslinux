@@ -77,8 +77,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'allthingslinux.org',
       },
+      {
+        protocol: 'https',
+        hostname: 'dcbadge.limes.pink',
+      },
+      {
+        protocol: 'https',
+        hostname: 'discord.gg',
+      },
     ],
-    // dangerouslyAllowSVG: true,
+    dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment' as const,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Image optimization settings

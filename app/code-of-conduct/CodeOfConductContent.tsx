@@ -235,7 +235,7 @@ const CodeOfConductContent = memo(function CodeOfConductContent({
 
         {/* Render the Markdown content */}
         <div
-          className="prose prose-invert max-w-none 
+          className="prose max-w-none 
           prose-headings:font-semibold 
           prose-a:text-blue-400 hover:prose-a:text-blue-300
           prose-pre:bg-neutral-900 prose-code:bg-neutral-800 prose-code:before:content-none 

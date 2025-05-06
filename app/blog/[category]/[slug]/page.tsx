@@ -112,7 +112,7 @@ export default async function PostPage({ params }: PostPageProps) {
   }
 
   return (
-    <article className="container relative max-w-3xl py-6 lg:py-10">
+    <article className="container relative max-w-4xl py-6 lg:py-10">
       <ArticleSchema
         title={post.title}
         description={post.description || `Read our post about ${post.title}`}
@@ -130,7 +130,7 @@ export default async function PostPage({ params }: PostPageProps) {
           {post.title}
         </h1>
         {post.description && (
-          <p className="mt-2 text-xl text-muted-foreground text-balance">
+          <p className="my-4 text-md text-muted-foreground text-balance">
             {post.description}
           </p>
         )}
