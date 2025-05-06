@@ -80,7 +80,7 @@ const components = {
   }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h3
       id={id}
-      className={`group scroll-m-20 tracking-tight mt-8 mb-4 text-neutral-200 text-xl lg:text-2xl border-l-2 border-blue-400/30 pl-2 ${className || ''}`}
+      className={`group scroll-m-20 tracking-tight mt-8 mb-4 text-foreground text-xl lg:text-2xl border-l-2 border-blue-400/30 pl-2 ${className || ''}`}
       {...props}
     >
       <span>{children}</span>
@@ -103,7 +103,7 @@ const components = {
   }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h4
       id={id}
-      className={`group scroll-m-20 tracking-tight mt-6 mb-3 text-neutral-200 text-lg lg:text-xl border-l border-blue-400/20 pl-2 ${className || ''}`}
+      className={`group scroll-m-20 tracking-tight mt-6 mb-3 text-foreground text-lg lg:text-xl border-l border-blue-400/20 pl-2 ${className || ''}`}
       {...props}
     >
       <span>{children}</span>
@@ -199,7 +199,7 @@ const components = {
     ...props
   }: React.HTMLAttributes<HTMLElement>) => (
     <code
-      className={`px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-200 font-mono text-sm ${className || ''}`}
+      className={`px-1.5 py-0.5 rounded bg-neutral-800 text-foreground font-mono text-sm ${className || ''}`}
       {...props}
     >
       {children}
@@ -216,6 +216,33 @@ const components = {
     >
       {children}
     </pre>
+  ),
+  table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
+    <table
+      className={`w-full my-6 border-separate border-spacing-0 text-foreground ${className || ''}`}
+      {...props}
+    />
+  ),
+  th: ({
+    className,
+    ...props
+  }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
+    <th
+      className={`border-b px-4 py-2 text-left text-foreground ${className || ''}`}
+      {...props}
+    />
+  ),
+  td: ({
+    className,
+    ...props
+  }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
+    <td
+      className={`border-b border-neutral-800 px-4 py-2 text-foreground ${className || ''}`}
+      {...props}
+    />
+  ),
+  tr: ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
+    <tr className={`text-foreground ${className || ''}`} {...props} />
   ),
 };
 

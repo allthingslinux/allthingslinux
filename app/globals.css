@@ -134,6 +134,7 @@
 }
 
 @keyframes blink {
+
   0%,
   100% {
     border-color: transparent;
@@ -156,4 +157,43 @@
     animation: typing 2.5s steps(30, end) forwards;
     width: 0;
   }
+}
+
+/* Custom prose overrides for dark mode */
+.prose table,
+.prose thead,
+.prose tbody,
+.prose tr,
+.prose th,
+.prose td,
+.prose strong,
+.prose code,
+.prose pre {
+  background-color: #181a20 !important;
+  color: #e5e7eb !important;
+  border-color: #2d2f36 !important;
+}
+
+.prose th,
+.prose strong {
+  color: #e5e7eb !important;
+  font-weight: 600 !important;
+}
+
+.prose code {
+  background-color: #23272e !important;
+  color: #e5e7eb !important;
+}
+
+.prose pre {
+  background-color: #181a20 !important;
+  color: #e5e7eb !important;
+  border-color: #2d2f36 !important;
+}
+
+/* Remove unwanted transparency or inheritance */
+.prose th,
+.prose td,
+.prose tr {
+  background-color: #181a20 !important;
 }
