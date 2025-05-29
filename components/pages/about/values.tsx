@@ -19,7 +19,7 @@ const valuesList = [
     id: 1,
     title: 'Community',
     description:
-      'We connect over 5,000 Linux enthusiasts through collaboration and knowledge sharing. Our regular events allow members to demonstrate their skills, with prizes enhancing a spirit of friendly competition.',
+      'We connect over 10,000 Linux enthusiasts through collaboration and knowledge sharing. Our regular events allow members to demonstrate their skills, with prizes enhancing a spirit of friendly competition.',
     icon: Users,
   },
   {
