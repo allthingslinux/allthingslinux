@@ -58,7 +58,7 @@
     "@tabler/icons-react": "^3.33.0",
     "@tailwindcss/postcss": "^4.1.8",
     "@tailwindcss/typography": "^0.5.16",
-    "@trigger.dev/sdk": "4.0.0-v4-beta.1",
+    "@trigger.dev/sdk": "4.0.0-v4-beta.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "contentlayer2": "^0.5.8",
