@@ -92,7 +92,7 @@
     "@opennextjs/aws": "^3.6.4",
     "@opennextjs/cloudflare": "^1.1.0",
     "@svgr/webpack": "^8.1.0",
-    "@trigger.dev/build": "4.0.0-v4-beta.1",
+    "@trigger.dev/build": "4.0.0-v4-beta.21",
     "@types/eslint": "^9.6.1",
     "@types/mdx": "^2.0.13",
     "@types/node": "^22.15.24",
