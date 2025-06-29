@@ -151,8 +151,14 @@ export const viewport: Viewport = {
 export const getPageMetadata = (page: string): Metadata => {
   const pageMetadata: { [key: string]: Metadata } = {
     home: {
-      title: '',
+      title: siteConfig.name,
       description: siteConfig.description,
+      openGraph: {
+        title: "Let's build the future of Linux together",
+      },
+      twitter: {
+        title: "Let's build the future of Linux together",
+      },
     },
     about: {
       title: 'About',
