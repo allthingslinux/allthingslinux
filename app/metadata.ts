@@ -154,10 +154,13 @@ export const getPageMetadata = (page: string): Metadata => {
       title: siteConfig.name,
       description: siteConfig.description,
       openGraph: {
-        title: "Let's build the future of Linux together",
+        ...defaultMetadata.openGraph,
+        title: siteConfig.name,
+        siteName: undefined,
       },
       twitter: {
-        title: "Let's build the future of Linux together",
+        ...defaultMetadata.twitter,
+        title: siteConfig.name,
       },
     },
     about: {
