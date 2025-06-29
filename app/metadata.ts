@@ -151,7 +151,7 @@ export const viewport: Viewport = {
 export const getPageMetadata = (page: string): Metadata => {
   const pageMetadata: { [key: string]: Metadata } = {
     home: {
-      title: siteConfig.name,
+      title: '',
       description: siteConfig.description,
     },
     about: {
