@@ -1,32 +1,58 @@
 import { Feed } from "feed";
 import { getAllPosts } from '@/lib/blog';
 
-export async function generateFeed() {
-    // move all of this into a util function like generateFeed()
-    // then call it from this GET route
+/**
+ * Generates an Atom feed containing all posts.
+ *
+ * @returns {Promise<String>} A promise that resolves to a Feed object populated with post data.
+ *
+ * @remarks
+ * - Fetches all posts using `getAllPosts()`.
+ * - Constructs a feed with site and author metadata.
+ * - Iterates through each post and adds it as an item to the feed.
+ *
+ */
+export async function generateFeed(): Promise<String> {
+    const posts = await getAllPosts();
 
-    // const posts = await getAllPosts();
-    // console.log(posts[0])
-    const siteUrl = "https://localhost:3000"
+    const siteUrl = "https://allthingslinux.org";
 
     const feed = new Feed({
-        title: "Feed Title",
-        description: "This is my personal feed!",
-        id: "http://example.com/",
-        link: "http://example.com/",
-        language: "en", // optional, used only in RSS 2.0, possible values: http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
-        image: "http://example.com/image.png",
-        favicon: "http://example.com/favicon.ico",
-        copyright: "All rights reserved 2013, John Doe",
-        updated: new Date(2013, 6, 14), // optional, default = today
-        generator: "awesome", // optional, default = 'Feed for Node.js'
+        title: "All Things Linux - Blog",
+        description: "All Things Linux fosters a vibrant community of Linux enthusiasts through education, collaboration, and support.",
+        id: `${siteUrl}`,
+        link: `${siteUrl}/blog`,
+        language: "en",
+        copyright: "All Rights Reserved 2025, All Things Linux",
+        updated: new Date(2025, 7, 6),
+        generator: "Feed for All Things Linux, using open-source Node.js Feed generator by jpmonette. ",
         feedLinks: {
-            // consider adding
+           atom: `${siteUrl}/feed`
         },
         author: {
-            name: "John Doe",
-            email: "johndoe@example.com",
-            link: "https://example.com/johndoe"
+            name: "All Things Linux",
+            email: "admin@allthingslinux.org",
+            link: `${siteUrl}`
         }
-  })
+    });
+
+    posts.forEach(post => {
+        feed.addItem({
+            title: post.title,
+            id: `${siteUrl}${post.url}`,
+            link: `${siteUrl}${post.url}`,
+            description: post.description,
+            content: post.body.raw,
+            author: [{
+                name: "All Things Linux",
+                email: "admin@allthingslinux.org",
+                link: `${siteUrl}`
+            }],
+            date: new Date(post.date),
+        })
+    });
+
+    feed.addCategory("News");
+
+    return feed.atom1();
 }
