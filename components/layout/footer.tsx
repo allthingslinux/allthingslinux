@@ -144,6 +144,15 @@ const SocialSection = () => (
         />
       ))}
     </ul>
+    <div className="mt-6 text-center md:text-left">
+      <h4 className="mb-2 font-bold text-sm md:block hidden">Support</h4>
+      <a
+        href="mailto:admin@allthingslinux.org"
+        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+      >
+        admin@allthingslinux.org
+      </a>
+    </div>
   </div>
 );
 
