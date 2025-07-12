@@ -12,7 +12,7 @@ import { getAllPosts } from '@/lib/blog';
  * - Iterates through each post and adds it as an item to the feed.
  *
  */
-export async function generateFeed(): Promise<String> {
+export async function generateFeed(): Promise<string> {
     const posts = await getAllPosts();
 
     const siteUrl = "https://allthingslinux.org";
