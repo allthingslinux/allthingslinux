@@ -17,6 +17,8 @@ export async function generateFeed(): Promise<string> {
 
     const siteUrl = "https://allthingslinux.org";
 
+    const latestBlogPostDate = new Date(Math.max(...posts.map(post => new Date(post.date).getTime())))
+
     const feed = new Feed({
         title: "All Things Linux - Blog",
         description: "All Things Linux fosters a vibrant community of Linux enthusiasts through education, collaboration, and support.",
@@ -24,7 +26,7 @@ export async function generateFeed(): Promise<string> {
         link: `${siteUrl}/blog`,
         language: "en",
         copyright: "All Rights Reserved 2025, All Things Linux",
-        updated: new Date(2025, 7, 6),
+        updated: latestBlogPostDate,
         generator: "Feed for All Things Linux, using open-source Node.js Feed generator by jpmonette. ",
         feedLinks: {
            atom: `${siteUrl}/feed`
