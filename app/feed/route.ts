@@ -12,7 +12,7 @@ export async function GET(): Promise<Response> {
     try {
         const atomFeed = await generateFeed();
         
-        return new Response(atomFeed.toString(), {
+        return new Response(atomFeed, {
             headers: {
                 'Content-Type': 'application/atom+xml; charset=utf-8',
             }
