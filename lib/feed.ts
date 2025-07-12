@@ -4,7 +4,7 @@ import { getAllPosts } from '@/lib/blog';
 /**
  * Generates an Atom feed containing all posts.
  *
- * @returns {Promise<String>} A promise that resolves to a Feed object populated with post data.
+ * @returns {Promise<string>} A promise that resolves to a string representing an Atom feed from ATL blog posts.
  *
  * @remarks
  * - Fetches all posts using `getAllPosts()`.
