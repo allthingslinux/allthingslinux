@@ -1,5 +1,6 @@
-import { Feed } from "feed";
+import { Feed } from 'feed';
 import { getAllPosts } from '@/lib/blog';
+import { siteConfig } from '@/app/metadata';
 
 /**
  * Generates an Atom feed containing all posts.
@@ -13,48 +14,50 @@ import { getAllPosts } from '@/lib/blog';
  *
  */
 export async function generateFeed(): Promise<string> {
-    const posts = await getAllPosts();
+  const posts = await getAllPosts();
 
-    const siteUrl = "https://allthingslinux.org";
+  const latestBlogPostDate = new Date(
+    Math.max(...posts.map((post) => new Date(post.date).getTime()))
+  );
 
-    const latestBlogPostDate = new Date(Math.max(...posts.map(post => new Date(post.date).getTime())))
+  const feed = new Feed({
+    title: `${siteConfig.name} - Blog`,
+    description: siteConfig.description,
+    id: siteConfig.url,
+    link: `${siteConfig.url}/blog`,
+    language: 'en',
+    copyright: `All Rights Reserved 2025, ${siteConfig.name}`,
+    updated: latestBlogPostDate,
+    generator: `Feed for ${siteConfig.name}, using open-source Node.js Feed generator by jpmonette. `,
+    feedLinks: {
+      atom: `${siteConfig.url}/feed`,
+    },
+    author: {
+      name: siteConfig.name,
+      email: 'admin@allthingslinux.org',
+      link: siteConfig.url,
+    },
+  });
 
-    const feed = new Feed({
-        title: "All Things Linux - Blog",
-        description: "All Things Linux fosters a vibrant community of Linux enthusiasts through education, collaboration, and support.",
-        id: `${siteUrl}`,
-        link: `${siteUrl}/blog`,
-        language: "en",
-        copyright: "All Rights Reserved 2025, All Things Linux",
-        updated: latestBlogPostDate,
-        generator: "Feed for All Things Linux, using open-source Node.js Feed generator by jpmonette. ",
-        feedLinks: {
-           atom: `${siteUrl}/feed`
+  posts.forEach((post) => {
+    feed.addItem({
+      title: post.title,
+      id: `${siteConfig.url}${post.url}`,
+      link: `${siteConfig.url}${post.url}`,
+      description: post.description,
+      content: post.body.raw,
+      author: [
+        {
+          name: siteConfig.name,
+          email: 'admin@allthingslinux.org',
+          link: siteConfig.url,
         },
-        author: {
-            name: "All Things Linux",
-            email: "admin@allthingslinux.org",
-            link: `${siteUrl}`
-        }
+      ],
+      date: new Date(post.date),
     });
+  });
 
-    posts.forEach(post => {
-        feed.addItem({
-            title: post.title,
-            id: `${siteUrl}${post.url}`,
-            link: `${siteUrl}${post.url}`,
-            description: post.description,
-            content: post.body.raw,
-            author: [{
-                name: "All Things Linux",
-                email: "admin@allthingslinux.org",
-                link: `${siteUrl}`
-            }],
-            date: new Date(post.date),
-        })
-    });
+  feed.addCategory('News');
 
-    feed.addCategory("News");
-
-    return feed.atom1();
+  return feed.atom1();
 }
