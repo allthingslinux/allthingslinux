@@ -40,8 +40,8 @@ export async function generateFeed(): Promise<string> {
     },
   });
 
-  posts.forEach(async (post) => {
-    feed.addItem({
+  const feedEntries = await Promise.all(
+    posts.map(async (post) => ({
       title: post.title,
       id: `${siteConfig.url}${post.url}`,
       link: `${siteConfig.url}${post.url}`,
@@ -55,7 +55,11 @@ export async function generateFeed(): Promise<string> {
         },
       ],
       date: new Date(post.date),
-    });
+    }))
+  );
+
+  feedEntries.forEach((entry) => {
+    feed.addItem(entry);
   });
 
   feed.addCategory('News');
