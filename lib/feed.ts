@@ -1,6 +1,7 @@
 import { Feed } from 'feed';
 import { getAllPosts } from '@/lib/blog';
 import { siteConfig } from '@/app/metadata';
+import { marked } from 'marked';
 
 /**
  * Generates an Atom feed containing all posts.
@@ -39,13 +40,13 @@ export async function generateFeed(): Promise<string> {
     },
   });
 
-  posts.forEach((post) => {
+  posts.forEach(async (post) => {
     feed.addItem({
       title: post.title,
       id: `${siteConfig.url}${post.url}`,
       link: `${siteConfig.url}${post.url}`,
       description: post.description,
-      content: post.body.raw,
+      content: await marked(post.body.raw),
       author: [
         {
           name: siteConfig.name,
