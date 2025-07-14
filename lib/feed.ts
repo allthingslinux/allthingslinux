@@ -26,7 +26,7 @@ export async function generateFeed(): Promise<string> {
     id: siteConfig.url,
     link: `${siteConfig.url}/blog`,
     language: 'en',
-    copyright: `All Rights Reserved 2025, ${siteConfig.name}`,
+    copyright: `All Rights Reserved ${new Date().getFullYear()}, ${siteConfig.name}`,
     updated: latestBlogPostDate,
     generator: `Feed for ${siteConfig.name}, using open-source Node.js Feed generator by jpmonette. `,
     feedLinks: {
