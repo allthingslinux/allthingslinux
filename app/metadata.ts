@@ -190,6 +190,7 @@ export const getPageMetadata = (page: string): Metadata => {
     ...pageMetadata[page],
   };
 };
+
 export const getDynamicMetadata = (params: {
   title?: string;
   description?: string;
