@@ -4,6 +4,7 @@ import {
   FaGitAlt,
   FaGithub,
   FaInstagram,
+  FaRss,
 } from 'react-icons/fa';
 import { BsOpencollective } from 'react-icons/bs';
 import { IoIosArrowUp } from 'react-icons/io';
@@ -59,6 +60,11 @@ const socialLinks = [
     icon: FaFacebook,
     href: 'https://facebook.com/allthingslinux.org',
     label: 'Facebook',
+  },
+  {
+    icon: FaRss,
+    href: 'https://allthingslinux.org/feed',
+    label: 'Atom Feed',
   },
 ];
 

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 
-const siteConfig = {
+export const siteConfig = {
   name: 'All Things Linux',
   description:
     'A 501(c)(3) non-profit organization empowering the Linux ecosystem through education, collaboration, and support.',
