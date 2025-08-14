@@ -1,4 +1,4 @@
-import { MdOutlinePrivacyTip, MdCookie, MdGavel } from 'react-icons/md';
+import { MdOutlinePrivacyTip, MdCookie, MdGavel, MdSecurity } from 'react-icons/md';
 
 const Privacy = () => {
   return (
@@ -45,6 +45,19 @@ const Terms = () => {
   );
 };
 
+const Security = () => {
+  return (
+    <a
+      href="/security"
+      className="text-gray-400 hover:text-gray-300 transition-colors duration-200 ease-in-out inline-flex items-center gap-2"
+      title="Security - Responsible Disclosure"
+    >
+      <MdSecurity className="w-4 h-4" />
+      Security
+    </a>
+  );
+};
+
 // const PrivacyChoices = () => {
 //   useEffect(() => {
 //     const script = document.createElement('script');
@@ -73,4 +86,4 @@ const Terms = () => {
 //   );
 // };
 
-export { Privacy, Cookies, Terms };
+export { Privacy, Cookies, Terms, Security };
