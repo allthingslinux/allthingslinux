@@ -10,15 +10,49 @@ export default function SecurityPage() {
     <div className="container mx-auto px-4 py-4 max-w-4xl">
       <h1 className="text-4xl font-bold mb-4">Security at All Things Linux</h1>
 
-      <div className="prose prose-lg max-w-none dark:prose-invert">
+      <div className="prose prose-lg max-w-none dark:prose-invert [&_ul]:space-y-1 [&_ol]:space-y-1 [&_li]:my-1">
         <p>
-          At All Things Linux, we take security seriously and greatly value community input
-          to help us identify and address potential vulnerabilities in our systems and services.
-          We encourage responsible disclosure of security issues to ensure the safety and integrity
-          of our community.
-
-          When issues are identified, we will work diligently to address them in a timely manner.
+          At All Things Linux, we are committed to maintaining the highest security standards
+          to protect our community and infrastructure. We deeply value the security research
+          community and actively encourage responsible disclosure of security vulnerabilities.
+          Your contributions help us ensure the safety, privacy, and integrity of our platforms
+          and services.
         </p>
+
+        <p>
+          We believe in transparency and collaboration when it comes to security. Our team is
+          dedicated to investigating all reported issues promptly and working with researchers
+          to address vulnerabilities in a timely and responsible manner.
+        </p>
+
+        <h2>Scope</h2>
+        <p>
+          This security policy applies to all All Things Linux services, including but not limited to:
+        </p>
+        <ul>
+          <li>All our domains including their subdomains:
+            <ul className="text-muted-foreground text-sm mt-1 ml-4 space-y-0.5">
+              <li>allthingslinux.com</li>
+              <li>allthingslinux.dev</li>
+              <li>allthingslinux.org</li>
+              <li>atl.chat</li>
+              <li>atl.dev</li>
+              <li>atl.moe</li>
+              <li>atl.network</li>
+              <li>atl.rip</li>
+              <li>atl.services</li>
+              <li>atl.sh</li>
+              <li>atl.tools</li>
+              <li>atl.wiki</li>
+            </ul>
+          </li>
+          <li>Discord bot services and integrations</li>
+          <li>API endpoints and backend services</li>
+          <li>Community platforms and forums</li>
+        </ul>
+
+        We are interested in any vulnerability that could lead to unauthorized access, data breaches, or service disruptions.
+        We welcome any reports of potential security issues outside of this scope but we may not be able to address them immediately.
 
         <h2>How to Report a Security Issue</h2>
         <p>
