@@ -40,7 +40,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
-    "@mondaydotcomorg/api": "^10.0.5",
+    "@mondaydotcomorg/api": "^11.0.0",
     "@next/mdx": "^15.3.4",
     "@next/third-parties": "^15.3.4",
     "@radix-ui/react-accordion": "^1.2.11",
