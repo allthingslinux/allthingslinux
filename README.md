@@ -16,7 +16,7 @@ Deployments are automated via Cloudflare's Git integration, deploying the `main`
 - **Deployment:** [Cloudflare Workers](https://workers.cloudflare.com/)
 - **Adapter:** [OpenNext (`@opennextjs/cloudflare`)](https://opennext.js.org/cloudflare/get-started)
 - **Background Jobs:** [Trigger.dev](https://trigger.dev/)
-- **Package Manager:** [npm](https://www.npmjs.com/)
+- **Package Manager:** [pnpm](https://pnpm.io/)
 - **Node Version:** Defined in `package.json` (`engines` field)
 
 ## Getting Started
@@ -24,7 +24,7 @@ Deployments are automated via Cloudflare's Git integration, deploying the `main`
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (version specified in `package.json`)
-- [npm](https://www.npmjs.com/) (usually comes with Node.js)
+- [pnpm](https://pnpm.io/) (install with `npm install -g pnpm` or follow [installation guide](https://pnpm.io/installation))
 - Access to Cloudflare account (for viewing deployments and managing secrets)
 - Trigger.dev account for background/async task management
 
@@ -37,7 +37,7 @@ Deployments are automated via Cloudflare's Git integration, deploying the `main`
     ```
 2.  **Install dependencies:**
     ```bash
-    npm install
+    pnpm install
     ```
 
 ## Local Development
@@ -52,7 +52,7 @@ Deployments are automated via Cloudflare's Git integration, deploying the `main`
 
     - To start all necessary development servers (Next.js, Wrangler, Trigger.dev) concurrently, run:
       ```bash
-      npm run dev:all
+      pnpm run dev:all
       ```
     - This will typically make:
       - The Next.js app available at `http://localhost:3000`.
@@ -64,7 +64,7 @@ Deployments are automated via Cloudflare's Git integration, deploying the `main`
 
 The project uses separate `wrangler` configuration files for different environments:
 
-- `wrangler.local.jsonc`: Used by `npm run dev:wrangler` and `npm run dev:all`. Reads secrets from `.dev.vars`.
+- `wrangler.local.jsonc`: Used by `pnpm run dev:wrangler` and `pnpm run dev:all`. Reads secrets from `.dev.vars`.
 - `wrangler.dev.jsonc`: Used for deployments to the development environment (via Cloudflare Git integration on the `dev` branch).
 - `wrangler.production.jsonc`: Used for deployments to the production environment (via Cloudflare Git integration on the `main` branch).
 - `wrangler.jsonc`: Minimal file required _only_ for the `@opennextjs/cloudflare build` step (due to the specific package version). Not used for deployment targeting.
@@ -74,7 +74,7 @@ The project uses separate `wrangler` configuration files for different environme
 To perform a full production build, including adapting the Next.js output for Cloudflare Workers via OpenNext, run:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 This executes the full build chain defined in `package.json`. The output suitable for Cloudflare deployment will be placed in the `.open-next` directory.
@@ -88,9 +88,9 @@ Deployments are typically automated via Cloudflare's Git integration connected t
 
 Manual deployments can be triggered using:
 
-- `npm run deploy:dev` (Builds and deploys to development)
-- `npm run deploy:prod` (Builds and deploys to production)
-- `npm run deploy` (Alias for `deploy:prod`)
+- `pnpm run deploy:dev` (Builds and deploys to development)
+- `pnpm run deploy:prod` (Builds and deploys to production)
+- `pnpm run deploy` (Alias for `deploy:prod`)
 
 Refer to the Cloudflare Worker settings for the exact build/deploy commands used by the automated process.
 
@@ -102,4 +102,4 @@ Refer to the Cloudflare Worker settings for the exact build/deploy commands used
 
 ## Available Scripts
 
-For a detailed explanation of all available NPM scripts, please refer to the `NPM_SCRIPTS.md` file in the repository root.
+For a detailed explanation of all available pnpm scripts, please refer to the `PNPM_SCRIPTS.md` file in the repository root.
