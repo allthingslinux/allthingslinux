@@ -10,11 +10,14 @@ const nextConfig: NextConfig = {
   // Performance optimizations
   compress: true,
   compiler: {
-    // Don't remove console logs in production as they help with debugging
-    // Cloudflare Workers need these for proper diagnostics
-    removeConsole: {
-      exclude: ['error', 'warn', 'log'],
+    // Remove console logs for better performance in production
+    removeConsole: process.env.NODE_ENV === 'production' ? true : {
+      exclude: ['error', 'warn'],
     },
+    // Enable emotion optimization if used
+    emotion: true,
+    // Remove React properties in production
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
 
   // Build optimizations
@@ -24,6 +27,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
+
+  // Enable SWC minification for faster builds
+  swcMinify: true,
+
+  // Output configuration for better caching
+  output: 'standalone',
   logging: {
     fetches: {
       fullUrl: true,
@@ -34,6 +43,12 @@ const nextConfig: NextConfig = {
   experimental: {
     // mdxRs: true,
     cssChunking: true,
+    // Optimize bundle analysis
+    optimizeCss: true,
+    // Use SWC for faster compilation
+    swcTraceProfiling: false,
+    // Enable build worker threads
+    cpus: Math.max(1, Math.floor(require('os').cpus().length / 2)),
   },
   // Add headers for API endpoints
   async headers() {
@@ -63,36 +78,27 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https' as const,
-        hostname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-      },
-      {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-      },
-      {
-        protocol: 'https',
         hostname: 'allthingslinux.org',
       },
       {
-        protocol: 'https',
+        protocol: 'https' as const,
         hostname: 'dcbadge.limes.pink',
       },
       {
-        protocol: 'https',
+        protocol: 'https' as const,
         hostname: 'discord.gg',
       },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment' as const,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Image optimization settings
+    // Optimized image settings for better performance
     formats: ['image/avif', 'image/webp'] as const,
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Reduced device sizes for faster processing
+    deviceSizes: [640, 828, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    // Disable image optimization in build for faster builds
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 };
 
