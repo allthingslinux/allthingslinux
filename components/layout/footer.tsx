@@ -10,7 +10,7 @@ import { BsOpencollective } from 'react-icons/bs';
 import { IoIosArrowUp } from 'react-icons/io';
 
 import { Separator } from '@/components/ui/separator';
-import { Privacy, Cookies, Terms } from '@/components/consent';
+import { Privacy, Cookies, Terms, Security } from '@/components/consent';
 
 // Define footer sections data
 const sections = [
@@ -81,6 +81,9 @@ const LegalSection = () => (
       </li>
       <li className="font-medium hover:text-primary">
         <Terms />
+      </li>
+      <li className="font-medium hover:text-primary">
+        <Security />
       </li>
       <li className="font-medium hover:text-primary">
         {/* <PrivacyChoices /> */}
