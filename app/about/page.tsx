@@ -54,7 +54,7 @@ export default function About() {
                 <span className="text-green-500 mr-2">~/</span>Our Community
               </h3>
               <p className="text-sm sm:text-base md:text-lg leading-relaxed text-balance">
-                We are a diverse community of over 10,000 Linux enthusiasts,
+                We are a diverse community of over 14,000 Linux enthusiasts,
                 passionate about advancing technology and sharing knowledge. Our
                 organization is dedicated to promoting the spirit and growth of
                 Linux through collaboration and innovation.
