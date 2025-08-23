@@ -1,0 +1,16 @@
+# Workspace and dependency management
+auto-install-peers=true
+strict-peer-dependencies=false
+
+# Performance optimizations
+prefer-frozen-lockfile=true
+enable-pre-post-scripts=true
+
+# Registry settings (inherited from .npmrc where possible)
+registry=https://registry.npmjs.org/
+
+# Retry settings matching .npmrc
+fetch-retries=3
+fetch-retry-factor=2
+fetch-retry-mintimeout=10000
+fetch-retry-maxtimeout=60000
