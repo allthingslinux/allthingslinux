@@ -96,7 +96,7 @@
     "@svgr/webpack": "^8.1.0",
     "@trigger.dev/build": "4.0.0-v4-beta.21",
     "@types/eslint": "^9.6.1",
-    "@types/marked": "^5.0.2",
+    "@types/marked": "^6.0.0",
     "@types/mdx": "^2.0.13",
     "@types/node": "^24.0.7",
     "@types/react": "^19.1.8",
