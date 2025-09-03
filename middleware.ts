@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { RateLimiter, addRateLimitHeaders } from '@/lib/rate-limiter';
+import { formSubmissionRateLimit, apiRateLimit } from '@/lib/rate-limit';
 
 export async function middleware(request: NextRequest) {
   // Debug middleware execution

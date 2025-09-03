@@ -40,3 +40,37 @@ export async function formSubmissionRateLimit(req: NextRequest): Promise<NextRes
     { status: 429 }
   );
 }
+
+// General API rate limiter: 100 requests per hour
+export async function apiRateLimit(req: NextRequest): Promise<NextResponse | null> {
+  const ip = getClientIP(req);
+  const now = Date.now();
+  const windowMs = 60 * 60 * 1000; // 1 hour
+  const maxRequests = 100;
+  const resetTime = now + windowMs;
+
+  // Clean up expired entries
+  Object.keys(store).forEach(key => {
+    if (store[key].resetTime < now) {
+      delete store[key];
+    }
+  });
+
+  // Check if IP exists and is within window
+  if (!store[ip] || store[ip].resetTime < now) {
+    store[ip] = { count: 1, resetTime };
+    return null; // Allow request
+  }
+
+  // Increment count if within window
+  if (store[ip].count < maxRequests) {
+    store[ip].count++;
+    return null; // Allow request
+  }
+
+  // Block if rate limit exceeded
+  return NextResponse.json(
+    { error: 'Rate limit exceeded. Please try again later.' },
+    { status: 429 }
+  );
+}
