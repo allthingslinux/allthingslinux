@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { RateLimiter, addRateLimitHeaders } from '@/lib/rate-limiter';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Debug middleware execution
   console.log('Middleware running for path:', request.nextUrl.pathname);
 
@@ -25,6 +26,22 @@ export function middleware(request: NextRequest) {
           'Access-Control-Max-Age': '86400',
         },
       });
+    }
+
+    // Apply rate limiting based on the endpoint
+    let rateLimitResponse = null;
+    
+    if (request.nextUrl.pathname.includes('/forms/') && request.method === 'POST') {
+      // Apply stricter rate limiting for form submissions
+      rateLimitResponse = await formSubmissionRateLimit(request);
+    } else {
+      // Apply general API rate limiting
+      rateLimitResponse = await apiRateLimit(request);
+    }
+
+    // If rate limit exceeded, return the rate limit response
+    if (rateLimitResponse) {
+      return rateLimitResponse;
     }
 
     // Get response with CORS headers
