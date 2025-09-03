@@ -13,7 +13,7 @@
   "preserve_file_names": false,
   "minify": true,
   "no_bundle": false,
-  "logpush": false,
+  "logpush": true,
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets",
@@ -31,7 +31,7 @@
       "workers_dev": false, // Disable *.workers.dev subdomain
       "minify": true, // Ensure minify is true for production
       "no_bundle": false,
-      "logpush": false,
+      "logpush": true,
       // Services for production
       "services": [
         {
