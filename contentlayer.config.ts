@@ -86,9 +86,14 @@ export default makeSource({
   documentTypes: [BlogPost],
   mdx: {
     esbuildOptions: (options) => {
+      // Optimize esbuild for faster compilation
+      options.target = 'es2022';
+      options.format = 'esm';
+      options.treeShaking = true;
+      options.minify = process.env.NODE_ENV === 'production';
       options.external = ['@/components/*', ...(options.external || [])];
       return options;
     },
   },
-  disableImportAliasWarning: false,
+  disableImportAliasWarning: true,
 });

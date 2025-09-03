@@ -1,0 +1,6 @@
+# Next.js build cache - add to main .gitignore if not already present
+.next/
+out/
+dist/
+*.tsbuildinfo
+.contentlayer/

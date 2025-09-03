@@ -1,0 +1,30 @@
+# Workspace and dependency management
+auto-install-peers=true
+strict-peer-dependencies=false
+
+# Performance optimizations
+prefer-frozen-lockfile=true
+enable-pre-post-scripts=true
+prefer-offline=true
+side-effects-cache=true
+side-effects-cache-readonly=false
+
+# Registry settings (inherited from .npmrc where possible)
+registry=https://registry.npmjs.org/
+
+# Retry settings matching .npmrc
+fetch-retries=3
+fetch-retry-factor=2
+fetch-retry-mintimeout=10000
+fetch-retry-maxtimeout=60000
+
+# Build optimizations
+store-dir=~/.pnpm-store
+verify-store-integrity=false
+enable-modules-dir=true
+
+# Additional performance settings
+package-import-method=auto
+resolution-mode=highest
+hoist-pattern[]=*eslint*
+hoist-pattern[]=*prettier*

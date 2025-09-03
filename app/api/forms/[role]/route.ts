@@ -4,6 +4,7 @@ import { generalQuestions } from '@/data/forms/questions/general';
 import type { FormData, Role, SubmissionPayload } from '@/lib/types';
 import { submitApplicationTask } from '@/trigger/jobs/submitApplication';
 import { ZodError } from 'zod';
+import { formSubmissionRateLimit } from '@/lib/rate-limit';
 
 // Add dynamic and cache controls for better Cloudflare compatibility
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,13 @@ export async function POST(
 ) {
   try {
     console.log('POST request received for application submission');
+
+    // Apply additional rate limiting at the route level
+    const rateLimitResponse = await formSubmissionRateLimit(req);
+    if (rateLimitResponse) {
+      console.log('Rate limit exceeded for form submission');
+      return rateLimitResponse;
+    }
 
     // Log environment variables in API route:
     console.log('Environment variables in API route:');
