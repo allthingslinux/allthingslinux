@@ -40,8 +40,8 @@ const nextConfig: NextConfig = {
   experimental: {
     // mdxRs: true,
     cssChunking: true,
-    // Optimize bundle analysis
-    optimizeCss: true,
+    // Optimize bundle analysis - disabled to prevent critters issues
+    // optimizeCss: true,
     // Use SWC for faster compilation
     swcTraceProfiling: false,
     // Enable build worker threads
