@@ -63,8 +63,8 @@ importers:
         specifier: ^1.1.13
         version: 1.1.13(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@stepperize/react':
-        specifier: ^5.1.6
-        version: 5.1.6(react@19.1.1)(typescript@5.9.2)
+        specifier: ^5.1.7
+        version: 5.1.7(react@19.1.1)(typescript@5.9.2)
       '@t3-oss/env-nextjs':
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.9.2)(zod@4.1.5)
@@ -3215,8 +3215,8 @@ packages:
     peerDependencies:
       typescript: '>=5.0.2'
 
-  '@stepperize/react@5.1.6':
-    resolution: {integrity: sha512-XYDcZih8aqXWudyseTNiZLfD8mDZGbiDjd4pN+Xt5J2Z/N6rq4Xn7KLFxoc3jguWdokcseiv6hkBBVpEzTwfVQ==}
+  '@stepperize/react@5.1.7':
+    resolution: {integrity: sha512-iouXXt9HbQUnnS2Duiyah91WOY0WcUeyXeLbN/3n4GN/y2svexE38IgLcNpvcHyUbjNkGeNuo5TEO54SG62jUQ==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -6089,6 +6089,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -11519,7 +11520,7 @@ snapshots:
     dependencies:
       typescript: 5.9.2
 
-  '@stepperize/react@5.1.6(react@19.1.1)(typescript@5.9.2)':
+  '@stepperize/react@5.1.7(react@19.1.1)(typescript@5.9.2)':
     dependencies:
       '@stepperize/core': 1.2.6(typescript@5.9.2)
       react: 19.1.1
