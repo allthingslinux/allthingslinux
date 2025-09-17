@@ -64,7 +64,7 @@ importers:
         version: 1.1.13(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@stepperize/react':
         specifier: ^5.1.6
-        version: 5.1.6(react@19.1.1)(typescript@5.9.2)
+        version: 5.1.8(react@19.1.1)(typescript@5.9.2)
       '@t3-oss/env-nextjs':
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.9.2)(zod@4.1.9)
@@ -3204,13 +3204,13 @@ packages:
   '@speed-highlight/core@1.2.7':
     resolution: {integrity: sha512-0dxmVj4gxg3Jg879kvFS/msl4s9F3T9UXC1InxgOf7t5NvcPD97u/WTA5vL/IxWHMn7qSxBozqrnnE2wvl1m8g==}
 
-  '@stepperize/core@1.2.6':
-    resolution: {integrity: sha512-6qUGCyI/Rq9tskBCwzJFwOpnT+uCRJTjwCwMiymnCA3utkvejOvfj6EPte21lMJNiqMuMhhKNFukX6ooI/2uSQ==}
+  '@stepperize/core@1.2.7':
+    resolution: {integrity: sha512-XiUwLZ0XRAfaDK6AzWVgqvI/BcrylyplhUXKO8vzgRw0FTmyMKHAAbQLDvU//ZJAqnmG2cSLZDSkcwLxU5zSYA==}
     peerDependencies:
       typescript: '>=5.0.2'
 
-  '@stepperize/react@5.1.6':
-    resolution: {integrity: sha512-XYDcZih8aqXWudyseTNiZLfD8mDZGbiDjd4pN+Xt5J2Z/N6rq4Xn7KLFxoc3jguWdokcseiv6hkBBVpEzTwfVQ==}
+  '@stepperize/react@5.1.8':
+    resolution: {integrity: sha512-/s8+YoVjX2+kPRxEMrmJZLX9jnVa/tKS+7Ru6ZUvBNSmbIopf0deylMv8hE2E5Il4T/UI2aSX/d3mKu8gugomw==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -6065,6 +6065,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -11485,13 +11486,13 @@ snapshots:
 
   '@speed-highlight/core@1.2.7': {}
 
-  '@stepperize/core@1.2.6(typescript@5.9.2)':
+  '@stepperize/core@1.2.7(typescript@5.9.2)':
     dependencies:
       typescript: 5.9.2
 
-  '@stepperize/react@5.1.6(react@19.1.1)(typescript@5.9.2)':
+  '@stepperize/react@5.1.8(react@19.1.1)(typescript@5.9.2)':
     dependencies:
-      '@stepperize/core': 1.2.6(typescript@5.9.2)
+      '@stepperize/core': 1.2.7(typescript@5.9.2)
       react: 19.1.1
     transitivePeerDependencies:
       - typescript
