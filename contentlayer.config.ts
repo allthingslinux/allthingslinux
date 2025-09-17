@@ -85,10 +85,8 @@ export default makeSource({
   contentDirPath: 'content',
   documentTypes: [BlogPost],
   mdx: {
-    esbuildOptions: (options) => {
-      options.external = ['@/components/*', ...(options.external || [])];
-      return options;
-    },
+    // Use default MDX processing without custom esbuild options
+    // This should avoid the malformed code generation issue
   },
-  disableImportAliasWarning: false,
+  disableImportAliasWarning: true,
 });

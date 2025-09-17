@@ -102,13 +102,17 @@ Examples of moderation expectations:
 
 Members are free to express themselves and offer constructive criticism and input. We celebrate and encourage our diverse perspectives, backgrounds, and opinions.
 
-However, this community upholds a model of responsible communication. While we lean into the courage of discussions, we urge members to refrain from initiating sensitive topics that might trigger conflict, perpetuate hatred, or incite violence.
+However, this community upholds a model of responsible communication. While we lean into the courage of discussions, we urge members to refrain from initiating sensitive and/or controversial topics that might trigger conflict, perpetuate hatred, or incite violence.
 
 Avoid offering or seeking professional advice, including but not limited to medical, legal, therapeutic, religious, or financial matters.
 
-Based on feedback from a community poll, we've decided to limit discussions on controversial topics. We believe this step will foster a more serene and inclusive environment for everyone. See here for more information: [Controversial Topics Poll](https://canary.discord.com/channels/1172245377395728464/1172343581495795752/1176257288982503474)
+Controversial topics are defined as subjects that commonly spark debate and conflict. These include, but are not limited to:
+- Politics (such as government policy, political figures, party ideologies)
+- Religious belief systems and practices
+- Ongoing global conflicts and war
+- Historical atrocities and practices (such as Nazism, terrorism, genocide, slavery, etc.)
 
-However, bear in mind that if any conversation is overly repetitive, heated, disruptive, toxic, or indecent, moderators have the discretion to, intervene, redirect, advise, or halt the conversation. These terms are not limited to a specific conversation but the mentioning of said topic. Our aim is not to suppress free speech but to keep an appropriate chatroom while promoting open, respectful, and harmonious conversations among all members.
+However, bare in mind that if any conversation is overly repetitive, heated, disruptive, toxic, or indecent, moderators have the discretion to, intervene, redirect, advise, or halt the conversation. These terms are not limited to a specific conversation but the mentioning of said topic. Our aim is not to suppress free speech but to keep an appropriate chatroom while promoting open, respectful, and harmonious conversations among all members.
 
 Examples of moderation expectations:
 
@@ -273,7 +277,19 @@ Enforcement of these rules may be done through different means. Listed below are
 
 #### Hard Rules
 
+Hard rules are non-negotiable and result in a ban with little exception. They are as follows:
 
+* Using slurs or hate speech.
+* Sending abusive, not safe for work, or graphic images.
+* Brigading or raiding.
+* Threatening with intent of violence or to cause bodily harm.
+* Doxxing of any kind.
+* Sending or spamming malicious links.
+* Using the server as a platform for scams, either within the server or privately via DMs.
+* Being under the age of 13.
+* Violating Discord's Terms of Service and/or Discord's Guidelines.
+
+Violations of hard rules may still be appealable depending on severity and time of appeal.
 
 #### Case by Case
 
@@ -309,11 +325,11 @@ Additionally, Moderators reserve the right to:
 Administrators outline and uphold our standards.
 
 * **Dispute regarding conduct**
-  * Administrators are permitted to resolve dispute regarding the code of conduct by using Context, Perspective and Interpretation to ensure order.
-* **Internel and Externel**
-  * Administrators are permitted to Investigate internel and externel interest and speak for the organization.
+  * Administrators are permitted to resolve disputes regarding the Code of Conduct by using context, perspective and interpretation to ensure order.
+* **Internal and External**
+  * Administrators are permitted to investigate internal and external interests and speak for the organization.
 * **Termination**
-  * Administrators are permitted to Terminate Members displaying any description of unsuitable behavior, unrelated to compliance with conduct.
+  * Administrators are permitted to terminate Members displaying any description of unsuitable behavior, unrelated to compliance with the Code of Conduct.
 
 
 ### 3.6. Punishment Evasion
@@ -349,4 +365,4 @@ Above all, exercise good judgment and common sense.`;
 /**
  * The date when the code of conduct was last updated
  */
-export const LAST_UPDATED = 'April 03, 2025';
+export const LAST_UPDATED = 'June 22, 2025';

@@ -414,6 +414,7 @@ interface MdxProps {
 
 export function Mdx({ code }: MdxProps) {
   // Always call hooks at the top level
+  // Since we disabled MDX compilation, we need to handle raw MDX content
   const Component = useMDXComponent(code || '');
 
   // Handle missing code

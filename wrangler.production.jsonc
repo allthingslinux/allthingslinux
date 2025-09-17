@@ -5,36 +5,33 @@
   "main": ".open-next/worker.js",
   "name": "allthingslinux-production", // Default name, overridden by production env below
   "compatibility_date": "2025-04-02",
-  "compatibility_flags": ["nodejs_compat"],
-
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   // Worker size and performance optimizations
   "find_additional_modules": true,
-  "preserve_file_names": true,
-  "minify": true, // Default minify to true for production focus
-
+  "preserve_file_names": false,
+  "minify": false,
+  "no_bundle": false,
+  "logpush": true,
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets",
   },
-
   "observability": {
     "enabled": true,
     "logs": {
       "invocation_logs": true,
     },
   },
-
   // --- Production Environment Specific Overrides ---
   "env": {
     "production": {
       "name": "allthingslinux-production",
-      "route": {
-        "pattern": "allthingslinux.org",
-        "custom_domain": true,
-      },
       "workers_dev": false, // Disable *.workers.dev subdomain
-      "minify": true, // Ensure minify is true for production
-
+      "minify": false, // Ensure minify is true for production
+      "no_bundle": false,
+      "logpush": true,
       // Services for production
       "services": [
         {
@@ -42,7 +39,6 @@
           "service": "allthingslinux-production",
         },
       ],
-
       // R2 Bucket for Production
       "r2_buckets": [
         {
@@ -50,7 +46,6 @@
           "bucket_name": "allthingslinux-cache-production",
         },
       ],
-
       // Environment variables for production
       "vars": {
         // Public vars (available to browser via process.env in Next.js)
