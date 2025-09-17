@@ -67,10 +67,7 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
 
           case 'number':
             // Create a number validator with optional min/max constraints
-            let numberSchema = z.coerce.number({
-              required_error: 'This field is required',
-              invalid_type_error: 'Please enter a valid number',
-            });
+            let numberSchema = z.coerce.number();
 
             // Add min constraint if specified
             if (typeof curr.min === 'number') {
@@ -94,14 +91,15 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
             break;
 
           case 'select':
+            // Handle select fields with proper validation
+            const baseSelectSchema = z.enum(curr.options as [string, ...string[]]);
+
             acc[curr.name] =
               curr.optional || isConditional
-                ? z.enum(curr.options as [string, ...string[]]).optional()
-                : z
-                    .enum(curr.options as [string, ...string[]])
-                    .refine((val) => val && val.length > 0, {
-                      message: 'Please select an option',
-                    });
+                ? baseSelectSchema.optional()
+                : baseSelectSchema.refine((val) => val && val.length > 0, {
+                    message: 'Please select an option',
+                  });
             break;
 
           default:

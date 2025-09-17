@@ -32,6 +32,8 @@ export default function RoleApplicationPage() {
 
   const onSubmit = async (data: z.infer<typeof _formSchema>) => {
     try {
+      console.log('Form data before submission:', data);
+
       // Ensure role is still available (edge case protection)
       if (!role) {
         console.error('Role not found during form submission');
@@ -43,6 +45,7 @@ export default function RoleApplicationPage() {
 
       // Add all form fields to FormData
       Object.entries(data).forEach(([key, value]) => {
+        console.log(`Processing field: ${key} = ${value} (type: ${typeof value})`);
         if (value instanceof File) {
           formData.append(key, value);
         } else if (value === null || value === undefined) {
@@ -50,6 +53,7 @@ export default function RoleApplicationPage() {
           console.log(`Skipping null/undefined field: ${key}`);
         } else if (typeof value === 'object') {
           // Convert objects to JSON strings
+          console.log(`Converting object to JSON for field: ${key}`, value);
           formData.append(key, JSON.stringify(value));
         } else {
           // Convert primitives to strings

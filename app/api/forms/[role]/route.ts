@@ -92,18 +92,20 @@ export async function POST(
       );
     }
 
-    const formObject = Object.fromEntries(
-      Array.from(formData.entries()).map(([key, value]) => [
-        key,
-        value.toString(),
-      ])
-    ) as FormData;
+    // Convert FormData to object, ensuring we only get the last value for each key
+    const formObject: Record<string, string> = {};
+    for (const [key, value] of formData) {
+      formObject[key] = value.toString();
+    }
 
-    console.log(`Processed ${Object.keys(formObject).length} form fields`);
+    // Type cast to FormData for compatibility
+    const typedFormObject = formObject as FormData;
+
+    console.log(`Processed ${Object.keys(typedFormObject).length} form fields`);
 
     // Validate required fields
     const requiredFields = ['discord_username', 'discord_id'];
-    const missingFields = requiredFields.filter((field) => !formObject[field]);
+    const missingFields = requiredFields.filter((field) => !typedFormObject[field]);
 
     if (missingFields.length > 0) {
       console.error(`Missing required fields: ${missingFields.join(', ')}`);
@@ -122,7 +124,7 @@ export async function POST(
           const parentFieldName = q.name.replace('_other', '');
 
           // Check if parent field exists and doesn't have "other" selected
-          const parentValue = formObject[parentFieldName];
+          const parentValue = typedFormObject[parentFieldName];
 
           // If parent value doesn't contain "other", this field is not required
           if (parentValue && !parentValue.toLowerCase().includes('other')) {
@@ -131,7 +133,7 @@ export async function POST(
         }
 
         // Regular required field validation
-        return !q.optional && !formObject[q.name];
+        return !q.optional && !typedFormObject[q.name];
       })
       .map((q) => q.name);
 
@@ -156,7 +158,7 @@ export async function POST(
     // Construct payload for the event
     const submissionPayload: SubmissionPayload = {
       roleData: roleWithGeneralQuestions,
-      formData: formObject,
+      formData: typedFormObject,
       timestamp: timestamp,
     };
 
