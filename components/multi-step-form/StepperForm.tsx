@@ -79,7 +79,7 @@ function StepperFormContent({
 
   // Create a single form instance with validation options
   const form = useForm({
-    mode: 'onChange', // Validate on field change to provide immediate feedback
+    mode: 'onBlur', // Only validate when field loses focus, not on every change
     criteriaMode: 'all', // Show all validation errors
     shouldFocusError: true, // Focus on first error field
     resolver: zodResolver(
