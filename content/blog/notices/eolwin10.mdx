@@ -1,26 +1,26 @@
 ---
 title: 'Windows 10 End of Life'
 description: 'Windows 10 will reach End of Life soon. This notice explains what EoL means, why updates matter, and your options for continuing to use your device, including upgrading to Windows 11 or switching to Linux.'
-author: 'Leonidas'
+author: 'Leonidas (edited by Wilbur)'
 date: '2025-10-03'
 category: 'Notices'
 ---
 
-EoL (short for End of Life) Windows 10 doesn't mean it's dead. It just won't receive future updates.
+EoL (short for End of Life) for Windows 10 doesn’t mean it suddenly stops working. It just won’t receive future updates.
 
-Updates provide more features, stability, and sometimes software support. But Windows is already quite good at it. So why do you need updates?
+Updates usually provide more features, stability, and continued software support. Personally, we think Windows has already been quite solid for everyday use. So why do updates matter?
 
-Well, connecting to the internet poses a security risk. You expose yourself to the world, and bad people may try to exploit you in a number of ways, either by hacking your machine or by tricking you into entering your sensitive credentials, like bank account details.
+Well, connecting to the internet always carries some risk. You expose your device to the wider world, and malicious actors may try to exploit that: whether through direct attacks on your system or by tricking you into giving away sensitive details like bank credentials.
 
-While you can avoid the latter with common sense, hackers can still find weaknesses/vulnerabilities in Windows and use them. These cannot be avoided by simple common sense, because they are system vulnerabilities. Hence, active updates are necessary to patch newly discovered ones.
+While some risks (like phishing attempts) can be avoided with awareness and caution, operating system vulnerabilities are different. They can only be addressed through patches and updates. Without them, Windows 10 will gradually become less secure.
 
-If you never connect your device to the internet, Windows 10 is fine as there will be little exposure. However, this is a huge restriction in the modern day.
+If you never connect your device to the internet, Windows 10 can still work fine, since the exposure is very limited. But for most people, this is a huge restriction in today’s world.
 
 ---
 
 ## What are your options?
 
-This can get very lengthy and hard to decide, so I'll break it down to Windows Options and Non-Windows Options, assuming you are not changing your device.
+We’ll break this down into **Windows Options** and **Non-Windows Options**, assuming you’re keeping your current device.
 
 ---
 
@@ -28,58 +28,48 @@ This can get very lengthy and hard to decide, so I'll break it down to Windows O
 
 1. Upgrade to Windows 11.
 
-2. Check if you can fulfill the requirements by enabling TPM in your motherboard BIOS settings. (Skip this if you don't know what this means.)
+2. Check if you can meet the requirements by enabling TPM in your motherboard BIOS. (If this sounds unfamiliar, you may want to skip it.)
 
-3. Bypass the Windows 11 requirements using Rufus and install Windows 11.
+3. Bypass Windows 11’s requirements using Rufus and install it anyway.
 
-4. Use custom ISOs like Tiny 11.  
+4. Use custom ISOs like Tiny11.
 
-   Note: Custom ISOs may lack official support from Microsoft and could pose security risks, such as missing updates or vulnerabilities. Make sure you understand these risks before proceeding.
+   > **Note:** Custom ISOs don’t have official Microsoft support and could pose extra security risks. They may miss updates or contain vulnerabilities. Proceed only if you fully understand the trade-offs.
 
-5. Stay on Windows 10 (not recommended).
+5. Stay on Windows 10 (generally not recommended due to security concerns).
 
 ---
 
 ### Non-Windows Options
 
-If you think Windows is the only way you could use a computer, you can't be more wrong. There are a ton of operating systems, with Linux being a prominent option.
+If you believe Windows is the only way to use a computer, we’d argue that’s not the case. There are plenty of other operating systems, with Linux being the most prominent alternative.
 
-Nowadays, an average user doesn't need everything that Windows offers. Many prominent Windows-related apps are available on Linux (or at least a very viable alternative is present). There's also WINE and WinBoat that can make Linux run Windows apps.
+In our experience, most everyday users don’t need the full scope of Windows features. Many popular applications are available on Linux, or at least have strong alternatives. Tools like WINE and Bottles can also help run certain Windows apps.
 
-> For simplicity, I'm referring to Linux-based distributions as Linux.
+> For simplicity, we’ll just refer to Linux-based distributions as “Linux.”
 
-Linux offers so many options to choose from (called Linux Distros). So don't be overwhelmed. The following is a list of good starting points for new users:
+Linux comes in many forms (called distributions, or “distros”), but don’t let that overwhelm you. Here are some good starting points:
 
-1. Linux Mint (Cinnamon, XFCE, MATE. Any edition is fine. The difference is only in desktop appearance and features. Choose Cinnamon if you can't decide.)
+1. **Linux Mint** (Cinnamon, XFCE, or MATE editions. We suggest Cinnamon if you’re undecided.)
+2. **Fedora** (the KDE and Workstations edition are the most polished.)
+3. **Ubuntu** (the most well-known option).
 
-2. Fedora (choose KDE, but Workstation is also fine.)
-
-3. Ubuntu (the most famous one out of these).
-
-These are all good options, with Linux Mint being the best choice. The differences are minimal, and in my experience, Linux Mint comes with more useful pre-installed features/apps. It is based on Ubuntu but has been much easier overall. A solid choice.
-
-Fedora and Ubuntu are good choices too.
+In our opinion, Linux Mint is the best starting point for most users. It’s based on Ubuntu but feels easier to use and comes with more useful pre-installed tools. Fedora and Ubuntu are also excellent choices.
 
 ---
 
 ## Some clarifications
 
-1. No, you don't need to use the terminal or command prompt in Linux.
-
-2. Most major software is available, but some specialised or industry-standard applications may not be. This includes Adobe software, for example.
-
-3. Installing apps is much easier and faster than Windows.
-
-4. Linux is usually faster than Windows due to less overhead.
-
-5. You can install Linux alongside Windows (this can be somewhat tricky if you are not used to installing OSes).
-
-6. It's more secure because you don’t need to give administrator permissions for installing every app. You can install them in a restricted environment called Flatpaks (don’t worry, it rarely restricts useful features), or you can do the typical installation if you want the app to have full system access.
-
-7. If you hate forced updates, know that Linux doesn’t do that. Instead, it lets you choose when you want to install them. No forced shutdowns or anything.
+1. You don’t need to use the terminal to run Linux (though it can be handy).
+2. Most mainstream apps are available, but certain specialised or industry-standard software (e.g. Adobe Creative Suite) may not be.
+3. Installing apps is, in our view, usually easier and faster than on Windows.
+4. Linux often feels faster than Windows because it has less overhead.
+5. You can install Linux alongside Windows (though the setup may feel tricky if you’re new to OS installation).
+6. Linux tends to be more secure since apps don’t automatically get full system access. You can install them in sandboxed formats like Flatpak, or go the traditional route if you want full access.
+7. If you dislike forced updates, Linux gives you full control over when to update: no surprise restarts.
 
 ---
 
-Also, viruses and malware are almost non-existent for Linux (at least for home users). Hackers mostly target Windows because they'll get more results from there.
+In practice, viruses and malware are rare on Linux, especially for home users. Attackers usually focus on Windows, since it has the largest user base.
 
-So, pick your operating system and switch to the community of free and open-source software.
+So, when Windows 10 reaches End of Life, you have choices. You can stick with Microsoft by moving to Windows 11, or explore the community-driven world of free and open-source software.
