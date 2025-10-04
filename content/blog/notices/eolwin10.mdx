@@ -1,75 +1,81 @@
 ---
 title: 'Windows 10 End of Life'
-description: 'Windows 10 will reach End of Life soon. This notice explains what EoL means, why updates matter, and your options for continuing to use your device, including upgrading to Windows 11 or switching to Linux.'
-author: 'Leonidas (edited by Wilbur)'
+description: 'Windows 10 is reaching its End of Life soon. This will explain what it means, why updates matter, and your options for continuing to use your device.'
+author: 'Leonidas, Wilbur & Atmois'
 date: '2025-10-03'
 category: 'Notices'
 ---
 
-EoL (short for End of Life) for Windows 10 doesn’t mean it suddenly stops working. It just won’t receive future updates.
+From the 14th of October 2025, Windows 10 will become End of Life (EoL). This means it will no longer receive updates or support from Microsoft. This includes both security updates and feature updates. Your computer may continue to function, but it will become increasingly vulnerable to security risks and software incompatibilities over time.
 
-Updates usually provide more features, stability, and continued software support. Personally, we think Windows has already been quite solid for everyday use. So why do updates matter?
+Updates usually provide more features, stability, and continued software support. Windows 10 has already been stable for everyday use for almost a decade now. So why do updates matter so much to users?
 
-Well, connecting to the internet always carries some risk. You expose your device to the wider world, and malicious actors may try to exploit that: whether through direct attacks on your system or by tricking you into giving away sensitive details like bank credentials.
+Well, connecting to the internet always carries some risk. You expose your device to the wider world, and malicious actors may try to exploit that: whether through direct attacks on your system or by tricking you into giving away sensitive details.
 
-While some risks (like phishing attempts) can be avoided with awareness and caution, operating system vulnerabilities are different. They can only be addressed through patches and updates. Without them, Windows 10 will gradually become less secure.
+While some risks (Such as phishing) can be avoided with awareness and caution, operating system vulnerabilities are different. They can only be addressed through official patches and updates. Without them, Windows 10 will gradually become less secure. No matter what mitigations or software you use, your device will always be at a significantly higher risk of compromise.
 
-If you never connect your device to the internet, Windows 10 can still work fine, since the exposure is very limited. But for most people, this is a huge restriction in today’s world.
+If you never connect your device to the internet, Windows 10 can still work fine, since the external exposure is very limited. But for most people, this is a huge restriction in today's increasing digital landscape.
 
 ---
 
 ## What are your options?
 
-We’ll break this down into **Windows Options** and **Non-Windows Options**, assuming you’re keeping your current device.
+We'll break this down into **Windows Options** and **Non-Windows Options**, assuming you're keeping your current device.
+
+As always, make sure to back up your data before making significant changes to your system. Be that the official Windows upgrade, a clean install, or switching to a different operating system entirely.
 
 ---
 
 ### Windows Options
 
-1. Upgrade to Windows 11.
+1. Upgrade to Windows 11, this is the so-called "official" method, but it requires compatible hardware. *You can check if your hardware meets the Windows 11 requirements [here](https://learn.microsoft.com/en-us/windows/whats-new/windows-11-requirements).*
 
-2. Check if you can meet the requirements by enabling TPM in your motherboard BIOS. (If this sounds unfamiliar, you may want to skip it.)
-
-3. Bypass Windows 11’s requirements using Rufus and install it anyway.
-
-4. Use custom ISOs like Tiny11.
-
-   > **Note:** Custom ISOs don’t have official Microsoft support and could pose extra security risks. They may miss updates or contain vulnerabilities. Proceed only if you fully understand the trade-offs.
-
-5. Stay on Windows 10 (generally not recommended due to security concerns).
-
----
+2. Utilizing [rufus](https://rufus.ie/en/) you can create bootable drives for Windows 11 if your device does not support a direct upgrade. *Please be aware that this method is not supported by Microsoft and may lead to instability or data loss.*
 
 ### Non-Windows Options
 
-If you believe Windows is the only way to use a computer, we’d argue that’s not the case. There are plenty of other operating systems, with Linux being the most prominent alternative.
+There are plenty of other operating systems other than Windows, with Linux being the most prominent alternative for general computing. If you are unfamiliar with any of the terminology used or want to learn more check out our Linux and FOSS wiki at [atl.wiki](https://atl.wiki)!
 
-In our experience, most everyday users don’t need the full scope of Windows features. Many popular applications are available on Linux, or at least have strong alternatives. Tools like WINE and Bottles can also help run certain Windows apps.
+In our experience, most everyday users don't need the full scope of Windows features. Many popular applications are available on Linux, or at least have strong alternatives. Tools like WINE and Bottles can also help run certain Windows apps.
 
-> For simplicity, we’ll just refer to Linux-based distributions as “Linux.”
+Linux comes in many forms (called distributions, or “distros”), but don't let that overwhelm you. Here are some good starting points:
 
-Linux comes in many forms (called distributions, or “distros”), but don’t let that overwhelm you. Here are some good starting points:
+**[Linux Mint](https://www.linuxmint.com)**
 
-1. **Linux Mint** (Cinnamon, XFCE, or MATE editions. We suggest Cinnamon if you’re undecided.)
-2. **Fedora** (the KDE and Workstations edition are the most polished.)
-3. **Ubuntu** (the most well-known option).
+<div style={{ marginLeft: '2rem' }}>
+Offers the Cinnamon, XFCE, or MATE [editions](https://www.linuxmint.com/download.php). We suggest Cinnamon if for a polished Windows-like experience or XFCE for older, less powerful generally devices predating 2012. Mint is generally considered the most user-friendly distro for beginners with extensive documentation and software support online. Mint generally has slower updates than some other distros with older software versions, but this increases its stability and reliability for users.
+</div>
 
-In our opinion, Linux Mint is the best starting point for most users. It’s based on Ubuntu but feels easier to use and comes with more useful pre-installed tools. Fedora and Ubuntu are also excellent choices.
+**[Fedora Linux](https://fedoraproject.org)**
+
+<div style={{ marginLeft: '2rem' }}>
+The [KDE](https://fedoraproject.org/kde/) and [Workstation](https://fedoraproject.org/workstation/) editions are the primary editions of Fedora. Workstation is the more popular and stable option but KDE offers a more Windows-like experience with extra customization options. Fedora is backed by Red Hat and IBM with a large community. It updates more frequently with newer software available whilst maintaining stability, but you may need to get more familiar with Linux to utilize it fully.
+</div>
+
+
+**[Ubuntu Linux](https://ubuntu.com)**
+
+<div style={{ marginLeft: '2rem' }}>
+The [GNOME](https://ubuntu.com/download/desktop) edition is the most popular and supported, but the [KDE](https://kubuntu.org/getkubuntu/) edition is also available for a more Windows-like experience with extra customization options. Ubuntu offers the best stability and has a large corporate backing ensuring its longevity. It has a large community and extensive documentation online. Ubuntu also has lower updates than some other distros with older software versions, but this increases its stability and reliability for users.
+</div>
+
+### Summary
+
+Any of these options are good for beginners, and you can try them out without installing by using a live USB using [Rufus](https://rufus.ie/en/) (Windows exclusive) or the [Fedora Media Writer Tool](https://docs.fedoraproject.org/en-US/fedora/latest/preparing-boot-media/), which you can use it for any distro not just Fedora! Just select your own `.iso` file and get started. This will let you see how they feel on your hardware before committing to an installation.
+
+In the end whichever option you choose it is your choice and because of the freedom of Linux you can do mostly the same on all distros, so don't worry too much about picking the "right" one. You can always try a different one if you want with no vendor or software lock-in.
+
+## Some extra clarifications about Linux
+
+1. You don't need to use the terminal to run Linux (though it can be handy).
+2. Most mainstream apps are available, but certain specialized software (e.g. Adobe or Office 365) may not be.
+3. Installing apps is, in our view, usually easier and faster than on Windows through provided tools.
+4. Linux often feels faster than Windows because as it has less overhead.
+5. You can install Linux alongside Windows (though the setup may feel tricky if you're new to OS installation).
+6. If you dislike forced updates, Linux gives you full control over when to update: no surprise restarts.
 
 ---
-
-## Some clarifications
-
-1. You don’t need to use the terminal to run Linux (though it can be handy).
-2. Most mainstream apps are available, but certain specialised or industry-standard software (e.g. Adobe Creative Suite) may not be.
-3. Installing apps is, in our view, usually easier and faster than on Windows.
-4. Linux often feels faster than Windows because it has less overhead.
-5. You can install Linux alongside Windows (though the setup may feel tricky if you’re new to OS installation).
-6. Linux tends to be more secure since apps don’t automatically get full system access. You can install them in sandboxed formats like Flatpak, or go the traditional route if you want full access.
-7. If you dislike forced updates, Linux gives you full control over when to update: no surprise restarts.
-
----
-
-In practice, viruses and malware are rare on Linux, especially for home users. Attackers usually focus on Windows, since it has the largest user base.
 
 So, when Windows 10 reaches End of Life, you have choices. You can stick with Microsoft by moving to Windows 11, or explore the community-driven world of free and open-source software.
+
+We invite you to join us at All Things Linux, where we can help you navigate the transition and make the most of your computing experience on our [Discord server](https://discord.gg/linux). Come say hello or find support and learn from fellow users in the `#quick-support` and `#support-forum` channels!
