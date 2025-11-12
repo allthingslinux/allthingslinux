@@ -42,7 +42,7 @@ export const generalQuestions: FormQuestion[] = [
   {
     name: 'timezone',
     question: 'Timezone:',
-    description: 'Please select the closest timezone to your location.',
+    description: 'Please select the closest timezone to your location (Non Daylight Savings Time).',
     type: 'select',
     options: [
       'UTC-12:00 (BIT)', // Baker Island Time
