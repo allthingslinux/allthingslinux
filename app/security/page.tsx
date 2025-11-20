@@ -46,9 +46,7 @@ export default function SecurityPage() {
               <li>atl.wiki</li>
             </ul>
           </li>
-          <li>Discord bot services and integrations</li>
-          <li>API endpoints and backend services</li>
-          <li>Community platforms and forums</li>
+          <li>API endpoints, backend services, Discord bot services or integrations, and community platforms or forums.</li>
           <li>Repositories within the All Things Linux GitHub organization, individual projects may have exceptions.</li>
         </ul>
 
