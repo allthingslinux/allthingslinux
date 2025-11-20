@@ -27,7 +27,7 @@ export default function SecurityPage() {
 
         <h2>Scope</h2>
         <p>
-          This security policy applies to all All Things Linux services, including but not limited to:
+          This security policy applies to all All Things Linux projects and services, including but not limited to:
         </p>
         <ul>
           <li>All our domains including their subdomains:
@@ -49,10 +49,12 @@ export default function SecurityPage() {
           <li>Discord bot services and integrations</li>
           <li>API endpoints and backend services</li>
           <li>Community platforms and forums</li>
+          <li>Repositories within the All Things Linux GitHub organization, individual projects may have exceptions.</li>
         </ul>
 
         We are interested in any vulnerability that could lead to unauthorized access, data breaches, or service disruptions.
         We welcome any reports of potential security issues outside of this scope but we may not be able to address them immediately.
+        Please also note that we host external services, we also welcome reports regarding those services but we may not be able to address them directly and will refer you to the appropriate party.
 
         <h2>How to Report a Security Issue</h2>
         <p>
