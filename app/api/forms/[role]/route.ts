@@ -53,7 +53,8 @@ export async function POST(
 
     // Get role and questions
 
-    const roleSlug = context.params.role;
+    const params = await context.params;
+    const roleSlug = params.role;
 
     console.log(`Processing application for role: ${roleSlug}`);
 

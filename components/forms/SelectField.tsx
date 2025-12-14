@@ -68,7 +68,7 @@ const SelectField = memo(function SelectField({
       <Select
         onValueChange={(newValue) => {
           setValue(name, newValue, {
-            shouldValidate: true, // Validate immediately on selection
+            shouldValidate: false, // Don't validate immediately on selection
             shouldDirty: true,
             shouldTouch: true,
           });
