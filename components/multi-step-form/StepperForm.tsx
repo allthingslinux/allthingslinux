@@ -139,12 +139,12 @@ function StepperFormContent({
 
   // Create a single form instance with validation options
   const form = useForm({
-    mode: 'onSubmit', // Only validate on submit, not on every change
+    mode: 'onSubmit', // Only validate on submit
+    reValidateMode: 'onSubmit', // Never re-validate automatically
     criteriaMode: 'all', // Show all validation errors
     shouldFocusError: true, // Focus on first error field
-    resolver: zodResolver(
-      methods.current.id === 'general' ? generalSchema : roleSchema
-    ),
+    shouldUnregister: false, // Keep all fields registered
+    // No resolver - we'll handle validation manually
     // Ensure every field has at least an empty string as default
     defaultValues: {
       ...Object.fromEntries(
@@ -183,13 +183,32 @@ function StepperFormContent({
         .filter((q) => !q.optional)
         .map((q) => q.name);
 
-      // Validate all fields with validation triggered
-      const isValid = await form.trigger(requiredFields, { shouldFocus: true });
+      // Manually validate using the appropriate schema
+      const currentSchema = methods.current.id === 'general' ? generalSchema : roleSchema;
+      const currentValues = form.getValues();
+      const validationResult = currentSchema.safeParse(currentValues);
 
-      if (!isValid) {
+      if (!validationResult.success) {
+        // Set errors for failed validations
+        validationResult.error.issues.forEach((issue) => {
+          const fieldName = issue.path[0] as string;
+          // Only set errors for fields on the current step
+          if (requiredFields.includes(fieldName)) {
+            form.setError(fieldName, {
+              type: 'validation',
+              message: issue.message,
+            });
+          }
+        });
+        
         scrollToFirstError();
         return; // Don't proceed if validation fails
       }
+      
+      // Clear errors on successful validation
+      requiredFields.forEach((fieldName) => {
+        form.clearErrors(fieldName);
+      });
     }
 
     // Save current data before navigating
