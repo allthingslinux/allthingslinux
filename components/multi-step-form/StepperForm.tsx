@@ -13,6 +13,66 @@ import type { StepId } from './StepIndicator';
 import { Button } from '@/components/ui/button';
 import { z } from 'zod';
 
+// Helper function to check if a question should be shown based on dependencies
+export const shouldShowQuestion = (
+  question: FormQuestion,
+  formValues: Record<string, unknown>
+): boolean => {
+  // If the question has no showIf condition, always show it
+  if (!question.showIf) return true;
+
+  // Check each condition to determine if the question should be shown
+  for (const [dependentField, requiredValue] of Object.entries(
+    question.showIf
+  )) {
+    const fieldValue = formValues[dependentField];
+
+    // If required value is an array, check if the current value is in that array
+    if (Array.isArray(requiredValue)) {
+      // Convert to string for comparison since form values are often strings
+      const strValue =
+        typeof fieldValue === 'string'
+          ? fieldValue
+          : String(fieldValue ?? '');
+      if (!requiredValue.includes(strValue)) {
+        return false;
+      }
+    }
+    // Otherwise check if the current value equals the required value
+    else if (fieldValue !== requiredValue) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+// Helper function to scroll to the first error field
+const scrollToFirstError = () => {
+  setTimeout(() => {
+    const firstErrorField = document.querySelector('[aria-invalid="true"]');
+    if (firstErrorField) {
+      firstErrorField.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      if (firstErrorField instanceof HTMLElement) {
+        try {
+          firstErrorField.focus();
+        } catch (e) {
+          console.warn('Unable to focus error field:', e);
+        }
+      }
+    } else {
+      const form = document.querySelector('form');
+      if (form) {
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, 150);
+};
+
 // Define the stepper with two steps
 const { Scoped, useStepper } = defineStepper(
   {
@@ -94,6 +154,15 @@ function StepperFormContent({
     },
   });
 
+  // Compute visible questions for each step
+  const currentValues = form.watch();
+  const visibleGeneralQuestions = generalQuestions.filter((q) =>
+    shouldShowQuestion(q, currentValues)
+  );
+  const visibleRoleQuestions = roleQuestions.filter((q) =>
+    shouldShowQuestion(q, currentValues)
+  );
+
   // Handle step navigation
   const navigateToStep = async (targetStep: StepId) => {
     // Reset any previous submission errors when navigating
@@ -104,39 +173,12 @@ function StepperFormContent({
       (methods.current.id === 'general' && targetStep === 'role_specific') ||
       methods.current.id === targetStep
     ) {
-      // Get required fields for the current step
-      const currentQuestions =
-        methods.current.id === 'general' ? generalQuestions : roleQuestions;
-        
-      // Get current form values to filter conditional questions
-      const currentValues = form.getValues();
-      
-      // Filter questions to only show ones that satisfy their conditions
-      const visibleQuestions = currentQuestions.filter((q) => {
-        // If the question has no showIf condition, always show it
-        if (!q.showIf) return true;
+      // Get visible questions for the current step
+      const visibleQuestions =
+        methods.current.id === 'general'
+          ? visibleGeneralQuestions
+          : visibleRoleQuestions;
 
-        // Check each condition to determine if the question should be shown
-        for (const [dependentField, requiredValue] of Object.entries(q.showIf)) {
-          const fieldValue = currentValues[dependentField];
-
-          // If required value is an array, check if the current value is in that array
-          if (Array.isArray(requiredValue)) {
-            // Convert to string for comparison since form values are often strings
-            const strValue =
-              typeof fieldValue === 'string' ? fieldValue : String(fieldValue || '');
-            if (!requiredValue.includes(strValue)) {
-              return false;
-            }
-          }
-          // Otherwise check if the current value equals the required value
-          else if (fieldValue !== requiredValue) {
-            return false;
-          }
-        }
-        return true;
-      });
-      
       const requiredFields = visibleQuestions
         .filter((q) => !q.optional)
         .map((q) => q.name);
@@ -145,36 +187,14 @@ function StepperFormContent({
       const isValid = await form.trigger(requiredFields, { shouldFocus: true });
 
       if (!isValid) {
-        // Find the first field with an error and scroll to it
-        setTimeout(() => {
-          const firstErrorField = document.querySelector(
-            '[aria-invalid="true"]'
-          );
-          if (firstErrorField) {
-            // Make sure we scroll with smooth behavior
-            firstErrorField.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-            });
-
-            // Also try to focus the element for better accessibility
-            if (firstErrorField instanceof HTMLElement) {
-              try {
-                firstErrorField.focus();
-              } catch (e) {
-                console.warn('Unable to focus error field:', e);
-              }
-            }
-          }
-        }, 100);
-
+        scrollToFirstError();
         return; // Don't proceed if validation fails
       }
     }
 
     // Save current data before navigating
-    const currentValues = form.getValues();
-    setFormData((prev) => ({ ...prev, ...currentValues }));
+    const currentFormValues = form.getValues();
+    setFormData((prev) => ({ ...prev, ...currentFormValues }));
 
     // Navigate to the requested step
     methods.goTo(targetStep);
@@ -216,26 +236,7 @@ function StepperFormContent({
       } else {
         // If validation fails on the final step, show field errors
         console.log('Validation failed:', validationResult.error);
-
-        // Find the first field with an error and scroll to it
-        setTimeout(() => {
-          const firstErrorField = document.querySelector(
-            '[aria-invalid="true"]'
-          );
-          if (firstErrorField) {
-            firstErrorField.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-            });
-          } else {
-            // If no specific field is found, scroll to top of form
-            const form = document.querySelector('form');
-            if (form) {
-              form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }
-        }, 100);
-
+        scrollToFirstError();
         return;
       }
     } catch (error) {
@@ -293,21 +294,18 @@ function StepperFormContent({
         {methods.switch({
           general: () => (
             <StepForm
-              questions={generalQuestions}
+              questions={visibleGeneralQuestions}
               title="General Questions"
               description="We'll use this information to get to know you better"
               onNext={() => navigateToStep('role_specific')}
-              onPrevious={null}
-              onSubmit={null}
               showPrevious={false}
             />
           ),
           role_specific: () => (
             <StepForm
-              questions={roleQuestions}
+              questions={visibleRoleQuestions}
               title="Department & Role Questions"
               description={`Questions specific to the ${role.department} department and this role`}
-              onNext={null}
               onPrevious={() => navigateToStep('general')}
               onSubmit={handleSubmit}
               isLastStep={true}
@@ -318,39 +316,6 @@ function StepperFormContent({
     </div>
   );
 }
-
-// Helper function to check if a question should be shown based on dependencies
-const shouldShowQuestion = (
-  question: FormQuestion,
-  formValues: Record<string, unknown>
-): boolean => {
-  // If the question has no showIf condition, always show it
-  if (!question.showIf) return true;
-
-  // Check each condition to determine if the question should be shown
-  for (const [dependentField, requiredValue] of Object.entries(
-    question.showIf
-  )) {
-    const fieldValue = formValues[dependentField];
-
-    // If required value is an array, check if the current value is in that array
-    if (Array.isArray(requiredValue)) {
-      // Convert to string for comparison since form values are often strings
-      const strValue =
-        typeof fieldValue === 'string' ? fieldValue : String(fieldValue || '');
-      if (!requiredValue.includes(strValue)) {
-        return false;
-      }
-    }
-    // Otherwise check if the current value equals the required value
-    else if (fieldValue !== requiredValue) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
 function StepForm({
   questions,
   title,
@@ -364,24 +329,23 @@ function StepForm({
   questions: FormQuestion[];
   title: string;
   description: string;
-  onNext: (() => void) | null;
-  onPrevious: (() => void) | null;
-  onSubmit: ((data: Record<string, unknown>) => Promise<void>) | null;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  onSubmit?: (data: Record<string, unknown>) => Promise<void>;
   isLastStep?: boolean;
   showPrevious?: boolean;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { handleSubmit, formState, trigger, getValues, watch } = useFormContext();
-  
+  const { handleSubmit, formState, trigger, watch } = useFormContext();
+
   // Watch form values to reactively check if all required fields are filled
   const watchedValues = watch();
-  
-  // Filter questions to only show ones that satisfy their conditions (same logic as FormWrapper)
-  const visibleQuestions = questions.filter((q) => shouldShowQuestion(q, watchedValues));
-  
-  // Get required fields for validation from visible questions only
-  const requiredFields = visibleQuestions.filter((q) => !q.optional).map((q) => q.name);
-  
+
+  // Get required fields for validation (questions are already filtered by parent)
+  const requiredFields = questions
+    .filter((q) => !q.optional)
+    .map((q) => q.name);
+
   const allRequiredFilled = requiredFields.every((name) => {
     const value = watchedValues[name];
     return value !== undefined && value !== null && String(value).trim() !== '';
@@ -393,26 +357,16 @@ function StepForm({
       setIsSubmitting(true);
       const isValid = await trigger(requiredFields, { shouldFocus: true });
       if (!isValid) {
-        setIsSubmitting(false);
-        setTimeout(() => {
-          const firstErrorField = document.querySelector('[aria-invalid="true"]');
-          if (firstErrorField) {
-            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            if (firstErrorField instanceof HTMLElement) {
-              try { firstErrorField.focus(); } catch (e) { console.warn('Unable to focus error field:', e); }
-            }
-          } else {
-            const form = document.querySelector('form');
-            if (form) { form.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-          }
-        }, 150);
+        scrollToFirstError();
         return;
       }
       if (isLastStep && onSubmit) {
         await onSubmit(data);
       } else if (onNext) {
         onNext();
-        setTimeout(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50);
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 50);
       }
     } catch (error) {
       console.error('Form error:', error);
@@ -439,7 +393,7 @@ function StepForm({
           {showPrevious && onPrevious && (
             <Button
               type="button"
-              onClick={() => { onPrevious(); }}
+              onClick={onPrevious}
               variant="outline"
               size="lg"
               className="md:w-auto min-w-[200px]"
@@ -453,18 +407,8 @@ function StepForm({
         <div>
           <Button
             type="button"
-            onClick={async () => {
-              if (!isLastStep) {
-                const isValid = await trigger(requiredFields, { shouldFocus: true });
-                if (isValid && onNext) {
-                  onNext();
-                  setTimeout(() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }, 50);
-                }
-              } else {
-                handleSubmit(handleFormAction)();
-              }
+            onClick={() => {
+              handleSubmit(handleFormAction)();
             }}
             size="lg"
             className="md:w-auto min-w-[200px]"
