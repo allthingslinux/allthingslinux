@@ -12,6 +12,7 @@ import DigitsOnlyField from './DigitsOnlyField';
 import type { FormQuestion } from '@/types';
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { shouldShowQuestion } from '@/components/multi-step-form/StepperForm';
 
 interface FormWrapperProps {
   form?: UseFormReturn<Record<string, unknown>>; // Replace any with more specific type
@@ -25,38 +26,6 @@ interface FormWrapperProps {
   className?: string;
   hideSubmitButton?: boolean;
 }
-
-// Helper function to check if a question should be shown based on dependencies
-const shouldShowQuestion = (
-  question: FormQuestion,
-  formValues: Record<string, unknown>
-): boolean => {
-  // If the question has no showIf condition, always show it
-  if (!question.showIf) return true;
-
-  // Check each condition to determine if the question should be shown
-  for (const [dependentField, requiredValue] of Object.entries(
-    question.showIf
-  )) {
-    const fieldValue = formValues[dependentField];
-
-    // If required value is an array, check if the current value is in that array
-    if (Array.isArray(requiredValue)) {
-      // Convert to string for comparison since form values are often strings
-      const strValue =
-        typeof fieldValue === 'string' ? fieldValue : String(fieldValue || '');
-      if (!requiredValue.includes(strValue)) {
-        return false;
-      }
-    }
-    // Otherwise check if the current value equals the required value
-    else if (fieldValue !== requiredValue) {
-      return false;
-    }
-  }
-
-  return true;
-};
 
 export default function FormWrapper({
   form: formProp,
