@@ -164,7 +164,7 @@ importers:
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20250903.0
-        version: 4.20250903.0
+        version: 4.20251228.0
       '@eslint/eslintrc':
         specifier: ^3.3.1
         version: 3.3.1
@@ -176,7 +176,7 @@ importers:
         version: 3.7.6
       '@opennextjs/cloudflare':
         specifier: ^1.7.1
-        version: 1.7.1(wrangler@4.33.2(@cloudflare/workers-types@4.20250903.0))
+        version: 1.7.1(wrangler@4.33.2(@cloudflare/workers-types@4.20251228.0))
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.9.2)
@@ -242,7 +242,7 @@ importers:
         version: 8.42.0(eslint@8.57.1)(typescript@5.9.2)
       wrangler:
         specifier: ^4.33.2
-        version: 4.33.2(@cloudflare/workers-types@4.20250903.0)
+        version: 4.33.2(@cloudflare/workers-types@4.20251228.0)
 
 packages:
 
@@ -1194,8 +1194,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20250903.0':
-    resolution: {integrity: sha512-F6G3MG7EZxsJ2Fgsy3eed+U2fU/XGfKqDlyY/vCL/zUqI8KuaNx8GVnxttqzktBY55HK3xe82Zpj8xujW6PfXw==}
+  '@cloudflare/workers-types@4.20251228.0':
+    resolution: {integrity: sha512-lzE1IjLn5TiStPD5+sGZsPSY9sSFSSIujOWb5f6JMnDWkyNzdZOaEVFvx0sw5ztaWWQjK22hjYW7rgb+OFscjg==}
 
   '@contentlayer2/cli@0.5.8':
     resolution: {integrity: sha512-sPXTe24tXPpru6hE45riBj7xjVIDuTfjQXbwitwcNkm0yd0kNJaDPBA2C4U5mRFgg1a/aftlIKeVavlkBnuZQA==}
@@ -6058,6 +6058,7 @@ packages:
   next@15.5.3:
     resolution: {integrity: sha512-r/liNAx16SQj4D+XH/oI1dlpv9tdKJ6cONYPwwcCC46f2NjpaRWY+EKCzULfgQYV6YKXjHBchff2IZBSlZmJNw==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -9317,7 +9318,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20250829.0':
     optional: true
 
-  '@cloudflare/workers-types@4.20250903.0': {}
+  '@cloudflare/workers-types@4.20251228.0': {}
 
   '@contentlayer2/cli@0.5.8(esbuild@0.25.9)':
     dependencies:
@@ -10301,7 +10302,7 @@ snapshots:
       - aws-crt
       - supports-color
 
-  '@opennextjs/cloudflare@1.7.1(wrangler@4.33.2(@cloudflare/workers-types@4.20250903.0))':
+  '@opennextjs/cloudflare@1.7.1(wrangler@4.33.2(@cloudflare/workers-types@4.20251228.0))':
     dependencies:
       '@dotenvx/dotenvx': 1.31.0
       '@opennextjs/aws': 3.7.6
@@ -10309,7 +10310,7 @@ snapshots:
       enquirer: 2.4.1
       glob: 11.0.3
       ts-tqdm: 0.8.6
-      wrangler: 4.33.2(@cloudflare/workers-types@4.20250903.0)
+      wrangler: 4.33.2(@cloudflare/workers-types@4.20251228.0)
       yargs: 18.0.0
     transitivePeerDependencies:
       - aws-crt
@@ -16666,7 +16667,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20250829.0
       '@cloudflare/workerd-windows-64': 1.20250829.0
 
-  wrangler@4.33.2(@cloudflare/workers-types@4.20250903.0):
+  wrangler@4.33.2(@cloudflare/workers-types@4.20251228.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@cloudflare/unenv-preset': 2.7.1(unenv@2.0.0-rc.19)(workerd@1.20250829.0)
@@ -16677,7 +16678,7 @@ snapshots:
       unenv: 2.0.0-rc.19
       workerd: 1.20250829.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20250903.0
+      '@cloudflare/workers-types': 4.20251228.0
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
