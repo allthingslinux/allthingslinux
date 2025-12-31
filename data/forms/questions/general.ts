@@ -27,7 +27,7 @@ export const generalQuestions: FormQuestion[] = [
     name: 'age',
     question: 'Age:',
     description:
-      'We have a minimum age requirement of 18 years old for all roles.',
+      'You must be at least 16 years old to apply for all roles. We prefer applicants who are aged 18 or older.',
     type: 'digits-only',
     minLength: 2,
     maxLength: 2,
