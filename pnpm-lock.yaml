@@ -64,7 +64,7 @@ importers:
         version: 1.1.13(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@stepperize/react':
         specifier: ^5.1.6
-        version: 5.1.6(react@19.1.1)(typescript@5.9.2)
+        version: 5.1.9(react@19.1.1)(typescript@5.9.2)
       '@t3-oss/env-nextjs':
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.9.2)(zod@4.1.9)
@@ -3208,13 +3208,13 @@ packages:
   '@speed-highlight/core@1.2.7':
     resolution: {integrity: sha512-0dxmVj4gxg3Jg879kvFS/msl4s9F3T9UXC1InxgOf7t5NvcPD97u/WTA5vL/IxWHMn7qSxBozqrnnE2wvl1m8g==}
 
-  '@stepperize/core@1.2.6':
-    resolution: {integrity: sha512-6qUGCyI/Rq9tskBCwzJFwOpnT+uCRJTjwCwMiymnCA3utkvejOvfj6EPte21lMJNiqMuMhhKNFukX6ooI/2uSQ==}
+  '@stepperize/core@1.2.7':
+    resolution: {integrity: sha512-XiUwLZ0XRAfaDK6AzWVgqvI/BcrylyplhUXKO8vzgRw0FTmyMKHAAbQLDvU//ZJAqnmG2cSLZDSkcwLxU5zSYA==}
     peerDependencies:
       typescript: '>=5.0.2'
 
-  '@stepperize/react@5.1.6':
-    resolution: {integrity: sha512-XYDcZih8aqXWudyseTNiZLfD8mDZGbiDjd4pN+Xt5J2Z/N6rq4Xn7KLFxoc3jguWdokcseiv6hkBBVpEzTwfVQ==}
+  '@stepperize/react@5.1.9':
+    resolution: {integrity: sha512-yBgw1I5Tx6/qZB4xTdVBaPGfTqH5aYS1WFB5vtR8+fwPeqd3YNuOnQ1pJM6w/xV/gvryuy31hbFw080lZc+/hw==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -6058,6 +6058,7 @@ packages:
   next@15.5.3:
     resolution: {integrity: sha512-r/liNAx16SQj4D+XH/oI1dlpv9tdKJ6cONYPwwcCC46f2NjpaRWY+EKCzULfgQYV6YKXjHBchff2IZBSlZmJNw==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -11510,13 +11511,13 @@ snapshots:
 
   '@speed-highlight/core@1.2.7': {}
 
-  '@stepperize/core@1.2.6(typescript@5.9.2)':
+  '@stepperize/core@1.2.7(typescript@5.9.2)':
     dependencies:
       typescript: 5.9.2
 
-  '@stepperize/react@5.1.6(react@19.1.1)(typescript@5.9.2)':
+  '@stepperize/react@5.1.9(react@19.1.1)(typescript@5.9.2)':
     dependencies:
-      '@stepperize/core': 1.2.6(typescript@5.9.2)
+      '@stepperize/core': 1.2.7(typescript@5.9.2)
       react: 19.1.1
     transitivePeerDependencies:
       - typescript
