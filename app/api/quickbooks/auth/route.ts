@@ -20,7 +20,8 @@ export async function GET(request: NextRequest) {
 
   // QuickBooks requires HTTPS for redirect URIs (except localhost for development)
   if (!host.includes('localhost') && protocol !== 'https') {
-    return new NextResponse(`
+    return new NextResponse(
+      `
       <!DOCTYPE html>
       <html>
       <head><title>HTTPS Required</title></head>
@@ -31,14 +32,17 @@ export async function GET(request: NextRequest) {
         <p>Please access this page via HTTPS or use localhost for development.</p>
       </body>
       </html>
-    `, {
-      headers: { 'Content-Type': 'text/html' },
-      status: 400
-    });
+    `,
+      {
+        headers: { 'Content-Type': 'text/html' },
+        status: 400,
+      }
+    );
   }
 
   if (!clientId) {
-    return new NextResponse(`
+    return new NextResponse(
+      `
       <!DOCTYPE html>
       <html>
       <head><title>QuickBooks Setup Required</title></head>
@@ -53,10 +57,12 @@ export async function GET(request: NextRequest) {
         <p>Missing: <code>QUICKBOOKS_CLIENT_ID</code></p>
       </body>
       </html>
-    `, {
-      headers: { 'Content-Type': 'text/html' },
-      status: 500
-    });
+    `,
+      {
+        headers: { 'Content-Type': 'text/html' },
+        status: 500,
+      }
+    );
   }
 
   // Generate CSRF state token
@@ -163,6 +169,6 @@ export async function GET(request: NextRequest) {
   </html>`;
 
   return new NextResponse(html, {
-    headers: { 'Content-Type': 'text/html' }
+    headers: { 'Content-Type': 'text/html' },
   });
 }

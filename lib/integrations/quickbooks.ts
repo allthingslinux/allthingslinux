@@ -1,7 +1,7 @@
 import { env } from '@/env';
 
 // Cloudflare Workers environment interface
-interface CloudflareEnv {
+interface QuickBooksCloudflareEnv {
   KV_QUICKBOOKS?: KVNamespace;
 }
 
@@ -112,7 +112,7 @@ export interface QuickBooksTransaction {
 
 // Constants
 const API_TIMEOUT_MS = 10000; // 10 seconds
-const TOKEN_CACHE_TTL_MS = 3600000; // 1 hour (tokens typically expire in 1 hour)
+const _TOKEN_CACHE_TTL_MS = 3600000; // 1 hour (tokens typically expire in 1 hour)
 
 // Token cache - uses in-memory for development, but for production
 // Cloudflare deployments, consider using Cloudflare KV for persistence
@@ -137,7 +137,9 @@ const shouldCacheTokens = () => {
  * @param environment - 'sandbox' or 'production'
  * @returns The base URL for QuickBooks API calls
  */
-function getQuickBooksApiBaseUrl(environment: 'sandbox' | 'production'): string {
+function getQuickBooksApiBaseUrl(
+  environment: 'sandbox' | 'production'
+): string {
   return environment === 'sandbox'
     ? 'https://sandbox-quickbooks.api.intuit.com'
     : 'https://quickbooks.api.intuit.com';
@@ -145,12 +147,14 @@ function getQuickBooksApiBaseUrl(environment: 'sandbox' | 'production'): string 
 
 // Discovery document URLs
 const DISCOVERY_URLS = {
-  sandbox: 'https://developer.api.intuit.com/.well-known/openid_sandbox_configuration',
-  production: 'https://developer.api.intuit.com/.well-known/openid_configuration'
+  sandbox:
+    'https://developer.api.intuit.com/.well-known/openid_sandbox_configuration',
+  production:
+    'https://developer.api.intuit.com/.well-known/openid_configuration',
 } as const;
 
 // Cache for discovery documents
-let discoveryCache: Record<string, any> = {};
+const discoveryCache: Record<string, unknown> = {};
 
 /**
  * Fetches discovery document for the given environment
@@ -158,25 +162,28 @@ let discoveryCache: Record<string, any> = {};
  */
 async function getDiscoveryDocument(environment: 'sandbox' | 'production') {
   const cacheKey = environment;
-  
+
   if (discoveryCache[cacheKey]) {
     return discoveryCache[cacheKey];
   }
 
   try {
     const response = await fetch(DISCOVERY_URLS[environment], {
-      headers: { Accept: 'application/json' }
+      headers: { Accept: 'application/json' },
     });
-    
+
     if (!response.ok) {
       throw new Error(`Discovery document fetch failed: ${response.status}`);
     }
-    
+
     const doc = await response.json();
     discoveryCache[cacheKey] = doc;
     return doc;
   } catch (error) {
-    console.warn(`Failed to fetch discovery document for ${environment}:`, error);
+    console.warn(
+      `Failed to fetch discovery document for ${environment}:`,
+      error
+    );
     // Fallback to hardcoded URLs
     return null;
   }
@@ -186,13 +193,15 @@ async function getDiscoveryDocument(environment: 'sandbox' | 'production') {
  * Gets the QuickBooks OAuth authorization URL based on environment
  * Uses discovery document when available, falls back to hardcoded URL
  */
-export async function getQuickBooksAuthUrl(environment: 'sandbox' | 'production'): Promise<string> {
+export async function getQuickBooksAuthUrl(
+  environment: 'sandbox' | 'production'
+): Promise<string> {
   const discovery = await getDiscoveryDocument(environment);
-  
-  if (discovery?.authorization_endpoint) {
-    return discovery.authorization_endpoint;
+
+  if ((discovery as any)?.authorization_endpoint) {
+    return (discovery as any).authorization_endpoint;
   }
-  
+
   // Fallback to hardcoded URL (same for both environments per discovery docs)
   return 'https://appcenter.intuit.com/connect/oauth2';
 }
@@ -201,13 +210,15 @@ export async function getQuickBooksAuthUrl(environment: 'sandbox' | 'production'
  * Gets the QuickBooks OAuth token exchange URL
  * Uses discovery document when available, falls back to hardcoded URL
  */
-async function getQuickBooksOAuthTokenUrl(environment: 'sandbox' | 'production' = 'production'): Promise<string> {
+async function getQuickBooksOAuthTokenUrl(
+  environment: 'sandbox' | 'production' = 'production'
+): Promise<string> {
   const discovery = await getDiscoveryDocument(environment);
-  
-  if (discovery?.token_endpoint) {
-    return discovery.token_endpoint;
+
+  if ((discovery as any)?.token_endpoint) {
+    return (discovery as any).token_endpoint;
   }
-  
+
   // Fallback to hardcoded URL (same for both environments per discovery docs)
   return 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 }
@@ -233,7 +244,7 @@ export async function getAccessToken(
   clientId: string,
   clientSecret: string,
   refreshToken: string,
-  cfEnv?: CloudflareEnv,
+  cfEnv?: QuickBooksCloudflareEnv,
   environment: 'sandbox' | 'production' = 'production'
 ): Promise<{ accessToken: string; newRefreshToken?: string } | null> {
   // Check cache first (skip in Cloudflare Workers for reliability)
@@ -252,7 +263,8 @@ export async function getAccessToken(
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization:
-          'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
+          'Basic ' +
+          Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',
@@ -266,7 +278,7 @@ export async function getAccessToken(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Token refresh failed:', errorText);
-      
+
       // Handle rate limiting (429 Too Many Requests)
       if (response.status === 429) {
         const retryAfter = response.headers.get('Retry-After');
@@ -274,16 +286,16 @@ export async function getAccessToken(
           `Rate limited by QuickBooks API. Retry after: ${retryAfter || 'unknown'} seconds`
         );
       }
-      
+
       return null;
     }
 
     const tokens = (await response.json()) as QuickBooksTokenResponse;
-    
+
     // Cache the token (subtract 5 minutes from expiry for safety margin)
     const expiresInMs = (tokens.expires_in - 300) * 1000; // Convert to ms, subtract 5 min
     const now = Date.now();
-    
+
     tokenCache = {
       accessToken: tokens.access_token,
       expiresAt: now + expiresInMs,
@@ -293,32 +305,36 @@ export async function getAccessToken(
 
     // Check if refresh token changed (happens every 24 hours per QuickBooks FAQ)
     const refreshTokenChanged = tokens.refresh_token !== refreshToken;
-    
+
     if (refreshTokenChanged) {
       console.log('🔄 QuickBooks refresh token rotated (24hr security update)');
-      
+
       // Save new refresh token to storage
       if (cfEnv?.KV_QUICKBOOKS) {
         try {
-          const existingTokens = await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens');
+          const existingTokens =
+            await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens');
           if (existingTokens) {
             const tokenData = JSON.parse(existingTokens);
             tokenData.refreshToken = tokens.refresh_token;
             tokenData.lastUpdated = new Date().toISOString();
-            await cfEnv.KV_QUICKBOOKS.put('quickbooks_tokens', JSON.stringify(tokenData));
+            await cfEnv.KV_QUICKBOOKS.put(
+              'quickbooks_tokens',
+              JSON.stringify(tokenData)
+            );
             console.log('✅ New refresh token saved to KV storage');
           }
         } catch (error) {
           console.warn('Failed to update refresh token in KV:', error);
         }
       }
-      
-      return { 
-        accessToken: tokens.access_token, 
-        newRefreshToken: tokens.refresh_token 
+
+      return {
+        accessToken: tokens.access_token,
+        newRefreshToken: tokens.refresh_token,
       };
     }
-    
+
     return { accessToken: tokens.access_token };
   } catch (error) {
     clearTimeout(timeoutId);
@@ -363,24 +379,39 @@ async function fetchQuickBooksEntities<T extends QuickBooksEntity>(
     // Handle rate limiting (429 Too Many Requests)
     if (response.status === 429) {
       const retryAfter = response.headers.get('Retry-After');
-      const retryDelay = retryAfter ? parseInt(retryAfter, 10) * 1000 : Math.min(1000 * Math.pow(2, retryCount), 30000);
-      
+      const retryDelay = retryAfter
+        ? parseInt(retryAfter, 10) * 1000
+        : Math.min(1000 * Math.pow(2, retryCount), 30000);
+
       console.warn(
         `Rate limited when fetching ${entityType}. Retrying after ${retryDelay}ms (attempt ${retryCount + 1}/3)`
       );
-      
+
       if (retryCount < 3) {
         await new Promise((resolve) => setTimeout(resolve, retryDelay));
-        return fetchQuickBooksEntities(baseUrl, realmId, accessToken, entityType, mapEntity, retryCount + 1);
+        return fetchQuickBooksEntities(
+          baseUrl,
+          realmId,
+          accessToken,
+          entityType,
+          mapEntity,
+          retryCount + 1
+        );
       }
-      
-      console.error(`Max retries reached for ${entityType} due to rate limiting`);
+
+      console.error(
+        `Max retries reached for ${entityType} due to rate limiting`
+      );
       return [];
     }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.warn(`Failed to fetch ${entityType}:`, response.status, errorText);
+      console.warn(
+        `Failed to fetch ${entityType}:`,
+        response.status,
+        errorText
+      );
       return [];
     }
 
@@ -402,7 +433,7 @@ async function fetchQuickBooksEntities<T extends QuickBooksEntity>(
  * Fetches all QuickBooks transactions (Purchases, Invoices, Payments, Deposits)
  */
 // Cloudflare Workers compatible token storage
-async function getStoredTokens(cfEnv?: CloudflareEnv) {
+async function getStoredTokens(cfEnv?: QuickBooksCloudflareEnv) {
   // Try Cloudflare KV first (production)
   if (cfEnv?.KV_QUICKBOOKS) {
     try {
@@ -419,20 +450,26 @@ async function getStoredTokens(cfEnv?: CloudflareEnv) {
     clientSecret: env.QUICKBOOKS_CLIENT_SECRET,
     refreshToken: env.QUICKBOOKS_REFRESH_TOKEN,
     realmId: env.QUICKBOOKS_REALM_ID,
-    environment: env.QUICKBOOKS_ENVIRONMENT || 'sandbox'
+    environment: env.QUICKBOOKS_ENVIRONMENT || 'sandbox',
   };
 }
 
-async function saveTokens(tokens: {
-  refreshToken: string;
-  realmId: string;
-  clientId?: string;
-  environment?: string;
-}, cfEnv?: CloudflareEnv) {
+async function saveTokens(
+  tokens: {
+    refreshToken: string;
+    realmId: string;
+    clientId?: string;
+    environment?: string;
+  },
+  cfEnv?: QuickBooksCloudflareEnv
+) {
   // Try Cloudflare KV first (production)
   if (cfEnv?.KV_QUICKBOOKS) {
     try {
-      await cfEnv.KV_QUICKBOOKS.put('quickbooks_tokens', JSON.stringify(tokens));
+      await cfEnv.KV_QUICKBOOKS.put(
+        'quickbooks_tokens',
+        JSON.stringify(tokens)
+      );
       console.log('✅ Tokens saved to Cloudflare KV');
       return true;
     } catch (error) {
@@ -441,20 +478,28 @@ async function saveTokens(tokens: {
   }
 
   // Fallback: log for manual setup (development)
-  console.log('🔑 QuickBooks OAuth Setup - Copy these to your environment variables:');
+  console.log(
+    '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
+  );
   console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`);
   console.log(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
   if (tokens.clientId) console.log(`QUICKBOOKS_CLIENT_ID=${tokens.clientId}`);
-  if (tokens.environment) console.log(`QUICKBOOKS_ENVIRONMENT=${tokens.environment}`);
+  if (tokens.environment)
+    console.log(`QUICKBOOKS_ENVIRONMENT=${tokens.environment}`);
   return false;
 }
 
-export async function fetchQuickBooksTransactions(cfEnv?: CloudflareEnv): Promise<
-  QuickBooksTransaction[]
-> {
+export async function fetchQuickBooksTransactions(
+  cfEnv?: QuickBooksCloudflareEnv
+): Promise<QuickBooksTransaction[]> {
   const tokens = await getStoredTokens(cfEnv);
 
-  if (!tokens.clientId || !tokens.clientSecret || !tokens.refreshToken || !tokens.realmId) {
+  if (
+    !tokens.clientId ||
+    !tokens.clientSecret ||
+    !tokens.refreshToken ||
+    !tokens.realmId
+  ) {
     console.warn(
       'QuickBooks credentials not configured - returning empty data'
     );
@@ -462,7 +507,13 @@ export async function fetchQuickBooksTransactions(cfEnv?: CloudflareEnv): Promis
   }
 
   // Get access token (with caching and refresh token rotation handling)
-  const tokenResult = await getAccessToken(tokens.clientId, tokens.clientSecret, tokens.refreshToken, cfEnv, tokens.environment);
+  const tokenResult = await getAccessToken(
+    tokens.clientId,
+    tokens.clientSecret,
+    tokens.refreshToken,
+    cfEnv,
+    tokens.environment
+  );
   if (!tokenResult) {
     console.error('Failed to get access token');
     return [];
@@ -473,10 +524,13 @@ export async function fetchQuickBooksTransactions(cfEnv?: CloudflareEnv): Promis
   // If refresh token was rotated, we should update our stored tokens
   if (newRefreshToken && newRefreshToken !== tokens.refreshToken) {
     console.log('🔄 Updating stored refresh token due to rotation');
-    await saveTokens({
-      ...tokens,
-      refreshToken: newRefreshToken,
-    }, cfEnv);
+    await saveTokens(
+      {
+        ...tokens,
+        refreshToken: newRefreshToken,
+      },
+      cfEnv
+    );
   }
 
   // Get the correct base URL based on environment
@@ -583,7 +637,8 @@ export async function exchangeAuthorizationCode(
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization:
-          'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
+          'Basic ' +
+          Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
@@ -598,7 +653,7 @@ export async function exchangeAuthorizationCode(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Token exchange failed:', errorText);
-      
+
       // Handle rate limiting
       if (response.status === 429) {
         const retryAfter = response.headers.get('Retry-After');
@@ -606,7 +661,7 @@ export async function exchangeAuthorizationCode(
           `Rate limited during token exchange. Retry after: ${retryAfter || 'unknown'} seconds`
         );
       }
-      
+
       return null;
     }
 

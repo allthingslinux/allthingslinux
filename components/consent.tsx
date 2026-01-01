@@ -1,4 +1,9 @@
-import { MdOutlinePrivacyTip, MdCookie, MdGavel, MdSecurity } from 'react-icons/md';
+import {
+  MdOutlinePrivacyTip,
+  MdCookie,
+  MdGavel,
+  MdSecurity,
+} from 'react-icons/md';
 
 const Privacy = () => {
   return (

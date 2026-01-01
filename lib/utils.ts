@@ -94,26 +94,35 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
             // Handle select fields with comprehensive validation
             const selectOptions = curr.options as [string, ...string[]];
 
-            const selectSchema = z.union([
-              // Accept a valid enum value
-              z.enum(selectOptions),
-              // Accept an empty string (unselected state)
-              z.literal(''),
-              // Handle case where options array is mistakenly passed
-              z.array(z.string()).transform(() => ''),
-              // Handle any other unexpected input
-              z.any().transform((val) => {
-                console.warn(`Field ${curr.name} received unexpected value:`, val, typeof val);
-                return '';
-              })
-            ]).transform((val) => {
-              // Ensure we always return a string
-              if (typeof val !== 'string') {
-                console.warn(`Field ${curr.name} transformed non-string to empty string:`, val);
-                return '';
-              }
-              return val;
-            });
+            const selectSchema = z
+              .union([
+                // Accept a valid enum value
+                z.enum(selectOptions),
+                // Accept an empty string (unselected state)
+                z.literal(''),
+                // Handle case where options array is mistakenly passed
+                z.array(z.string()).transform(() => ''),
+                // Handle any other unexpected input
+                z.any().transform((val) => {
+                  console.warn(
+                    `Field ${curr.name} received unexpected value:`,
+                    val,
+                    typeof val
+                  );
+                  return '';
+                }),
+              ])
+              .transform((val) => {
+                // Ensure we always return a string
+                if (typeof val !== 'string') {
+                  console.warn(
+                    `Field ${curr.name} transformed non-string to empty string:`,
+                    val
+                  );
+                  return '';
+                }
+                return val;
+              });
 
             acc[curr.name] =
               curr.optional || isConditional
@@ -121,7 +130,8 @@ export const generateFormSchema = (questions: FormQuestion[]) => {
                 : selectSchema.refine((val) => val && val.length > 0, {
                     message: 'Please select an option',
                   });
-            break;          default:
+            break;
+          default:
             acc[curr.name] = z.string().optional();
         }
         return acc;

@@ -5,9 +5,7 @@
   "main": ".open-next/worker.js",
   "name": "allthingslinux-production", // Default name, overridden by production env below
   "compatibility_date": "2025-04-02",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   // Worker size and performance optimizations
   "find_additional_modules": true,
   "preserve_file_names": false,
@@ -51,8 +49,8 @@
         {
           "binding": "KV_QUICKBOOKS",
           "id": "34e1630d0fea4741934035127ab88c39",
-          "preview_id": "34e1630d0fea4741934035127ab88c39"
-        }
+          "preview_id": "34e1630d0fea4741934035127ab88c39",
+        },
       ],
       // Environment variables for production
       "vars": {

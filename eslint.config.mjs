@@ -24,6 +24,8 @@ const eslintConfig = [
       '.open-next/**',
       'worker-configuration.d.ts',
       'cloudflare-env.d.ts',
+      'next-env.d.ts',
+      '.wrangler/**',
     ],
   },
   ...compat.config({

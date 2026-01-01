@@ -43,13 +43,11 @@ Deployments are automated via Cloudflare's Git integration, deploying the `main`
 ## Local Development
 
 1.  **Secrets (`.dev.vars`):**
-
     - Create a `.dev.vars` file in the project root. This file is ignored by Git (`.gitignore`).
     - Add the required environment variables and secrets needed for local development (e.g., `GITHUB_TOKEN`, `MONDAY_API_KEY`, `MONDAY_BOARD_ID`, `DISCORD_WEBHOOK_URL`, `TRIGGER_SECRET_KEY`). Use the format `KEY=VALUE`, one per line.
     - Refer to `wrangler.local.jsonc` (`vars` section) for the expected variable names.
 
 2.  **Run Development Servers:**
-
     - To start all necessary development servers (Next.js, Wrangler, Trigger.dev) concurrently, run:
       ```bash
       pnpm run dev:all

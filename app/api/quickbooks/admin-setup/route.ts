@@ -8,14 +8,17 @@ export async function GET(request: NextRequest) {
   // Only allow in development or with admin key
   const adminKey = request.nextUrl.searchParams.get('admin');
   const isDev = process.env.NODE_ENV === 'development';
-  
+
   if (!isDev && adminKey !== process.env.ADMIN_SETUP_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const clientId = process.env.QUICKBOOKS_CLIENT_ID;
   if (!clientId) {
-    return NextResponse.json({ error: 'Missing QUICKBOOKS_CLIENT_ID' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Missing QUICKBOOKS_CLIENT_ID' },
+      { status: 500 }
+    );
   }
 
   const redirectUri = `${request.nextUrl.origin}/api/quickbooks/callback`;

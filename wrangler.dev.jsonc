@@ -58,8 +58,8 @@
         {
           "binding": "KV_QUICKBOOKS",
           "id": "b58a50d9090b46a181322eb96d0c8c90",
-          "preview_id": "b58a50d9090b46a181322eb96d0c8c90"
-        }
+          "preview_id": "b58a50d9090b46a181322eb96d0c8c90",
+        },
       ],
 
       // Environment variables for preview deployments

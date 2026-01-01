@@ -30,8 +30,11 @@ export async function middleware(request: NextRequest) {
 
     // Apply rate limiting based on the endpoint
     let rateLimitResponse = null;
-    
-    if (request.nextUrl.pathname.includes('/forms/') && request.method === 'POST') {
+
+    if (
+      request.nextUrl.pathname.includes('/forms/') &&
+      request.method === 'POST'
+    ) {
       // Apply stricter rate limiting for form submissions
       rateLimitResponse = await formSubmissionRateLimit(request);
     } else {

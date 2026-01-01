@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { exchangeAuthorizationCode, saveTokens } from '@/lib/integrations/quickbooks';
+import {
+  exchangeAuthorizationCode,
+  saveTokens,
+} from '@/lib/integrations/quickbooks';
 import { env } from '@/env';
+
+// Import the type we need
+type QuickBooksCloudflareEnv = {
+  KV_QUICKBOOKS?: KVNamespace;
+};
 
 export const runtime = 'nodejs';
 
@@ -89,11 +97,11 @@ export async function GET(request: NextRequest) {
       clientId,
       refreshToken: tokens.refresh_token,
       realmId,
-      environment: env.QUICKBOOKS_ENVIRONMENT || 'sandbox'
+      environment: env.QUICKBOOKS_ENVIRONMENT || 'sandbox',
     };
 
     // Get Cloudflare environment if available
-    const cfEnv = (request as any).env;
+    const cfEnv = (request as { env?: QuickBooksCloudflareEnv }).env;
 
     if (isAdminSetup) {
       // Admin setup - show tokens directly
@@ -112,7 +120,7 @@ QUICKBOOKS_REALM_ID=${realmId}
       </html>`;
 
       return new NextResponse(html, {
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 'Content-Type': 'text/html' },
       });
     }
 
@@ -123,13 +131,19 @@ QUICKBOOKS_REALM_ID=${realmId}
     } else {
       // Fallback for development/local environments
       console.log('');
-      console.log('🔑 QuickBooks OAuth Setup - Copy these to your environment variables:');
+      console.log(
+        '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
+      );
       console.log(`QUICKBOOKS_CLIENT_ID=${clientId}`);
       console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refresh_token}`);
       console.log(`QUICKBOOKS_REALM_ID=${realmId}`);
-      console.log(`QUICKBOOKS_ENVIRONMENT=${env.QUICKBOOKS_ENVIRONMENT || 'sandbox'}`);
+      console.log(
+        `QUICKBOOKS_ENVIRONMENT=${env.QUICKBOOKS_ENVIRONMENT || 'sandbox'}`
+      );
       console.log('');
-      console.log('Add these to your .env.local file and restart your dev server.');
+      console.log(
+        'Add these to your .env.local file and restart your dev server.'
+      );
       console.log('');
     }
 
@@ -161,8 +175,7 @@ QUICKBOOKS_REALM_ID=${realmId}
     return NextResponse.json(
       {
         error: 'Internal server error',
-        details:
-          error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

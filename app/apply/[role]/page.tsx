@@ -45,7 +45,9 @@ export default function RoleApplicationPage() {
 
       // Add all form fields to FormData
       Object.entries(data).forEach(([key, value]) => {
-        console.log(`Processing field: ${key} = ${value} (type: ${typeof value})`);
+        console.log(
+          `Processing field: ${key} = ${value} (type: ${typeof value})`
+        );
         if (value instanceof File) {
           formData.append(key, value);
         } else if (value === null || value === undefined) {

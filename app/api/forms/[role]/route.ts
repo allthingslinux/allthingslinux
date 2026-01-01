@@ -12,12 +12,13 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(
   req: NextRequest,
-  context: { params: { role: string } }
+  context: { params: Promise<{ role: string }> }
 ) {
   try {
     console.log('POST request received for application submission');
 
-    // Apply additional rate limiting at the route level
+    // Await params in Next.js 15+
+    const { role } = await context.params;
     const rateLimitResponse = await formSubmissionRateLimit(req);
     if (rateLimitResponse) {
       console.log('Rate limit exceeded for form submission');
@@ -52,9 +53,7 @@ export async function POST(
     );
 
     // Get role and questions
-
-    const params = await context.params;
-    const roleSlug = params.role;
+    const roleSlug = role;
 
     console.log(`Processing application for role: ${roleSlug}`);
 
@@ -106,7 +105,9 @@ export async function POST(
 
     // Validate required fields
     const requiredFields = ['discord_username', 'discord_id'];
-    const missingFields = requiredFields.filter((field) => !typedFormObject[field]);
+    const missingFields = requiredFields.filter(
+      (field) => !typedFormObject[field]
+    );
 
     if (missingFields.length > 0) {
       console.error(`Missing required fields: ${missingFields.join(', ')}`);

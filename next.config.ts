@@ -1,3 +1,4 @@
+import { cpus } from 'node:os';
 import type { NextConfig } from 'next';
 import { withContentlayer } from 'next-contentlayer2';
 
@@ -11,9 +12,12 @@ const nextConfig: NextConfig = {
   compress: true,
   compiler: {
     // Remove console logs for better performance in production
-    removeConsole: process.env.NODE_ENV === 'production' ? true : {
-      exclude: ['error', 'warn'],
-    },
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? true
+        : {
+            exclude: ['error', 'warn'],
+          },
     // Enable emotion optimization if used
     emotion: true,
     // Remove React properties in production
@@ -45,7 +49,7 @@ const nextConfig: NextConfig = {
     // Use SWC for faster compilation
     swcTraceProfiling: false,
     // Enable build worker threads
-    cpus: Math.max(1, Math.floor(require('os').cpus().length / 2)),
+    cpus: Math.max(1, Math.floor(cpus().length / 2)),
   },
   // Add headers for API endpoints
   async headers() {

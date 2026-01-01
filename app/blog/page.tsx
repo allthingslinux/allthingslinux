@@ -1,10 +1,8 @@
 import { getAllPosts, getAllCategories } from '@/lib/blog';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getPageMetadata } from '../metadata';
-import { getApiUrl } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {

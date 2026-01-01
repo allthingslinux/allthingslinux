@@ -29,9 +29,7 @@ export const env = createEnv({
     QUICKBOOKS_REALM_ID: z.string().optional(),
     // QuickBooks Environment: 'sandbox' for development/testing, 'production' for live data
     // Defaults to 'sandbox' in development, 'production' in production (handled in runtimeEnv)
-    QUICKBOOKS_ENVIRONMENT: z
-      .enum(['sandbox', 'production'])
-      .optional(),
+    QUICKBOOKS_ENVIRONMENT: z.enum(['sandbox', 'production']).optional(),
 
     // Server configuration
     NODE_ENV: z
@@ -71,7 +69,10 @@ export const env = createEnv({
     QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
     QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
     QUICKBOOKS_ENVIRONMENT:
-      (process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production' | undefined) ||
+      (process.env.QUICKBOOKS_ENVIRONMENT as
+        | 'sandbox'
+        | 'production'
+        | undefined) ||
       (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
     // Client variables
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
@@ -111,7 +112,10 @@ export const cloudflareEnv = {
   QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
   QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
   QUICKBOOKS_ENVIRONMENT:
-    (process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production' | undefined) ||
+    (process.env.QUICKBOOKS_ENVIRONMENT as
+      | 'sandbox'
+      | 'production'
+      | undefined) ||
     (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
 
   // Client variables
