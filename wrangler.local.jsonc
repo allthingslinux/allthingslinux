@@ -42,6 +42,15 @@
     },
   ],
 
+  // KV Namespaces for Local Development
+  "kv_namespaces": [
+    {
+      "binding": "KV_QUICKBOOKS",
+      "id": "b58a50d9090b46a181322eb96d0c8c90",
+      "preview_id": "b58a50d9090b46a181322eb96d0c8c90"
+    }
+  ],
+
   // Environment variables for local development (loaded from `.dev.vars` by `wrangler dev`)
   "vars": {
     // Public vars (available to browser via process.env in Next.js)

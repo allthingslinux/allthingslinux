@@ -25,9 +25,13 @@ export const env = createEnv({
     // QuickBooks API
     QUICKBOOKS_CLIENT_ID: z.string().optional(),
     QUICKBOOKS_CLIENT_SECRET: z.string().optional(),
-    QUICKBOOKS_ACCESS_TOKEN: z.string().optional(),
     QUICKBOOKS_REFRESH_TOKEN: z.string().optional(),
     QUICKBOOKS_REALM_ID: z.string().optional(),
+    // QuickBooks Environment: 'sandbox' for development/testing, 'production' for live data
+    // Defaults to 'sandbox' in development, 'production' in production (handled in runtimeEnv)
+    QUICKBOOKS_ENVIRONMENT: z
+      .enum(['sandbox', 'production'])
+      .optional(),
 
     // Server configuration
     NODE_ENV: z
@@ -64,9 +68,11 @@ export const env = createEnv({
     TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
     QUICKBOOKS_CLIENT_ID: process.env.QUICKBOOKS_CLIENT_ID,
     QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
-    QUICKBOOKS_ACCESS_TOKEN: process.env.QUICKBOOKS_ACCESS_TOKEN,
     QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
     QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
+    QUICKBOOKS_ENVIRONMENT:
+      (process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production' | undefined) ||
+      (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
     // Client variables
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -102,9 +108,11 @@ export const cloudflareEnv = {
   TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
   QUICKBOOKS_CLIENT_ID: process.env.QUICKBOOKS_CLIENT_ID,
   QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
-  QUICKBOOKS_ACCESS_TOKEN: process.env.QUICKBOOKS_ACCESS_TOKEN,
   QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
   QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
+  QUICKBOOKS_ENVIRONMENT:
+    (process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production' | undefined) ||
+    (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
 
   // Client variables
   NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,

@@ -46,6 +46,14 @@
           "bucket_name": "allthingslinux-cache-production",
         },
       ],
+      // KV Namespaces for Production
+      "kv_namespaces": [
+        {
+          "binding": "KV_QUICKBOOKS",
+          "id": "34e1630d0fea4741934035127ab88c39",
+          "preview_id": "34e1630d0fea4741934035127ab88c39"
+        }
+      ],
       // Environment variables for production
       "vars": {
         // Public vars (available to browser via process.env in Next.js)
