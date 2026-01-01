@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { fetchQuickBooksTransactions } from '@/lib/integrations/quickbooks';
+import { fetchQuickBooksTransactions, type QuickBooksCloudflareEnv } from '@/lib/integrations/quickbooks';
 
-// Import the type we need
-type QuickBooksCloudflareEnv = {
-  KV_QUICKBOOKS?: KVNamespace;
-};
+// Extend NextRequest to include Cloudflare environment
+interface CloudflareNextRequest extends NextRequest {
+  env?: QuickBooksCloudflareEnv;
+}
 
-// Cloudflare Workers runtime
-export const runtime = 'edge';
+// Cloudflare Workers runtime - using nodejs for Buffer/crypto compatibility
+export const runtime = 'nodejs';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: CloudflareNextRequest) {
   try {
     // Get Cloudflare environment from request
-    const cfEnv = (request as { env?: QuickBooksCloudflareEnv }).env;
+    const cfEnv = request.env;
 
     // Fetch transactions with Cloudflare environment
     const transactions = await fetchQuickBooksTransactions(cfEnv);
@@ -38,14 +38,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: CloudflareNextRequest) {
   try {
     const body: { action?: string } = await request.json();
     const { action } = body;
 
     if (action === 'refresh_tokens') {
       // Force token refresh by clearing cache and fetching new data
-      const cfEnv = (request as { env?: QuickBooksCloudflareEnv }).env;
+      const cfEnv = request.env;
       const transactions = await fetchQuickBooksTransactions(cfEnv);
 
       return NextResponse.json({

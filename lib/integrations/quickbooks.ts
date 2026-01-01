@@ -1,7 +1,7 @@
 import { env } from '@/env';
 
 // Cloudflare Workers environment interface
-interface QuickBooksCloudflareEnv {
+export interface QuickBooksCloudflareEnv {
   KV_QUICKBOOKS?: KVNamespace;
 }
 
@@ -112,7 +112,6 @@ export interface QuickBooksTransaction {
 
 // Constants
 const API_TIMEOUT_MS = 10000; // 10 seconds
-const _TOKEN_CACHE_TTL_MS = 3600000; // 1 hour (tokens typically expire in 1 hour)
 
 // Token cache - uses in-memory for development, but for production
 // Cloudflare deployments, consider using Cloudflare KV for persistence
@@ -153,14 +152,21 @@ const DISCOVERY_URLS = {
     'https://developer.api.intuit.com/.well-known/openid_configuration',
 } as const;
 
+// Discovery document interface
+interface DiscoveryDocument {
+  authorization_endpoint?: string;
+  token_endpoint?: string;
+  [key: string]: unknown;
+}
+
 // Cache for discovery documents
-const discoveryCache: Record<string, unknown> = {};
+const discoveryCache: Record<string, DiscoveryDocument> = {};
 
 /**
  * Fetches discovery document for the given environment
  * Caches the result to avoid repeated requests
  */
-async function getDiscoveryDocument(environment: 'sandbox' | 'production') {
+async function getDiscoveryDocument(environment: 'sandbox' | 'production'): Promise<DiscoveryDocument | null> {
   const cacheKey = environment;
 
   if (discoveryCache[cacheKey]) {
@@ -176,7 +182,7 @@ async function getDiscoveryDocument(environment: 'sandbox' | 'production') {
       throw new Error(`Discovery document fetch failed: ${response.status}`);
     }
 
-    const doc = await response.json();
+    const doc = await response.json() as DiscoveryDocument;
     discoveryCache[cacheKey] = doc;
     return doc;
   } catch (error) {
@@ -198,8 +204,8 @@ export async function getQuickBooksAuthUrl(
 ): Promise<string> {
   const discovery = await getDiscoveryDocument(environment);
 
-  if ((discovery as any)?.authorization_endpoint) {
-    return (discovery as any).authorization_endpoint;
+  if (discovery?.authorization_endpoint) {
+    return discovery.authorization_endpoint;
   }
 
   // Fallback to hardcoded URL (same for both environments per discovery docs)
@@ -215,8 +221,8 @@ async function getQuickBooksOAuthTokenUrl(
 ): Promise<string> {
   const discovery = await getDiscoveryDocument(environment);
 
-  if ((discovery as any)?.token_endpoint) {
-    return (discovery as any).token_endpoint;
+  if (discovery?.token_endpoint) {
+    return discovery.token_endpoint;
   }
 
   // Fallback to hardcoded URL (same for both environments per discovery docs)
@@ -438,13 +444,17 @@ async function getStoredTokens(cfEnv?: QuickBooksCloudflareEnv) {
   if (cfEnv?.KV_QUICKBOOKS) {
     try {
       const tokens = await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens');
-      return tokens ? JSON.parse(tokens) : null;
+      if (tokens) {
+        return JSON.parse(tokens);
+      }
+      // If KV exists but key is missing, fall through to environment variables
     } catch (error) {
       console.warn('Failed to read from KV:', error);
+      // Fall through to environment variables on error
     }
   }
 
-  // Fallback to environment variables (development)
+  // Fallback to environment variables (development or KV not available)
   return {
     clientId: env.QUICKBOOKS_CLIENT_ID,
     clientSecret: env.QUICKBOOKS_CLIENT_SECRET,
@@ -459,6 +469,7 @@ async function saveTokens(
     refreshToken: string;
     realmId: string;
     clientId?: string;
+    clientSecret?: string;
     environment?: string;
   },
   cfEnv?: QuickBooksCloudflareEnv
@@ -478,14 +489,16 @@ async function saveTokens(
   }
 
   // Fallback: log for manual setup (development)
-  console.log(
-    '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
-  );
-  console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`);
-  console.log(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
-  if (tokens.clientId) console.log(`QUICKBOOKS_CLIENT_ID=${tokens.clientId}`);
-  if (tokens.environment)
-    console.log(`QUICKBOOKS_ENVIRONMENT=${tokens.environment}`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(
+      '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
+    );
+    console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`);
+    console.log(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
+    if (tokens.clientId) console.log(`QUICKBOOKS_CLIENT_ID=${tokens.clientId}`);
+    if (tokens.environment)
+      console.log(`QUICKBOOKS_ENVIRONMENT=${tokens.environment}`);
+  }
   return false;
 }
 

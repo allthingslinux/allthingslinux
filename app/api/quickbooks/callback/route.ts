@@ -3,17 +3,18 @@ import type { NextRequest } from 'next/server';
 import {
   exchangeAuthorizationCode,
   saveTokens,
+  type QuickBooksCloudflareEnv,
 } from '@/lib/integrations/quickbooks';
 import { env } from '@/env';
 
-// Import the type we need
-type QuickBooksCloudflareEnv = {
-  KV_QUICKBOOKS?: KVNamespace;
-};
+// Extend NextRequest to include Cloudflare environment
+interface CloudflareNextRequest extends NextRequest {
+  env?: QuickBooksCloudflareEnv;
+}
 
 export const runtime = 'nodejs';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: CloudflareNextRequest) {
   const { nextUrl, cookies, headers } = request;
   const { searchParams } = nextUrl;
   const code = searchParams.get('code');
@@ -43,10 +44,12 @@ export async function GET(request: NextRequest) {
 
   // Validate CSRF state token
   const storedState = cookies.get('qb_oauth_state')?.value;
-  const isAdminSetup = state === 'admin-setup';
-
-  if (!isAdminSetup && (!storedState || storedState !== state)) {
-    console.error('CSRF state validation failed');
+  
+  if (!storedState || storedState !== state) {
+    console.error('CSRF state validation failed', { 
+      storedState: storedState ? '[REDACTED]' : 'missing',
+      receivedState: state ? '[REDACTED]' : 'missing'
+    });
     return NextResponse.json(
       { error: 'Invalid state parameter. Possible CSRF attack.' },
       { status: 403 }
@@ -54,8 +57,6 @@ export async function GET(request: NextRequest) {
   }
 
   // Clear the state cookie after validation
-  const response = new NextResponse();
-  response.cookies.delete('qb_oauth_state');
 
   const clientId = env.QUICKBOOKS_CLIENT_ID;
   const clientSecret = env.QUICKBOOKS_CLIENT_SECRET;
@@ -95,56 +96,39 @@ export async function GET(request: NextRequest) {
     // Automatically save tokens
     const tokenData = {
       clientId,
+      clientSecret,
       refreshToken: tokens.refresh_token,
       realmId,
       environment: env.QUICKBOOKS_ENVIRONMENT || 'sandbox',
     };
 
     // Get Cloudflare environment if available
-    const cfEnv = (request as { env?: QuickBooksCloudflareEnv }).env;
+    const cfEnv = request.env;
 
-    if (isAdminSetup) {
-      // Admin setup - show tokens directly
-      const html = `<!DOCTYPE html>
-      <html>
-      <head><title>Admin Setup Complete</title></head>
-      <body style="font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px;">
-        <h1>🔧 Admin Setup Complete</h1>
-        <p><strong>Add these to your .env.local:</strong></p>
-        <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;">
-QUICKBOOKS_REFRESH_TOKEN=${tokens.refresh_token}
-QUICKBOOKS_REALM_ID=${realmId}
-        </pre>
-        <p>Then restart your dev server.</p>
-      </body>
-      </html>`;
-
-      return new NextResponse(html, {
-        headers: { 'Content-Type': 'text/html' },
-      });
-    }
-
+    // Save tokens automatically
     const saved = await saveTokens(tokenData, cfEnv);
 
     if (saved) {
       console.log('✅ QuickBooks tokens automatically saved to Cloudflare KV');
     } else {
-      // Fallback for development/local environments
-      console.log('');
-      console.log(
-        '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
-      );
-      console.log(`QUICKBOOKS_CLIENT_ID=${clientId}`);
-      console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refresh_token}`);
-      console.log(`QUICKBOOKS_REALM_ID=${realmId}`);
-      console.log(
-        `QUICKBOOKS_ENVIRONMENT=${env.QUICKBOOKS_ENVIRONMENT || 'sandbox'}`
-      );
-      console.log('');
-      console.log(
-        'Add these to your .env.local file and restart your dev server.'
-      );
-      console.log('');
+      // Fallback for development/local environments - only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('');
+        console.log(
+          '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
+        );
+        console.log(`QUICKBOOKS_CLIENT_ID=${clientId}`);
+        console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refresh_token}`);
+        console.log(`QUICKBOOKS_REALM_ID=${realmId}`);
+        console.log(
+          `QUICKBOOKS_ENVIRONMENT=${env.QUICKBOOKS_ENVIRONMENT || 'sandbox'}`
+        );
+        console.log('');
+        console.log(
+          'Add these to your .env.local file and restart your dev server.'
+        );
+        console.log('');
+      }
     }
 
     // Determine if this is setup mode
@@ -164,12 +148,12 @@ QUICKBOOKS_REALM_ID=${realmId}
     </body>
     </html>`;
 
-    return new NextResponse(html, {
-      headers: {
-        'Content-Type': 'text/html',
-        ...response.headers,
-      },
-    });
+  // Clear the state cookie after validation
+  const finalResponse = new NextResponse(html, {
+    headers: { 'Content-Type': 'text/html' },
+  });
+  finalResponse.cookies.delete('qb_oauth_state');
+  return finalResponse;
   } catch (error) {
     console.error('Error in QuickBooks callback:', error);
     return NextResponse.json(
