@@ -116,7 +116,6 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-mdx": "^3.6.2",
     "eslint-plugin-prettier": "^5.5.4",
-    "localtunnel": "^2.0.2",
     "prettier-eslint": "^16.4.2",
     "remark-cli": "^12.0.1",
     "tailwindcss": "^4.1.12",
