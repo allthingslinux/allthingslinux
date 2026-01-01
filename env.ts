@@ -22,6 +22,13 @@ export const env = createEnv({
     DISCORD_WEBHOOK_URL: z.string().url().optional(),
     TRIGGER_SECRET_KEY: z.string().optional(),
 
+    // QuickBooks API
+    QUICKBOOKS_CLIENT_ID: z.string().optional(),
+    QUICKBOOKS_CLIENT_SECRET: z.string().optional(),
+    QUICKBOOKS_ACCESS_TOKEN: z.string().optional(),
+    QUICKBOOKS_REFRESH_TOKEN: z.string().optional(),
+    QUICKBOOKS_REALM_ID: z.string().optional(),
+
     // Server configuration
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
@@ -55,6 +62,11 @@ export const env = createEnv({
     MONDAY_BOARD_ID: process.env.MONDAY_BOARD_ID,
     DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
     TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
+    QUICKBOOKS_CLIENT_ID: process.env.QUICKBOOKS_CLIENT_ID,
+    QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
+    QUICKBOOKS_ACCESS_TOKEN: process.env.QUICKBOOKS_ACCESS_TOKEN,
+    QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
+    QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
     // Client variables
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -88,6 +100,11 @@ export const cloudflareEnv = {
   MONDAY_BOARD_ID: process.env.MONDAY_BOARD_ID,
   DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
   TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
+  QUICKBOOKS_CLIENT_ID: process.env.QUICKBOOKS_CLIENT_ID,
+  QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
+  QUICKBOOKS_ACCESS_TOKEN: process.env.QUICKBOOKS_ACCESS_TOKEN,
+  QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
+  QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
 
   // Client variables
   NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,

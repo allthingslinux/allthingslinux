@@ -183,6 +183,11 @@ export const getPageMetadata = (page: string): Metadata => {
       description:
         'Learn how to get involved with All Things Linux and contribute to our projects.',
     },
+    'finance': {
+      title: 'Finance',
+      description:
+        'View our public financial reports and insights.',
+    },
   };
 
   return {
