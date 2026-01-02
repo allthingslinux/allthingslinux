@@ -5,6 +5,7 @@ import {
   saveTokens,
   escapeHtml,
   type QuickBooksCloudflareEnv,
+  getCloudflareEnv,
 } from '@/lib/integrations/quickbooks';
 import { runtimeEnv as env } from '@/env';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
@@ -16,18 +17,6 @@ export const runtime = 'nodejs';
  * Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
  * Falls back gracefully if not available
  */
-function getCloudflareEnv(): QuickBooksCloudflareEnv | undefined {
-  try {
-    const context = getCloudflareContext();
-    if (context?.env?.KV_QUICKBOOKS) {
-      return context.env as QuickBooksCloudflareEnv;
-    }
-  } catch {
-    // getCloudflareContext() throws if not in a request context or during SSG
-    // This is expected and fine - we'll fall back to environment variables
-  }
-  return undefined;
-}
 
 export async function GET(request: NextRequest) {
   const { nextUrl, cookies } = request;
@@ -102,13 +91,7 @@ export async function GET(request: NextRequest) {
   const clientId = env.QUICKBOOKS_CLIENT_ID;
   const clientSecret = env.QUICKBOOKS_CLIENT_SECRET;
 
-  // Build redirect URI from request headers (matches what admin-setup used)
-  const host = request.headers.get('host') || 'localhost:3000';
-  const protocol =
-    request.headers.get('x-forwarded-proto') ||
-    request.headers.get('x-forwarded-scheme') ||
-    (host.includes('localhost') ? 'http' : 'https');
-  const baseUrl = `${protocol}://${host}`;
+  const baseUrl = env.NEXT_PUBLIC_URL || 'http://localhost:3000';
   const redirectUri = `${baseUrl}/api/quickbooks/callback`;
 
   if (!clientId || !clientSecret) {

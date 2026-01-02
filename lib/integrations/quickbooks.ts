@@ -6,6 +6,23 @@ export interface QuickBooksCloudflareEnv {
 }
 
 /**
+ * Get Cloudflare environment context for QuickBooks operations
+ * This helper is shared across QuickBooks API routes to avoid duplication
+ */
+export function getCloudflareEnv(): QuickBooksCloudflareEnv | undefined {
+  try {
+    const context = getCloudflareContext();
+    if (context?.env?.KV_QUICKBOOKS) {
+      return context.env as QuickBooksCloudflareEnv;
+    }
+  } catch {
+    // getCloudflareContext() throws if not in a request context or during SSG
+    // This is expected and fine - we'll fall back to environment variables
+  }
+  return undefined;
+}
+
+/**
  * QuickBooks API integration
  * Handles OAuth token management and data fetching from QuickBooks API
  *

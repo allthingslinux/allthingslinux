@@ -4,6 +4,7 @@ import { runtimeEnv as env } from '@/env';
 import {
   fetchQuickBooksTransactions,
   type QuickBooksCloudflareEnv,
+  getCloudflareEnv,
 } from '@/lib/integrations/quickbooks';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
@@ -15,18 +16,6 @@ export const runtime = 'nodejs';
  * Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
  * Falls back gracefully if not available
  */
-function getCloudflareEnv(): QuickBooksCloudflareEnv | undefined {
-  try {
-    const context = getCloudflareContext();
-    if (context?.env?.KV_QUICKBOOKS) {
-      return context.env as QuickBooksCloudflareEnv;
-    }
-  } catch {
-    // getCloudflareContext() throws if not in a request context or during SSG
-    // This is expected and fine - we'll fall back to environment variables
-  }
-  return undefined;
-}
 
 /**
  * GET /api/quickbooks
@@ -113,13 +102,13 @@ export async function POST(request: NextRequest) {
     const { action } = body;
 
     if (action === 'refresh_tokens') {
-      // Force token refresh by clearing cache and fetching new data
+      // Fetch latest transactions (tokens will be refreshed automatically if needed)
       const cfEnv = getCloudflareEnv();
       const transactions = await fetchQuickBooksTransactions(cfEnv);
 
       return NextResponse.json({
         success: true,
-        message: 'Tokens refreshed successfully',
+        message: 'Latest transactions fetched successfully',
         data: transactions,
         count: transactions.length,
         timestamp: new Date().toISOString(),

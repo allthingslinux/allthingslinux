@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { randomBytes } from 'crypto';
-import { getQuickBooksAuthUrl } from '@/lib/integrations/quickbooks';
+import { getQuickBooksAuthUrl, escapeHtml } from '@/lib/integrations/quickbooks';
 import { runtimeEnv as env } from '@/env';
 
 export const runtime = 'nodejs';
@@ -10,12 +10,7 @@ export async function GET(request: NextRequest) {
   const clientId = env.QUICKBOOKS_CLIENT_ID;
   const environment = env.QUICKBOOKS_ENVIRONMENT || 'sandbox';
 
-  // Get the actual host from headers
-  const host = request.headers.get('host') || 'localhost:3000';
-  const protocol =
-    request.headers.get('x-forwarded-proto') ||
-    (host.includes('localhost') ? 'http' : 'https');
-  const baseUrl = `${protocol}://${host}`;
+  const baseUrl = env.NEXT_PUBLIC_URL || 'http://localhost:3000';
   const redirectUri = `${baseUrl}/api/quickbooks/callback`;
 
   // QuickBooks requires HTTPS for redirect URIs (except localhost for development)
@@ -149,8 +144,8 @@ export async function GET(request: NextRequest) {
       <p>${setupMode ? 'Click below to connect your QuickBooks account. After authorization, tokens will be automatically saved.' : 'Your existing QuickBooks connection will be updated with new tokens.'}</p>
       
       <div class="info">
-        <strong>Environment:</strong> ${environment.toUpperCase()}<br>
-        <strong>Redirect URI:</strong> ${redirectUri}
+        <strong>Environment:</strong> ${escapeHtml(environment.toUpperCase())}<br>
+        <strong>Redirect URI:</strong> ${escapeHtml(redirectUri)}
       </div>
       
       <a href="#" onclick="authorize()" class="btn">
@@ -160,15 +155,24 @@ export async function GET(request: NextRequest) {
     
     <script>
       function authorize() {
-        // Set cookie and redirect
-        document.cookie = "qb_oauth_state=${state}; path=/; max-age=600; ${protocol === 'https' ? 'secure; ' : ''}samesite=lax";
-        window.location.href = "${authUrl.toString().replace(/"/g, '\\"')}";
+        window.location.href = ${JSON.stringify(authUrl.toString())};
       }
     </script>
   </body>
   </html>`;
 
-  return new NextResponse(html, {
+  const response = new NextResponse(html, {
     headers: { 'Content-Type': 'text/html' },
   });
+
+  // Set OAuth state cookie server-side with httpOnly flag for CSRF protection
+  response.cookies.set('qb_oauth_state', state, {
+    httpOnly: true,
+    secure: baseUrl.startsWith('https://'),
+    sameSite: 'lax',
+    maxAge: 600,
+    path: '/',
+  });
+
+  return response;
 }
