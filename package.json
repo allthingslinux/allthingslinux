@@ -37,6 +37,7 @@
     "check:format": "prettier --check .",
     "check:mdx": "remark content/blog/*.mdx --quiet",
     "cf:typegen": "pnpm exec wrangler types --env local --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "analyze:bundle": "echo 'After building, check .open-next/server-functions/default/handler.mjs.meta.json with https://esbuild.github.io/analyze/'",
     "coc:generate": "node scripts/generate-code-of-conduct.mjs"
   },
   "dependencies": {

@@ -6,7 +6,7 @@
   // Environment-specific settings are defined in the "env" sections below
 
   "main": ".open-next/worker.js",
-  "compatibility_date": "2024-12-30",
+  "compatibility_date": "2025-01-02",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "find_additional_modules": true,
   "preserve_file_names": false,
