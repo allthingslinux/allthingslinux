@@ -30,10 +30,16 @@ This document explains all available pnpm scripts in the project.
 - `pnpm run build:opennext`
   Compiles the application using OpenNext.js Cloudflare adapter for Cloudflare Workers deployment.
 
+- `pnpm run build:opennext:profile`
+  Compiles with --noMinify flag for performance profiling and debugging (unminified code).
+
 ## Testing & Preview
 
 - `pnpm run preview`
   Builds and runs the Cloudflare application locally to test the production build.
+
+- `pnpm run preview:profile`
+  Builds with profiling settings and runs locally for performance analysis.
 
 ## Deployment
 
@@ -92,6 +98,9 @@ This document explains all available pnpm scripts in the project.
 
 - `pnpm run cf:typegen`
   Generates TypeScript types for Cloudflare Workers bindings and environment variables.
+
+- `pnpm run analyze:bundle`
+  Provides guidance for bundle size analysis using ESBuild Bundle Analyzer on the built worker code.
 
 - `pnpm run coc:generate`
   Generates the Code of Conduct markdown file from TOML configuration.

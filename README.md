@@ -35,7 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) for Next.js dev, or [http://
 - **Framework:** Next.js 15 (App Router)
 - **Styling:** Tailwind CSS
 - **Content:** Contentlayer (MDX blogs)
-- **Deployment:** Cloudflare Workers + OpenNext
+- **Deployment:** Cloudflare Workers + OpenNext (^1.14.7)
 - **Background Jobs:** Trigger.dev
 - **Package Manager:** pnpm
 
@@ -119,7 +119,7 @@ pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
 
 See [`docs/integrations/quickbooks.md`](docs/integrations/quickbooks.md) for detailed QuickBooks integration setup.
 
-**Workflow:** `.github/workflows/deploy.yml` automatically handles branch detection and environment selection.
+**Architecture:** Separate Cloudflare Workers for dev/prod with isolated R2/KV bindings. `.github/workflows/deploy.yml` automatically handles branch detection and deploys to appropriate worker.
 
 ### Manual Deployments
 
@@ -157,7 +157,8 @@ pnpm run build:all
 pnpm run build
 
 # Preview build locally (tests the Cloudflare Workers build)
-pnpm run preview
+pnpm run preview           # Standard preview
+pnpm run preview:profile   # Preview with profiling settings
 ```
 ```bash
 # Development commands
@@ -178,7 +179,7 @@ pnpm run trigger       # Start Trigger.dev CLI
 2. **Add secrets** to each environment (same secret names, different values per environment)
 3. **Secrets are automatically available** in GitHub Actions workflows
 
-**Secrets are prefixed** (`DEV_*` and `PROD_*`) in the single Cloudflare Worker and selected at runtime based on the request host.
+**Separate Workers**: Development and production use separate Cloudflare Workers for complete isolation.
 
 ### Manual Secret Management (Local)
 
@@ -232,9 +233,10 @@ pnpm run wrangler       # Cloudflare Workers dev server
 pnpm run trigger        # Trigger.dev background jobs
 
 # Building
-pnpm run build:all      # Build Next.js + OpenNext
-pnpm run build          # Next.js build only
-pnpm run build:opennext # Cloudflare OpenNext build
+pnpm run build:all             # Build Next.js + OpenNext
+pnpm run build                 # Next.js build only
+pnpm run build:opennext        # Cloudflare OpenNext build
+pnpm run build:opennext:profile # Build with profiling (unminified)
 
 # Testing
 pnpm run preview        # Test built Cloudflare app locally
@@ -261,6 +263,7 @@ pnpm run secrets:prod   # Upload prod secrets (sets PROD_* prefixed)
 pnpm run setup:bindings # Setup Cloudflare bindings (R2, KV)
 ```bash
 pnpm run cf:typegen     # Generate Cloudflare types
+pnpm run analyze:bundle # Bundle size analysis guidance
 pnpm run coc:generate   # Generate Code of Conduct
 ```
 
@@ -305,6 +308,21 @@ pnpm run trigger
 - Check `.dev.vars` syntax (KEY=value, one per line)
 - Ensure `NODE_ENV` is set correctly (Next.js sets this automatically - use only `development`, `production`, or `test`)
 - Restart development servers after changes
+
+### Performance Profiling
+
+For performance analysis and debugging:
+
+```bash
+# Build with profiling (unminified code)
+pnpm run build:opennext:profile
+
+# Preview with profiling settings
+pnpm run preview:profile
+
+# Analyze bundle size
+pnpm run analyze:bundle
+```
 
 ### Need Help?
 
