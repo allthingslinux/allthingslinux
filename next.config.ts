@@ -53,6 +53,8 @@ const nextConfig: NextConfig = {
     swcTraceProfiling: false,
     // Enable build worker threads
     cpus: Math.max(1, Math.floor(cpus().length / 2)),
+    // Disable server minification for easier performance profiling
+    serverMinification: false,
   },
   // Performance profiling - disable webpack minification for better debugging
   webpack: (config) => {
