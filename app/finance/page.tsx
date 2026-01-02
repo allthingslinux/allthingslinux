@@ -91,9 +91,9 @@ async function TransactionsTable() {
   let transactions: QuickBooksTransaction[] = [];
   if (response.ok) {
     const data = (await response.json()) as {
-      transactions?: QuickBooksTransaction[];
+      data?: QuickBooksTransaction[];
     };
-    transactions = data.transactions || [];
+    transactions = data.data || [];
   }
 
   if (transactions.length === 0) {
