@@ -8,3 +8,5 @@ node_modules
 *.min.js
 *.d.ts
 next-env.d.ts 
+
+code-of-conduct
