@@ -1,29 +1,12 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
 
-  // === SINGLE WORKER CONFIGURATION ===
-  // Worker name: "allthingslinux"
-  // Handles both dev and prod traffic via runtime environment detection
-  // GitHub Environments handle secret isolation during deployment
-  // Custom domains:
-  //   - allthingslinux.dev (development)
-  //   - allthingslinux.org (production)
-  "name": "allthingslinux",
-
-  // Custom domain routes
-  "routes": [
-    {
-      "pattern": "allthingslinux.dev",
-      "custom_domain": true,
-    },
-    {
-      "pattern": "allthingslinux.org",
-      "custom_domain": true,
-    },
-  ],
+  // === BASE CONFIGURATION ===
+  // Common settings shared across all environments
+  // Environment-specific settings are defined in the "env" sections below
 
   "main": ".open-next/worker.js",
-  "compatibility_date": "2026-01-02",
+  "compatibility_date": "2024-12-30",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "find_additional_modules": true,
   "preserve_file_names": false,
@@ -40,7 +23,7 @@
     "cpu_ms": 300000, // 5 minutes max per request
   },
 
-  // Assets configuration
+  // Assets configuration (shared across environments)
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets",
@@ -58,15 +41,7 @@
     "head_sampling_rate": 1.0,
   },
 
-  // Service bindings (self-reference)
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "allthingslinux",
-    },
-  ],
-
-  // Durable Objects for advanced caching features
+  // Durable Objects for advanced caching features (shared across environments)
   "durable_objects": {
     "bindings": [
       {
@@ -93,35 +68,6 @@
       ],
     },
   ],
-
-  // R2 bucket (Next.js incremental cache)
-  // Using prod bucket as primary; runtime detection handles environment-specific logic
-  "r2_buckets": [
-    {
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "atl-cache-prod",
-    },
-  ],
-
-  // KV namespace (QuickBooks token storage)
-  // Using prod KV as primary; runtime detection handles environment-specific logic
-  // TODO: Run scripts/setup-bindings.sh to create and get the KV namespace ID
-  "kv_namespaces": [
-    {
-      "binding": "KV_QUICKBOOKS",
-      "id": "7bfc722d19ea48b0b35422ac27029dfa", // Production KV namespace
-      "preview_id": "786b4d5862b74ebab1ee1caf75482670", // Preview KV namespace
-    },
-  ],
-
-  // Environment variables (runtime detection will override based on request host)
-  // These are defaults; NEXT_PUBLIC_URL is set dynamically in middleware/API routes
-  "vars": {
-    "NEXT_PUBLIC_URL": "https://allthingslinux.org",
-    "NEXT_PUBLIC_API_URL": "https://allthingslinux.org/api",
-    "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
-    "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
-  },
 
   // === LOCAL ENVIRONMENT (for `wrangler dev`) ===
   // Keep local env for local development with separate R2/KV
@@ -235,53 +181,15 @@
       },
     },
     "local": {
-      "workers_dev": true,
+      "name": "allthingslinux-local",
+      "workers_dev": true, // Override to enable workers.dev for local development
       "minify": false,
       "preserve_file_names": true,
-      "find_additional_modules": true,
-
-      "observability": {
-        "enabled": true,
-        "logs": {
-          "invocation_logs": true,
-        },
-        "head_sampling_rate": 1.0,
-      },
 
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
-          "service": "allthingslinux",
-        },
-      ],
-      "images": {
-        "binding": "IMAGES",
-      },
-
-      "durable_objects": {
-        "bindings": [
-          {
-            "name": "NEXT_CACHE_DO_QUEUE",
-            "class_name": "DOQueueHandler",
-          },
-          {
-            "name": "NEXT_TAG_CACHE_DO_SHARDED",
-            "class_name": "DOShardedTagCache",
-          },
-          {
-            "name": "NEXT_CACHE_DO_PURGE",
-            "class_name": "BucketCachePurge",
-          },
-        ],
-      },
-      "migrations": [
-        {
-          "tag": "v1",
-          "new_sqlite_classes": [
-            "DOQueueHandler",
-            "DOShardedTagCache",
-            "BucketCachePurge",
-          ],
+          "service": "allthingslinux-local",
         },
       ],
 
