@@ -70,7 +70,7 @@ export interface QuickBooksCloudflareEnv {
  */
 
 // Type definitions for QuickBooks API responses
-interface QuickBooksTokenResponse {
+export interface QuickBooksTokenResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
@@ -78,7 +78,7 @@ interface QuickBooksTokenResponse {
   x_refresh_token_expires_in: number;
 }
 
-interface QuickBooksQueryResponse<T> {
+export interface QuickBooksQueryResponse<T> {
   QueryResponse?: {
     [key: string]: T[];
   };
@@ -493,7 +493,8 @@ async function saveTokens(
     console.log(
       '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
     );
-    console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`);
+    console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken.substring(0, 10)}...${tokens.refreshToken.slice(-4)} (masked)`);
+    console.log('⚠️  Full token available in OAuth callback response - check browser network tab');
     console.log(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
     if (tokens.clientId) console.log(`QUICKBOOKS_CLIENT_ID=${tokens.clientId}`);
     if (tokens.environment)

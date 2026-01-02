@@ -30,6 +30,8 @@ export const env = createEnv({
     // QuickBooks Environment: 'sandbox' for development/testing, 'production' for live data
     // Defaults to 'sandbox' in development, 'production' in production (handled in runtimeEnv)
     QUICKBOOKS_ENVIRONMENT: z.enum(['sandbox', 'production']).optional(),
+    // Admin key for QuickBooks API operations (token refresh, etc.)
+    QUICKBOOKS_ADMIN_KEY: z.string().optional(),
 
     // Server configuration
     NODE_ENV: z
@@ -74,6 +76,7 @@ export const env = createEnv({
         | 'production'
         | undefined) ||
       (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
+    QUICKBOOKS_ADMIN_KEY: process.env.QUICKBOOKS_ADMIN_KEY,
     // Client variables
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -117,6 +120,7 @@ export const cloudflareEnv = {
       | 'production'
       | undefined) ||
     (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
+  QUICKBOOKS_ADMIN_KEY: process.env.QUICKBOOKS_ADMIN_KEY,
 
   // Client variables
   NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,

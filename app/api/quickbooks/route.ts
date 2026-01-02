@@ -10,6 +10,15 @@ interface CloudflareNextRequest extends NextRequest {
 // Cloudflare Workers runtime - using nodejs for Buffer/crypto compatibility
 export const runtime = 'nodejs';
 
+/**
+ * GET /api/quickbooks
+ * 
+ * Public endpoint that returns QuickBooks transaction data for transparency.
+ * This is intentionally public to provide financial transparency for the organization.
+ * 
+ * Data includes: transaction amounts, types, dates, and basic descriptions.
+ * Sensitive details like full customer/vendor information are limited.
+ */
 export async function GET(request: CloudflareNextRequest) {
   try {
     // Get Cloudflare environment from request
@@ -38,8 +47,25 @@ export async function GET(request: CloudflareNextRequest) {
   }
 }
 
+/**
+ * POST /api/quickbooks
+ * 
+ * Administrative endpoint for token refresh operations.
+ * Requires authentication to prevent abuse and unauthorized token operations.
+ */
 export async function POST(request: CloudflareNextRequest) {
   try {
+    // Basic authentication check - require admin access
+    const authHeader = request.headers.get('authorization');
+    const adminKey = process.env.QUICKBOOKS_ADMIN_KEY;
+    
+    if (!adminKey || authHeader !== `Bearer ${adminKey}`) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - admin access required' },
+        { status: 401 }
+      );
+    }
+
     const body: { action?: string } = await request.json();
     const { action } = body;
 
