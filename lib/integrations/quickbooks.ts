@@ -536,7 +536,11 @@ async function saveTokens(
     console.log(
       '⚠️  Full token available in OAuth callback response - check browser network tab'
     );
-    console.log(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
+    // Validate realmId format (typically numeric) before logging
+    const safeRealmId = /^[0-9]+$/.test(tokens.realmId)
+      ? tokens.realmId
+      : '[INVALID_FORMAT]';
+    console.log(`QUICKBOOKS_REALM_ID=${safeRealmId}`);
     if (tokens.clientId) console.log(`QUICKBOOKS_CLIENT_ID=${tokens.clientId}`);
     if (tokens.environment)
       console.log(`QUICKBOOKS_ENVIRONMENT=${tokens.environment}`);

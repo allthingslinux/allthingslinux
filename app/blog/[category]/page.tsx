@@ -18,8 +18,7 @@ interface CategoryPageProps {
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
-  const { category } = resolvedParams;
+  const { category } = await params;
 
   // Format the category name for display (capitalize first letter of each word)
   const categoryTitle = category
@@ -60,9 +59,7 @@ export async function generateMetadata({
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  // Get the category slug from the URL
-  const resolvedParams = await Promise.resolve(params);
-  const { category } = resolvedParams;
+  const { category } = await params;
 
   // Get all posts and categories
   const allCategories = await getAllCategories();

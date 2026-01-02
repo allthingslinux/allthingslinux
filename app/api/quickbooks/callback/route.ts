@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import {
   exchangeAuthorizationCode,
   saveTokens,
+  escapeHtml,
   type QuickBooksCloudflareEnv,
 } from '@/lib/integrations/quickbooks';
 import { env } from '@/env';
@@ -120,7 +121,11 @@ export async function GET(request: CloudflareNextRequest) {
         console.log(
           `QUICKBOOKS_REFRESH_TOKEN=${tokens.refresh_token.substring(0, 10)}...${tokens.refresh_token.slice(-4)} (masked)`
         );
-        console.log(`QUICKBOOKS_REALM_ID=${realmId}`);
+        // Validate realmId format (typically numeric) before logging
+        const safeRealmId = /^[0-9]+$/.test(realmId)
+          ? realmId
+          : '[INVALID_FORMAT]';
+        console.log(`QUICKBOOKS_REALM_ID=${safeRealmId}`);
         console.log(
           `QUICKBOOKS_ENVIRONMENT=${env.QUICKBOOKS_ENVIRONMENT || 'sandbox'}`
         );
@@ -145,8 +150,8 @@ export async function GET(request: CloudflareNextRequest) {
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center;">
       <h1>✅ Authorization Successful!</h1>
       <p>Your QuickBooks integration is now ${isSetupMode ? 'configured' : 'updated'}.</p>
-      <p><strong>Realm ID:</strong> ${realmId}</p>
-      <p><strong>Environment:</strong> ${env.QUICKBOOKS_ENVIRONMENT || 'sandbox'}</p>
+      <p><strong>Realm ID:</strong> ${escapeHtml(realmId)}</p>
+      <p><strong>Environment:</strong> ${escapeHtml(env.QUICKBOOKS_ENVIRONMENT || 'sandbox')}</p>
       ${saved ? '<p>Tokens have been securely saved to Cloudflare KV.</p>' : '<p>Check your server logs for token details.</p>'}
       <p>You can close this window now.</p>
     </body>
