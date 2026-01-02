@@ -357,16 +357,27 @@ export async function getAccessToken(
         try {
           const existingTokens =
             await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens');
-          if (existingTokens) {
-            const tokenData = JSON.parse(existingTokens);
-            tokenData.refreshToken = tokens.refresh_token;
-            tokenData.lastUpdated = new Date().toISOString();
-            await cfEnv.KV_QUICKBOOKS.put(
-              'quickbooks_tokens',
-              JSON.stringify(tokenData)
-            );
-            console.log('✅ New refresh token saved to KV storage');
-          }
+
+          // Always save the token data, creating the KV entry if it doesn't exist
+          const tokenData = existingTokens
+            ? JSON.parse(existingTokens)
+            : {
+                accessToken: tokens.access_token,
+                refreshToken: tokens.refresh_token,
+                realmId: null, // Will be set later if needed
+                expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+                lastUpdated: new Date().toISOString(),
+              };
+
+          // Update with the new refresh token
+          tokenData.refreshToken = tokens.refresh_token;
+          tokenData.lastUpdated = new Date().toISOString();
+
+          await cfEnv.KV_QUICKBOOKS.put(
+            'quickbooks_tokens',
+            JSON.stringify(tokenData)
+          );
+          console.log('✅ New refresh token saved to KV storage');
         } catch (error) {
           console.warn('Failed to update refresh token in KV:', error);
         }
