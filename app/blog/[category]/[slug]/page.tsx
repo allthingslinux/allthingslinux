@@ -9,10 +9,10 @@ import { getBaseUrl } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     category: string;
     slug: string;
-  };
+  }>;
 }
 
 // Generate metadata for the post

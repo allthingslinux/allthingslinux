@@ -10,9 +10,9 @@ import type { Metadata } from 'next';
 export const revalidate = 3600;
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     category: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({

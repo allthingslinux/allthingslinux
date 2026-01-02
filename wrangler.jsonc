@@ -14,7 +14,7 @@
 
   // Workers Builds configuration for automatic deployments
   "build": {
-    "command": "pnpm install --frozen-lockfile && pnpm run build:content && pnpm run build:fast && pnpm exec opennextjs-cloudflare build",
+    "command": "pnpm install --frozen-lockfile && pnpm exec opennextjs-cloudflare build",
     "cwd": ".",
     "watch_dir": ".",
   },

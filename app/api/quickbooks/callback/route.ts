@@ -45,11 +45,8 @@ export async function GET(request: CloudflareNextRequest) {
   // Validate CSRF state token
   const storedState = cookies.get('qb_oauth_state')?.value;
 
-  // Handle admin-setup state format: 'admin-setup:<random_token>'
-  const isValidState =
-    storedState &&
-    (storedState === state ||
-      (storedState.startsWith('admin-setup:') && state === storedState));
+  // Validate CSRF state token
+  const isValidState = storedState && storedState === state;
 
   if (!isValidState) {
     console.error('CSRF state validation failed', {
