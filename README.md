@@ -52,12 +52,14 @@ pnpm install
 ### 2. Configure Secrets
 
 ```bash
-# Copy template and add your secrets
-cp .env.secrets.example .env.secrets
-# Edit .env.secrets with real values (gitignored)
+# Copy templates for environment-specific secrets
+cp .env.secrets.dev.example .env.secrets.dev    # Development (sandbox)
+cp .env.secrets.prod.example .env.secrets.prod  # Production
+# Edit each file with appropriate credentials (gitignored)
 
-# Upload secrets to Cloudflare (when needed for local wrangler dev)
-# pnpm run secrets:dev  # For development environment
+# Upload secrets to Cloudflare (when needed for deployment)
+# pnpm run secrets:dev   # Upload dev/sandbox secrets
+# pnpm run secrets:prod  # Upload production secrets
 ```
 
 ### 3. Start Development
@@ -123,25 +125,26 @@ pnpm run preview
 ### Quick Setup
 
 ```bash
-# 1. Copy template
-cp .env.secrets.example .env.secrets
+# 1. Copy templates for each environment
+cp .env.secrets.dev.example .env.secrets.dev    # Sandbox credentials
+cp .env.secrets.prod.example .env.secrets.prod  # Production credentials
 
 # 2. Edit with real values
-# GITHUB_TOKEN=your_token_here
-# MONDAY_API_KEY=your_key_here
-# etc.
+# .env.secrets.dev: Sandbox QuickBooks + other dev secrets
+# .env.secrets.prod: Production QuickBooks + other prod secrets
 
 # 3. Upload to Cloudflare (when needed)
-pnpm run secrets:dev    # Dev environment
-pnpm run secrets:prod   # Production
+pnpm run secrets:dev    # Dev environment (uses .env.secrets.dev)
+pnpm run secrets:prod   # Production (uses .env.secrets.prod)
 ```
 
 ### Security Notes
 
-- **Never commit** `.env.secrets` (it's gitignored)
+- **Never commit** `.env.secrets.*` (they're gitignored)
 - **Secrets are encrypted** and managed via `wrangler secret put`
 - **Use `.dev.vars`** only for non-sensitive local config
 - **Environment variables** are defined in `wrangler.jsonc` per environment
+- **Environment-specific secrets** automatically selected by upload scripts
 
 ## 📁 Project Structure
 

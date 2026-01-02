@@ -7,8 +7,10 @@ import { z } from 'zod';
  *
  * This configuration works with both Next.js and Cloudflare Workers.
  * - For local development, use .env.local file
- * - For Cloudflare deployment, variables are set in the Cloudflare dashboard
- *   and/or in wrangler.toml vars section
+ * - For Wrangler development, use .dev.vars file
+ * - For Cloudflare deployment, secrets are uploaded via environment-specific files:
+ *   - Dev environment: .env.secrets.dev (sandbox credentials)
+ *   - Prod environment: .env.secrets.prod (production credentials)
  */
 // Helper to determine QuickBooks environment with auto-detection
 const getQuickBooksEnvironment = (): 'sandbox' | 'production' | undefined =>

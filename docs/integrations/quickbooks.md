@@ -29,14 +29,17 @@ Add to your `.env.local` file:
 QUICKBOOKS_CLIENT_ID=your_client_id
 QUICKBOOKS_CLIENT_SECRET=your_client_secret
 QUICKBOOKS_ENVIRONMENT=sandbox  # or 'production'
+QUICKBOOKS_ADMIN_KEY=your_secure_random_key  # For admin operations
 ```
 
 ### Admin OAuth Setup
 
-1. **Visit**: `http://localhost:3000/api/quickbooks/admin-setup`
+1. **Visit**: `http://localhost:3000/api/quickbooks/admin-setup?admin=your_secure_random_key`
 2. **Complete QuickBooks authorization** (one time only)
 3. **Copy the tokens** to your `.env.local` file
 4. **Restart your dev server**
+
+**Note**: The `admin` parameter must match your `QUICKBOOKS_ADMIN_KEY` for security.
 
 That's it! Your public dashboard will now fetch QuickBooks data automatically.
 
@@ -95,6 +98,7 @@ Set these in your Cloudflare Workers environment:
 - `QUICKBOOKS_CLIENT_ID` - Your QuickBooks app client ID
 - `QUICKBOOKS_CLIENT_SECRET` - Your QuickBooks app client secret
 - `QUICKBOOKS_ENVIRONMENT` - 'production' for live data
+- `QUICKBOOKS_ADMIN_KEY` - Secure random key for admin operations (see Security section)
 
 Initial tokens will be obtained via the admin setup route.
 
@@ -156,7 +160,26 @@ Initial tokens will be obtained via the admin setup route.
 ## Security
 
 - **Admin-only setup**: OAuth flow restricted to admin users
+- **Admin key protection**: `QUICKBOOKS_ADMIN_KEY` secures admin operations
 - **CSRF protection**: State validation prevents attacks
 - **Secure token storage**: Environment variables (dev) / KV (production)
 - **Automatic rotation**: Tokens rotate every 24 hours
 - **Public read-only**: Dashboard displays data without exposing tokens
+
+### Admin Key Security
+
+The `QUICKBOOKS_ADMIN_KEY` protects sensitive operations:
+
+- **Admin Setup**: `/api/quickbooks/admin-setup?admin=YOUR_KEY`
+- **Token Refresh**: POST `/api/quickbooks` with `Authorization: Bearer YOUR_KEY`
+- **Generate securely**: Use a random UUID or secure string
+- **Keep secret**: Never expose in client-side code
+- **Different per environment**: Use separate keys for dev/prod
+
+Example secure key generation:
+```bash
+# Generate a secure random key
+openssl rand -hex 32
+# Or use a UUID
+uuidgen
+```
