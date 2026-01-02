@@ -74,8 +74,8 @@ KV_ID=""
 if command -v jq >/dev/null 2>&1; then
   KV_ID=$(echo "$KV_LIST" | jq -r ".[] | select(.title == \"$KV_NAMESPACE_NAME\") | .id" 2>/dev/null | head -1 || echo "")
 else
-  # Fallback to grep parsing
-  KV_ID=$(echo "$KV_LIST" | grep -oP "\"id\":\s*\"\K[^\"]+" | head -1 || echo "")
+  # Fallback to grep parsing - extract the block for our namespace and then get the id
+  KV_ID=$(echo "$KV_LIST" | grep -A 5 "\"title\"[[:space:]]*:[[:space:]]*\"$KV_NAMESPACE_NAME\"" | grep -oP "\"id\":\s*\"\K[^\"]+" | head -1 || echo "")
 fi
 
 if [ -n "$KV_ID" ]; then
@@ -93,7 +93,8 @@ else
     if command -v jq >/dev/null 2>&1; then
       KV_ID=$(echo "$KV_LIST" | jq -r ".[] | select(.title == \"$KV_NAMESPACE_NAME\") | .id" 2>/dev/null | head -1 || echo "")
     else
-      KV_ID=$(echo "$KV_LIST" | grep -oP "\"id\":\s*\"\K[^\"]+" | head -1 || echo "")
+      # Fallback to grep parsing - extract the block for our namespace and then get the id
+      KV_ID=$(echo "$KV_LIST" | grep -A 5 "\"title\"[[:space:]]*:[[:space:]]*\"$KV_NAMESPACE_NAME\"" | grep -oP "\"id\":\s*\"\K[^\"]+" | head -1 || echo "")
     fi
     if [ -n "$KV_ID" ]; then
       echo "✅ Found existing KV namespace ID: $KV_ID"
