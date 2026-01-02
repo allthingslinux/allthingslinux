@@ -605,9 +605,24 @@ async function saveTokens(
   if (cfEnv?.KV_QUICKBOOKS) {
     try {
       console.log('[QuickBooks saveTokens] Attempting to save to KV...');
+
+      // Merge with existing tokens to preserve complete credentials
+      let mergedTokens = { ...tokens };
+      const existing = await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens');
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        mergedTokens = {
+          clientId: tokens.clientId || parsed.clientId,
+          clientSecret: tokens.clientSecret || parsed.clientSecret,
+          refreshToken: tokens.refreshToken,
+          realmId: tokens.realmId || parsed.realmId,
+          environment: tokens.environment || parsed.environment,
+        };
+      }
+
       await cfEnv.KV_QUICKBOOKS.put(
         'quickbooks_tokens',
-        JSON.stringify(tokens)
+        JSON.stringify(mergedTokens)
       );
       console.log('[QuickBooks saveTokens] ✅ Tokens saved to Cloudflare KV');
 

@@ -19,6 +19,14 @@ pnpm run setup:bindings
 # Start development
 pnpm run dev:all
 ```
+```bash
+# Development with all services
+pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
+```
+```bash
+# Development with all services
+pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
+```
 
 Open [http://localhost:3000](http://localhost:3000) for Next.js dev, or [http://localhost:8788](http://localhost:8788) for Cloudflare Workers simulation.
 
@@ -44,6 +52,7 @@ Open [http://localhost:3000](http://localhost:3000) for Next.js dev, or [http://
 
 ```bash
 git clone https://github.com/allthingslinux/allthingslinux.git
+```bash
 cd allthingslinux
 pnpm install
 ```
@@ -71,6 +80,7 @@ pnpm run setup:bindings
 
 **Upload secrets to Cloudflare manually** (when needed):
 
+```bash
 ```bash
 pnpm run secrets:dev   # Upload dev/sandbox secrets (sets DEV_* prefixed secrets)
 pnpm run secrets:prod  # Upload production secrets (sets PROD_* prefixed secrets)
@@ -117,6 +127,7 @@ See [`docs/integrations/quickbooks.md`](docs/integrations/quickbooks.md) for det
 
 ```bash
 pnpm run deploy:dev     # Deploy immediately to dev
+```bash
 pnpm run deploy:prod    # Deploy immediately to prod
 pnpm run deploy         # Quick production deploy
 ```
@@ -125,6 +136,7 @@ pnpm run deploy         # Quick production deploy
 
 ```bash
 pnpm run version:upload # Upload version to production
+```bash
 pnpm run version:list   # List all versions
 pnpm run version:deploy # Deploy latest version
 ```
@@ -147,6 +159,14 @@ pnpm run build
 # Preview build locally (tests the Cloudflare Workers build)
 pnpm run preview
 ```
+```bash
+# Development commands
+```bash
+pnpm run dev:all       # Start all services
+pnpm run trigger       # Start Trigger.dev CLI
+```
+
+## 📁 Project Structure
 
 ## 🔐 Secrets & Environment
 
@@ -173,6 +193,7 @@ pnpm run preview
 # .env.secrets.prod: Production QuickBooks + other prod secrets
 
 # 2. Upload to Cloudflare Worker (sets prefixed secrets: DEV_*, PROD_*)
+```bash
 pnpm run secrets:dev    # Sets DEV_* prefixed secrets
 pnpm run secrets:prod   # Sets PROD_* prefixed secrets
 ```
@@ -188,13 +209,14 @@ pnpm run secrets:prod   # Sets PROD_* prefixed secrets
 
 ## 📁 Project Structure
 
-```
+```text
 ├── app/                 # Next.js App Router pages
 ├── components/          # React components
 ├── content/            # MDX blog content
 ├── lib/                # Utilities & integrations
 ├── public/             # Static assets
 ├── scripts/            # Build & utility scripts
+```text
 ├── trigger/            # Background job definitions
 └── wrangler.jsonc      # Cloudflare Workers config
 ```
@@ -237,9 +259,12 @@ pnpm run secrets:prod   # Upload prod secrets (sets PROD_* prefixed)
 
 # Infrastructure
 pnpm run setup:bindings # Setup Cloudflare bindings (R2, KV)
+```bash
 pnpm run cf:typegen     # Generate Cloudflare types
 pnpm run coc:generate   # Generate Code of Conduct
 ```
+
+### Troubleshooting
 
 See [`PNPM_SCRIPTS.md`](PNPM_SCRIPTS.md) for detailed script explanations.
 
@@ -247,32 +272,35 @@ See [`PNPM_SCRIPTS.md`](PNPM_SCRIPTS.md) for detailed script explanations.
 
 ### Common Issues
 
-**Build fails with "Module not found"**
+#### Build fails with "Module not found"
 
 ```bash
 # Clear caches and reinstall
+```bash
 rm -rf node_modules .next .open-next
 pnpm install
 ```
 
-**Wrangler secrets not working**
+#### Wrangler secrets not working
 
 ```bash
 # Check secrets are uploaded
 npx wrangler secret list --env local
 
+```bash
 # Re-upload if needed
 # Local secrets are handled via .dev.vars
 ```
 
-**Trigger.dev not connecting**
+#### Trigger.dev not connecting
 
+```bash
 ```bash
 # Check Trigger.dev CLI is running
 pnpm run trigger
 ```
 
-**Environment variables not loading**
+#### Environment variables not loading
 
 - Check `.dev.vars` syntax (KEY=value, one per line)
 - Ensure `NODE_ENV` is set correctly (Next.js sets this automatically - use only `development`, `production`, or `test`)
@@ -291,7 +319,7 @@ pnpm run trigger
 3. Make your changes and test locally
 4. Submit a pull request
 
-See [CONTRIBUTING.md](https://github.com/allthingslinux/allthingslinux/blob/main/CONTRIBUTING.md) for detailed guidelines.
+See [CONTRIBUTING.md](https://github.com/allthingslinux/allthingslinux/blob/main/code-of-conduct/CONTRIBUTING.md) for detailed guidelines.
 
 ---
 

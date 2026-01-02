@@ -108,8 +108,8 @@
   "kv_namespaces": [
     {
       "binding": "KV_QUICKBOOKS",
-      "id": "TODO_REPLACE_WITH_ACTUAL_ID", // Run: npx wrangler kv:namespace create KV_QUICKBOOKS
-      "preview_id": "TODO_REPLACE_WITH_ACTUAL_ID",
+      "id": "7bfc722d19ea48b0b35422ac27029dfa", // Production KV namespace
+      "preview_id": "786b4d5862b74ebab1ee1caf75482670", // Preview KV namespace
     },
   ],
 

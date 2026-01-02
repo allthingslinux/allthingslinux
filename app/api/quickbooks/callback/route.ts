@@ -86,7 +86,8 @@ export async function GET(request: NextRequest) {
       </ul>
       <p><strong>State cookie found:</strong> ${storedState ? 'Yes' : 'No'}</p>
       <p><strong>State parameter:</strong> ${state ? 'Present' : 'Missing'}</p>
-      <p><a href="/api/quickbooks/admin-setup?admin=${encodeURIComponent(env.QUICKBOOKS_ADMIN_KEY || '')}">Try again</a></p>
+      <p>To retry the OAuth flow, please use the admin setup endpoint with proper authentication.</p>
+      <p><a href="/">Return to home</a></p>
     </body>
     </html>`;
 
