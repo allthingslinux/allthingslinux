@@ -54,6 +54,14 @@ const nextConfig: NextConfig = {
     // Enable build worker threads
     cpus: Math.max(1, Math.floor(cpus().length / 2)),
   },
+  // Performance profiling - disable webpack minification for better debugging
+  webpack: (config) => {
+    // Only disable minification in development for easier profiling
+    if (process.env.NODE_ENV === 'development') {
+      config.optimization.minimize = false;
+    }
+    return config;
+  },
   // Add headers for API endpoints
   async headers() {
     return [
