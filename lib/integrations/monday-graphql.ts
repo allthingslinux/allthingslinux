@@ -323,8 +323,11 @@ async function addDetailsToItem(
 
         // Check if the error looks like a length/complexity limit
         const errorMessage =
-          (updateError as any)?.response?.errors?.[0]?.message?.toLowerCase() ||
-          '';
+          (
+            updateError as {
+              response?: { errors?: Array<{ message?: string }> };
+            }
+          )?.response?.errors?.[0]?.message?.toLowerCase() || '';
         const isLengthError =
           errorMessage.includes('limit') ||
           errorMessage.includes('length') ||
