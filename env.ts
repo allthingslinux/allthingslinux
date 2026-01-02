@@ -18,17 +18,34 @@ function getDeploymentEnvironment(): 'dev' | 'prod' {
   // Check NEXT_PUBLIC_URL (set dynamically in middleware based on request host)
   const publicUrl = process.env.NEXT_PUBLIC_URL || '';
 
-  // Production: allthingslinux.org (and subdomains)
-  if (publicUrl.includes('allthingslinux.org')) {
-    return 'prod';
-  }
+  // Parse URL safely and extract hostname for strict domain checking
+  try {
+    let url: URL;
+    if (publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) {
+      url = new URL(publicUrl);
+    } else {
+      // Handle cases where publicUrl might just be a hostname (add fake scheme)
+      url = new URL(`https://${publicUrl}`);
+    }
 
-  // Development: allthingslinux.dev or localhost
-  if (
-    publicUrl.includes('allthingslinux.dev') ||
-    publicUrl.includes('localhost')
-  ) {
-    return 'dev';
+    const hostname = url.hostname;
+
+    // Production: exact match or subdomain of allthingslinux.org
+    if (hostname === 'allthingslinux.org' || hostname.endsWith('.allthingslinux.org')) {
+      return 'prod';
+    }
+
+    // Development: exact match or subdomain of allthingslinux.dev, or localhost
+    if (
+      hostname === 'allthingslinux.dev' ||
+      hostname.endsWith('.allthingslinux.dev') ||
+      hostname === 'localhost'
+    ) {
+      return 'dev';
+    }
+  } catch (error) {
+    // Invalid URL format, fall back to NODE_ENV logic
+    console.warn('[getDeploymentEnvironment] Failed to parse URL, falling back to NODE_ENV:', publicUrl, error);
   }
 
   // Default based on NODE_ENV (conservative - prefer dev for safety)
