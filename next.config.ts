@@ -15,12 +15,12 @@ const nextConfig: NextConfig = {
   compress: true,
   compiler: {
     // Remove console logs for better performance in production
-    removeConsole:
-      process.env.NODE_ENV === 'production'
-        ? true
-        : {
-            exclude: ['error', 'warn'],
-          },
+    // removeConsole:
+    //   process.env.NODE_ENV === 'production'
+    //     ? true
+    //     : {
+    //         exclude: ['error', 'warn'],
+    //       },
     // Enable emotion optimization if used
     emotion: true,
     // Remove React properties in production

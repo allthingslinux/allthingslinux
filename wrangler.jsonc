@@ -2,9 +2,10 @@
   "$schema": "node_modules/wrangler/config-schema.json",
 
   // === BASE CONFIGURATION (Shared across all environments) ===
+  // Base name for production worker
   "name": "allthingslinux",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2025-04-02",
+  "compatibility_date": "2026-01-02",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "find_additional_modules": true,
   "preserve_file_names": false,
@@ -12,12 +13,6 @@
   "no_bundle": false,
   "logpush": true,
 
-  // Workers Builds configuration for automatic deployments
-  "build": {
-    "command": "pnpm install --frozen-lockfile && pnpm exec opennextjs-cloudflare build",
-    "cwd": ".",
-    "watch_dir": ".",
-  },
 
   // Performance and resource limits
   "limits": {
@@ -47,8 +42,11 @@
   // Dev Environment (Preview Deployments)
   "env": {
     "dev": {
-      "name": "dev",
+      // Auto-creates worker: allthingslinux-dev (allows environment-specific secrets)
+      // Explicit name not needed - Wrangler auto-generates: <top-level-name>-<env-name>
       "workers_dev": true,
+      // Note: Preview URLs won't work with Durable Objects, but enabled for clarity
+      "preview_urls": true,
       "minify": true,
       "preserve_file_names": false,
 
@@ -61,11 +59,11 @@
         "head_sampling_rate": 0.1, // 10% of requests logged
       },
 
-      // Dev service bindings
+      // Dev service bindings (self-reference - use auto-generated name)
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
-          "service": "dev",
+          "service": "allthingslinux-dev",
         },
       ],
       "images": {
@@ -118,19 +116,24 @@
       ],
 
       // Dev environment variables
+      // Note: NODE_ENV is automatically set by Next.js during build - do not override it
+      // Worker URL format: allthingslinux-dev.<your-subdomain>.workers.dev
       "vars": {
-        "NEXT_PUBLIC_URL": "https://dev.allthingslinux.workers.dev",
-        "NEXT_PUBLIC_API_URL": "https://dev.allthingslinux.workers.dev/api",
+        "NEXT_PUBLIC_URL": "https://allthingslinux-dev.allthingslinux.workers.dev",
+        "NEXT_PUBLIC_API_URL": "https://allthingslinux-dev.allthingslinux.workers.dev/api",
         "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
         "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
-        "NODE_ENV": "development",
       },
     },
 
     // Prod Environment
     "prod": {
-      "name": "prod",
+      // Auto-creates worker: allthingslinux-prod (separate from dev for isolation)
+      // Production secrets/bindings are isolated on this worker
+      // Custom domain routes point to this worker (worker name doesn't affect public URLs)
       "workers_dev": false,
+      // Preview URLs disabled for production (no preview deployments)
+      "preview_urls": false,
       "minify": false,
       "preserve_file_names": false,
       "no_bundle": false,
@@ -145,11 +148,11 @@
         "head_sampling_rate": 1.0, // 100% of requests logged
       },
 
-      // Prod service bindings
+      // Prod service bindings (self-reference to prod worker)
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
-          "service": "prod",
+          "service": "allthingslinux-prod",
         },
       ],
       "images": {
@@ -202,18 +205,18 @@
       ],
 
       // Production environment variables
+      // Note: NODE_ENV is automatically set by Next.js during build - do not override it
       "vars": {
         "NEXT_PUBLIC_URL": "https://allthingslinux.org",
         "NEXT_PUBLIC_API_URL": "https://allthingslinux.org/api",
         "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
         "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
-        "NODE_ENV": "production",
       },
     },
 
     // Local Environment (for `wrangler dev`)
     "local": {
-      "name": "local",
+      // Uses base worker name "allthingslinux" (local dev uses .dev.vars file)
       "workers_dev": true,
       "minify": false,
       "preserve_file_names": true,
@@ -232,7 +235,7 @@
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
-          "service": "local",
+          "service": "allthingslinux",
         },
       ],
       "images": {
@@ -285,12 +288,12 @@
       ],
 
       // Local environment variables
+      // Note: NODE_ENV is automatically set by Next.js during build - do not override it
       "vars": {
         "NEXT_PUBLIC_URL": "http://localhost:8788",
         "NEXT_PUBLIC_API_URL": "http://localhost:8788/api",
         "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
         "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
-        "NODE_ENV": "development",
       },
     },
   },

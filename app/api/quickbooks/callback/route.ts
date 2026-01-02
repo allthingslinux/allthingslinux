@@ -7,28 +7,42 @@ import {
   type QuickBooksCloudflareEnv,
 } from '@/lib/integrations/quickbooks';
 import { env } from '@/env';
-
-// Extend NextRequest to include Cloudflare environment
-interface CloudflareNextRequest extends NextRequest {
-  env?: QuickBooksCloudflareEnv;
-}
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export const runtime = 'nodejs';
 
-export async function GET(request: CloudflareNextRequest) {
+/**
+ * Helper to get Cloudflare env with KV access
+ * Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
+ * Falls back gracefully if not available
+ */
+function getCloudflareEnv(): QuickBooksCloudflareEnv | undefined {
+  try {
+    const context = getCloudflareContext();
+    if (context?.env?.KV_QUICKBOOKS) {
+      return context.env as QuickBooksCloudflareEnv;
+    }
+  } catch {
+    // getCloudflareContext() throws if not in a request context or during SSG
+    // This is expected and fine - we'll fall back to environment variables
+  }
+  return undefined;
+}
+
+export async function GET(request: NextRequest) {
   const { nextUrl, cookies } = request;
   const { searchParams } = nextUrl;
   const code = searchParams.get('code');
   const state = searchParams.get('state');
   const realmId = searchParams.get('realmId');
-  const error = searchParams.get('error');
+  const errorParam = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
   // Handle error case
-  if (error) {
+  if (errorParam) {
     return NextResponse.json(
       {
-        error,
+        error: errorParam,
         error_description: errorDescription,
       },
       { status: 400 }
@@ -51,13 +65,33 @@ export async function GET(request: CloudflareNextRequest) {
 
   if (!isValidState) {
     console.error('CSRF state validation failed', {
-      storedState: storedState ? '[REDACTED]' : 'missing',
-      receivedState: state ? '[REDACTED]' : 'missing',
+      storedState: storedState ? `[${storedState.substring(0, 8)}...]` : 'missing',
+      receivedState: state ? `[${state.substring(0, 8)}...]` : 'missing',
+      allCookies: Array.from(cookies.getAll()).map((c) => c.name),
     });
-    return NextResponse.json(
-      { error: 'Invalid state parameter. Possible CSRF attack.' },
-      { status: 403 }
-    );
+    
+    // Return helpful error page instead of JSON for better debugging
+    const errorHtml = `<!DOCTYPE html>
+    <html>
+    <head><title>OAuth Error</title></head>
+    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+      <h1>⚠️ OAuth State Validation Failed</h1>
+      <p>This could be due to:</p>
+      <ul>
+        <li>Cookie not being set (check browser DevTools → Application → Cookies)</li>
+        <li>Cross-domain cookie issues</li>
+        <li>Session expired (try the OAuth flow again)</li>
+      </ul>
+      <p><strong>State cookie found:</strong> ${storedState ? 'Yes' : 'No'}</p>
+      <p><strong>State parameter:</strong> ${state ? 'Present' : 'Missing'}</p>
+      <p><a href="/api/quickbooks/admin-setup?admin=${encodeURIComponent(env.QUICKBOOKS_ADMIN_KEY || '')}">Try again</a></p>
+    </body>
+    </html>`;
+    
+    return new NextResponse(errorHtml, {
+      headers: { 'Content-Type': 'text/html' },
+      status: 403,
+    });
   }
 
   // Clear the state cookie after validation
@@ -65,8 +99,13 @@ export async function GET(request: CloudflareNextRequest) {
   const clientId = env.QUICKBOOKS_CLIENT_ID;
   const clientSecret = env.QUICKBOOKS_CLIENT_SECRET;
 
-  // Use canonical URL from environment (security: prevents header injection)
-  const baseUrl = env.NEXT_PUBLIC_URL;
+  // Build redirect URI from request headers (matches what admin-setup used)
+  const host = request.headers.get('host') || 'localhost:3000';
+  const protocol =
+    request.headers.get('x-forwarded-proto') ||
+    request.headers.get('x-forwarded-scheme') ||
+    (host.includes('localhost') ? 'http' : 'https');
+  const baseUrl = `${protocol}://${host}`;
   const redirectUri = `${baseUrl}/api/quickbooks/callback`;
 
   if (!clientId || !clientSecret) {
@@ -103,14 +142,28 @@ export async function GET(request: CloudflareNextRequest) {
     };
 
     // Get Cloudflare environment if available
-    const cfEnv = request.env;
+    // Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
+    const cfEnv = getCloudflareEnv();
+    
+    console.log('[QuickBooks Callback] KV namespace available:', !!cfEnv?.KV_QUICKBOOKS);
+    console.log('[QuickBooks Callback] Attempting to save tokens...', {
+      hasClientId: !!tokenData.clientId,
+      hasClientSecret: !!tokenData.clientSecret,
+      hasRefreshToken: !!tokenData.refreshToken,
+      hasRealmId: !!tokenData.realmId,
+      environment: tokenData.environment,
+    });
 
     // Save tokens automatically
     const saved = await saveTokens(tokenData, cfEnv);
 
     if (saved) {
-      console.log('✅ QuickBooks tokens automatically saved to Cloudflare KV');
+      console.log('[QuickBooks Callback] ✅ QuickBooks tokens saved (KV or Secrets API)');
     } else {
+      console.warn('[QuickBooks Callback] ⚠️ Tokens NOT saved to KV/Secrets (using environment variables)');
+      console.log('[QuickBooks Callback] 💡 To enable automatic token saving:');
+      console.log('[QuickBooks Callback]    1. Ensure KV namespace is accessible, OR');
+      console.log('[QuickBooks Callback]    2. Add CLOUDFLARE_API_TOKEN as a secret to enable automatic secret updates');
       // Fallback for development/local environments - only log in development
       if (env.NODE_ENV === 'development') {
         console.log('');
@@ -152,7 +205,7 @@ export async function GET(request: CloudflareNextRequest) {
       <p>Your QuickBooks integration is now ${isSetupMode ? 'configured' : 'updated'}.</p>
       <p><strong>Realm ID:</strong> ${escapeHtml(realmId)}</p>
       <p><strong>Environment:</strong> ${escapeHtml(env.QUICKBOOKS_ENVIRONMENT || 'sandbox')}</p>
-      ${saved ? '<p>Tokens have been securely saved to Cloudflare KV.</p>' : '<p>Check your server logs for token details.</p>'}
+      ${saved ? '<p>✅ Tokens have been automatically saved to Cloudflare (KV or Secrets).</p>' : '<p>⚠️ Tokens are being used from environment variables. Check server logs for details.</p>'}
       <p>You can close this window now.</p>
     </body>
     </html>`;

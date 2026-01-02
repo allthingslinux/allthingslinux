@@ -1,7 +1,7 @@
 # All Things Linux
 
 [![Deploy to Production](https://img.shields.io/badge/Production-Deployed-brightgreen)](https://allthingslinux.org)
-[![Deploy to Dev](https://img.shields.io/badge/Dev-Deployed-blue)](https://dev.allthingslinux.workers.dev)
+[![Deploy to Dev](https://img.shields.io/badge/Dev-Deployed-blue)](https://allthingslinux-dev.allthingslinux.workers.dev)
 
 The official website for All Things Linux ([allthingslinux.org](https://allthingslinux.org)).
 
@@ -82,9 +82,13 @@ pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
 | Branch | Environment | URL                                                                      |
 | ------ | ----------- | ------------------------------------------------------------------------ |
 | `main` | Production  | [allthingslinux.org](https://allthingslinux.org)                         |
-| `dev`  | Development | [dev.allthingslinux.workers.dev](https://dev.allthingslinux.workers.dev) |
+| `dev`  | Development | [allthingslinux-dev.allthingslinux.workers.dev](https://allthingslinux-dev.allthingslinux.workers.dev) |
 
-**Setup:** Connect your GitHub repo in [Cloudflare Dashboard → Workers → Builds](https://dash.cloudflare.com/workers-and-pages).
+**Setup:** See [Workers Builds Setup Guide](docs/WORKERS_BUILDS_SETUP.md) for detailed configuration.
+
+Quick setup: Connect your GitHub repo in [Cloudflare Dashboard → Workers → Builds](https://dash.cloudflare.com/workers-and-pages) and configure:
+- **Production branch deploy:** `pnpm install && pnpm run build:all && pnpm exec opennextjs-cloudflare deploy -- --env prod`
+- **Non-production branch deploy:** `pnpm install && pnpm run build:all && pnpm exec opennextjs-cloudflare deploy -- --env dev`
 
 ### Manual Deployments
 
@@ -234,7 +238,7 @@ pnpm run trigger
 **Environment variables not loading**
 
 - Check `.dev.vars` syntax (KEY=value, one per line)
-- Ensure `NEXTJS_ENV` is set correctly
+- Ensure `NODE_ENV` is set correctly (Next.js sets this automatically - use only `development`, `production`, or `test`)
 - Restart development servers after changes
 
 ### Need Help?

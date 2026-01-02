@@ -4,12 +4,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getPageMetadata } from '../metadata';
 import type { Metadata } from 'next';
 import { env } from '@/env';
+import { headers } from 'next/headers';
 import type { QuickBooksTransaction } from '@/lib/integrations/quickbooks';
 
 export const metadata: Metadata = getPageMetadata('finance');
 
 // Explicitly set Node.js runtime for Buffer usage in dependencies
 export const runtime = 'nodejs';
+
+// Mark as dynamic since we fetch from API
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /**
  * Format currency amount as USD
@@ -84,9 +89,21 @@ function TransactionsTableSkeleton() {
 
 async function TransactionsTable() {
   try {
+    // Construct absolute URL for fetch (required in server components)
+    const headersList = await headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const protocol = headersList.get('x-forwarded-proto') || 
+                     headersList.get('x-forwarded-scheme') || 
+                     (host.includes('localhost') ? 'http' : 'https');
+    const baseUrl = `${protocol}://${host}`;
+    const apiUrl = `${baseUrl}/api/quickbooks`;
+    
     // Fetch transactions via API route that has access to Cloudflare KV
-    const response = await fetch(`${env.NEXT_PUBLIC_URL}/api/quickbooks`, {
-      cache: 'no-store', // Always fetch fresh data
+    const response = await fetch(apiUrl, {
+      cache: 'no-store', // Always fetch fresh data - prevents static generation
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!response.ok) {

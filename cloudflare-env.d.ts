@@ -4,8 +4,8 @@
 declare namespace Cloudflare {
 	interface Env {
 		KV_QUICKBOOKS: KVNamespace;
-		NEXT_PUBLIC_URL: "https://dev.allthingslinux.workers.dev" | "https://allthingslinux.org" | "http://localhost:8788";
-		NEXT_PUBLIC_API_URL: "https://dev.allthingslinux.workers.dev/api" | "https://allthingslinux.org/api" | "http://localhost:8788/api";
+		NEXT_PUBLIC_URL: "https://allthingslinux-dev.allthingslinux.workers.dev" | "https://allthingslinux.org" | "http://localhost:8788";
+		NEXT_PUBLIC_API_URL: "https://allthingslinux-dev.allthingslinux.workers.dev/api" | "https://allthingslinux.org/api" | "http://localhost:8788/api";
 		NEXT_PUBLIC_GITHUB_REPO_OWNER: "allthingslinux";
 		NEXT_PUBLIC_GITHUB_REPO_NAME: "applications";
 		NODE_ENV: "development" | "production";

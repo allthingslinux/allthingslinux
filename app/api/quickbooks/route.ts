@@ -5,14 +5,28 @@ import {
   fetchQuickBooksTransactions,
   type QuickBooksCloudflareEnv,
 } from '@/lib/integrations/quickbooks';
-
-// Extend NextRequest to include Cloudflare environment
-interface CloudflareNextRequest extends NextRequest {
-  env?: QuickBooksCloudflareEnv;
-}
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 // Cloudflare Workers runtime - using nodejs for Buffer/crypto compatibility
 export const runtime = 'nodejs';
+
+/**
+ * Helper to get Cloudflare env with KV access
+ * Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
+ * Falls back gracefully if not available
+ */
+function getCloudflareEnv(): QuickBooksCloudflareEnv | undefined {
+  try {
+    const context = getCloudflareContext();
+    if (context?.env?.KV_QUICKBOOKS) {
+      return context.env as QuickBooksCloudflareEnv;
+    }
+  } catch {
+    // getCloudflareContext() throws if not in a request context or during SSG
+    // This is expected and fine - we'll fall back to environment variables
+  }
+  return undefined;
+}
 
 /**
  * GET /api/quickbooks
@@ -23,13 +37,18 @@ export const runtime = 'nodejs';
  * Data includes: transaction amounts, types, dates, and basic descriptions.
  * Sensitive details like full customer/vendor information are limited.
  */
-export async function GET(request: CloudflareNextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    // Get Cloudflare environment from request
-    const cfEnv = request.env;
+    // Get Cloudflare environment
+    // Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
+    const cfEnv = getCloudflareEnv();
+    
+    console.log('[QuickBooks API] Request received, KV namespace available:', !!cfEnv?.KV_QUICKBOOKS);
 
     // Fetch transactions with Cloudflare environment
     const transactions = await fetchQuickBooksTransactions(cfEnv);
+    
+    console.log('[QuickBooks API] Returning', transactions.length, 'transactions');
 
     return NextResponse.json({
       success: true,
@@ -38,7 +57,8 @@ export async function GET(request: CloudflareNextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error fetching QuickBooks data:', error);
+    console.error('[QuickBooks API] ❌ Error fetching QuickBooks data:', error);
+    console.error('[QuickBooks API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
 
     return NextResponse.json(
       {
@@ -50,6 +70,10 @@ export async function GET(request: CloudflareNextRequest) {
               ? error.message
               : 'Unknown error'
             : undefined,
+        // Always include error in dev environment for debugging
+        ...(env.NODE_ENV === 'development' && error instanceof Error
+          ? { stack: error.stack }
+          : {}),
       },
       { status: 500 }
     );
@@ -62,7 +86,7 @@ export async function GET(request: CloudflareNextRequest) {
  * Administrative endpoint for token refresh operations.
  * Requires authentication to prevent abuse and unauthorized token operations.
  */
-export async function POST(request: CloudflareNextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Basic authentication check - require admin access
     const authHeader = request.headers.get('authorization');
@@ -80,7 +104,7 @@ export async function POST(request: CloudflareNextRequest) {
 
     if (action === 'refresh_tokens') {
       // Force token refresh by clearing cache and fetching new data
-      const cfEnv = request.env;
+      const cfEnv = getCloudflareEnv();
       const transactions = await fetchQuickBooksTransactions(cfEnv);
 
       return NextResponse.json({

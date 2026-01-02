@@ -36,6 +36,15 @@ pnpm run secrets:dev   # Uses .env.secrets.dev (sandbox credentials)
 pnpm run secrets:prod  # Uses .env.secrets.prod (production credentials)
 ```
 
+**Note:** The secrets script requires Cloudflare authentication. You have two options:
+
+1. **API Token (Recommended for automation):** Add `CLOUDFLARE_API_TOKEN` to your `.env.secrets.dev` or `.env.secrets.prod` file
+   - Get a token from: https://developers.cloudflare.com/fundamentals/api/get-started/create-token/
+   - Required permissions: Account:Cloudflare Workers:Edit, Account:Workers KV Storage:Edit, Account:Workers Scripts:Edit
+
+2. **OAuth (Interactive only):** Run `wrangler login` before running the secrets script
+   - If you encounter OAuth errors, run `wrangler logout` first, then `wrangler login`
+
 ## 📝 **Environment Variables Reference**
 
 ### **Public Variables** (Available in browser)
@@ -64,6 +73,11 @@ QUICKBOOKS_REFRESH_TOKEN=Q011xxxxxxxxxxxx
 QUICKBOOKS_REALM_ID=9130xxxxxxxxxxxx
 QUICKBOOKS_ENVIRONMENT=sandbox  # or 'production'
 QUICKBOOKS_ADMIN_KEY=secure_random_key_here
+
+# Cloudflare API authentication (optional but recommended)
+# Get token from: https://developers.cloudflare.com/fundamentals/api/get-started/create-token/
+# Required permissions: Account:Cloudflare Workers:Edit, Account:Workers KV Storage:Edit, Account:Workers Scripts:Edit
+CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here
 ```
 
 ## 🌍 **Environment-Specific URLs**
@@ -75,7 +89,7 @@ QUICKBOOKS_ADMIN_KEY=secure_random_key_here
 
 ### **Cloudflare Workers**
 
-- **Dev Environment**: `https://dev.allthingslinux.workers.dev`
+- **Dev Environment**: `https://allthingslinux-dev.allthingslinux.workers.dev`
 - **Production**: `https://allthingslinux.org`
 
 ## 🔐 **Security Notes**
@@ -146,6 +160,12 @@ pnpm secrets:prod # Upload secrets to production (uses .env.secrets.prod)
    - Check Cloudflare dashboard for secret values
    - Ensure environment-specific URLs are correct
    - Verify production QuickBooks credentials in `.env.secrets.prod`
+
+4. **Wrangler authentication errors when setting secrets**
+   - **OAuth errors:** Run `wrangler logout` then `wrangler login` to refresh OAuth tokens
+   - **Non-interactive environment:** Add `CLOUDFLARE_API_TOKEN` to your `.env.secrets.dev` or `.env.secrets.prod` file
+   - **Invalid token:** Get a new API token from https://developers.cloudflare.com/fundamentals/api/get-started/create-token/
+   - **Missing permissions:** Ensure your token has Account:Cloudflare Workers:Edit, Account:Workers KV Storage:Edit, and Account:Workers Scripts:Edit permissions
 
 ### **Validation Commands**
 
