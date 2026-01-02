@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { fetchQuickBooksTransactions, type QuickBooksCloudflareEnv } from '@/lib/integrations/quickbooks';
+import { env } from '@/env';
+import {
+  fetchQuickBooksTransactions,
+  type QuickBooksCloudflareEnv,
+} from '@/lib/integrations/quickbooks';
 
 // Extend NextRequest to include Cloudflare environment
 interface CloudflareNextRequest extends NextRequest {
@@ -12,10 +16,10 @@ export const runtime = 'nodejs';
 
 /**
  * GET /api/quickbooks
- * 
+ *
  * Public endpoint that returns QuickBooks transaction data for transparency.
  * This is intentionally public to provide financial transparency for the organization.
- * 
+ *
  * Data includes: transaction amounts, types, dates, and basic descriptions.
  * Sensitive details like full customer/vendor information are limited.
  */
@@ -40,9 +44,12 @@ export async function GET(request: CloudflareNextRequest) {
       {
         success: false,
         error: 'Failed to fetch QuickBooks data',
-        details: process.env.NODE_ENV === 'development' 
-          ? (error instanceof Error ? error.message : 'Unknown error')
-          : undefined,
+        details:
+          env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined,
       },
       { status: 500 }
     );
@@ -51,7 +58,7 @@ export async function GET(request: CloudflareNextRequest) {
 
 /**
  * POST /api/quickbooks
- * 
+ *
  * Administrative endpoint for token refresh operations.
  * Requires authentication to prevent abuse and unauthorized token operations.
  */
@@ -59,8 +66,8 @@ export async function POST(request: CloudflareNextRequest) {
   try {
     // Basic authentication check - require admin access
     const authHeader = request.headers.get('authorization');
-    const adminKey = process.env.QUICKBOOKS_ADMIN_KEY;
-    
+    const adminKey = env.QUICKBOOKS_ADMIN_KEY;
+
     if (!adminKey || authHeader !== `Bearer ${adminKey}`) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized - admin access required' },
@@ -96,9 +103,12 @@ export async function POST(request: CloudflareNextRequest) {
       {
         success: false,
         error: 'API request failed',
-        details: process.env.NODE_ENV === 'development'
-          ? (error instanceof Error ? error.message : 'Unknown error')
-          : undefined,
+        details:
+          env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined,
       },
       { status: 500 }
     );

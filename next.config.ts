@@ -2,6 +2,9 @@ import { cpus } from 'node:os';
 import type { NextConfig } from 'next';
 import { withContentlayer } from 'next-contentlayer2';
 
+// Validate environment variables at build time
+import './env';
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,

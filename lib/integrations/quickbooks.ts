@@ -166,7 +166,9 @@ const discoveryCache: Record<string, DiscoveryDocument> = {};
  * Fetches discovery document for the given environment
  * Caches the result to avoid repeated requests
  */
-async function getDiscoveryDocument(environment: 'sandbox' | 'production'): Promise<DiscoveryDocument | null> {
+async function getDiscoveryDocument(
+  environment: 'sandbox' | 'production'
+): Promise<DiscoveryDocument | null> {
   const cacheKey = environment;
 
   if (discoveryCache[cacheKey]) {
@@ -182,7 +184,7 @@ async function getDiscoveryDocument(environment: 'sandbox' | 'production'): Prom
       throw new Error(`Discovery document fetch failed: ${response.status}`);
     }
 
-    const doc = await response.json() as DiscoveryDocument;
+    const doc = (await response.json()) as DiscoveryDocument;
     discoveryCache[cacheKey] = doc;
     return doc;
   } catch (error) {
@@ -489,12 +491,16 @@ async function saveTokens(
   }
 
   // Fallback: log for manual setup (development)
-  if (process.env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     console.log(
       '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
     );
-    console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken.substring(0, 10)}...${tokens.refreshToken.slice(-4)} (masked)`);
-    console.log('⚠️  Full token available in OAuth callback response - check browser network tab');
+    console.log(
+      `QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken.substring(0, 10)}...${tokens.refreshToken.slice(-4)} (masked)`
+    );
+    console.log(
+      '⚠️  Full token available in OAuth callback response - check browser network tab'
+    );
     console.log(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
     if (tokens.clientId) console.log(`QUICKBOOKS_CLIENT_ID=${tokens.clientId}`);
     if (tokens.environment)

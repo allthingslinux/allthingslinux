@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { env } from '@/env';
 import type { FormQuestion, Role } from '@/types';
 import { z } from 'zod';
 
@@ -162,7 +163,7 @@ export function getRolesByDepartment(roles: Role[]): Record<string, Role[]> {
  */
 export function getBaseUrl(): string {
   // Check if we're running on the server and in development mode
-  if (typeof window === 'undefined' && process.env.NODE_ENV === 'development') {
+  if (typeof window === 'undefined' && env.NODE_ENV === 'development') {
     return 'http://localhost:3000';
   }
 
@@ -172,7 +173,7 @@ export function getBaseUrl(): string {
   }
 
   // In production server-side rendering, use the environment variable or fallback
-  return process.env.NEXT_PUBLIC_APP_URL || 'https://allthingslinux.org';
+  return env.NEXT_PUBLIC_URL;
 }
 
 /**
@@ -183,7 +184,7 @@ export function getApiUrl(path: string): string {
   const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 
   // Add cache busting in development mode
-  if (process.env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     const cacheBuster = `_cb=${Date.now()}`;
     return url.includes('?')
       ? `${url}&${cacheBuster}`

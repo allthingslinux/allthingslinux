@@ -44,11 +44,11 @@ export async function GET(request: CloudflareNextRequest) {
 
   // Validate CSRF state token
   const storedState = cookies.get('qb_oauth_state')?.value;
-  
+
   if (!storedState || storedState !== state) {
-    console.error('CSRF state validation failed', { 
+    console.error('CSRF state validation failed', {
       storedState: storedState ? '[REDACTED]' : 'missing',
-      receivedState: state ? '[REDACTED]' : 'missing'
+      receivedState: state ? '[REDACTED]' : 'missing',
     });
     return NextResponse.json(
       { error: 'Invalid state parameter. Possible CSRF attack.' },
@@ -112,7 +112,7 @@ export async function GET(request: CloudflareNextRequest) {
       console.log('✅ QuickBooks tokens automatically saved to Cloudflare KV');
     } else {
       // Fallback for development/local environments - only log in development
-      if (process.env.NODE_ENV === 'development') {
+      if (env.NODE_ENV === 'development') {
         console.log('');
         console.log(
           '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
@@ -148,12 +148,12 @@ export async function GET(request: CloudflareNextRequest) {
     </body>
     </html>`;
 
-  // Clear the state cookie after validation
-  const finalResponse = new NextResponse(html, {
-    headers: { 'Content-Type': 'text/html' },
-  });
-  finalResponse.cookies.delete('qb_oauth_state');
-  return finalResponse;
+    // Clear the state cookie after validation
+    const finalResponse = new NextResponse(html, {
+      headers: { 'Content-Type': 'text/html' },
+    });
+    finalResponse.cookies.delete('qb_oauth_state');
+    return finalResponse;
   } catch (error) {
     console.error('Error in QuickBooks callback:', error);
     return NextResponse.json(

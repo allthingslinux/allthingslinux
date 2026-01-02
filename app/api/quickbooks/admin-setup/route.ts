@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { env } from '@/env';
 
 // Simple admin-only OAuth setup
 export const runtime = 'nodejs';
@@ -7,13 +8,13 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   // Only allow in development or with admin key
   const adminKey = request.nextUrl.searchParams.get('admin');
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = env.NODE_ENV === 'development';
 
-  if (!isDev && adminKey !== process.env.ADMIN_SETUP_KEY) {
+  if (!isDev && adminKey !== env.QUICKBOOKS_ADMIN_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const clientId = process.env.QUICKBOOKS_CLIENT_ID;
+  const clientId = env.QUICKBOOKS_CLIENT_ID;
   if (!clientId) {
     return NextResponse.json(
       { error: 'Missing QUICKBOOKS_CLIENT_ID' },

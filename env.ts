@@ -12,7 +12,10 @@ import { z } from 'zod';
  */
 // Helper to determine QuickBooks environment with auto-detection
 const getQuickBooksEnvironment = (): 'sandbox' | 'production' | undefined =>
-  (process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production' | undefined) ||
+  (process.env.QUICKBOOKS_ENVIRONMENT as
+    | 'sandbox'
+    | 'production'
+    | undefined) ||
   (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox');
 
 export const env = createEnv({
@@ -87,9 +90,7 @@ export const env = createEnv({
   /**
    * Configuration options
    */
-  skipValidation:
-    process.env.SKIP_ENV_VALIDATION === 'true' ||
-    process.env.NODE_ENV !== 'production',
+  skipValidation: process.env.SKIP_ENV_VALIDATION === 'true',
   emptyStringAsUndefined: true,
   onValidationError: (error) => {
     console.error('❌ Invalid environment variables:', error);
