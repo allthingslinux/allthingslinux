@@ -22,13 +22,13 @@ This document explains all available pnpm scripts in the project.
 ## Building
 
 - `pnpm run build`
-  Builds Next.js application for production.
+  Compiles Next.js application for production.
 
 - `pnpm run build:all`
   Builds both Next.js and OpenNext.js Cloudflare adapter for complete deployment preparation.
 
 - `pnpm run build:opennext`
-  Builds the application using OpenNext.js Cloudflare adapter for Cloudflare Workers deployment.
+  Compiles the application using OpenNext.js Cloudflare adapter for Cloudflare Workers deployment.
 
 ## Testing & Preview
 
@@ -46,12 +46,7 @@ This document explains all available pnpm scripts in the project.
 - `pnpm run deploy`
   Alias for production deployment - the default deploy command.
 
-## Testing & Preview
-
-- `pnpm run preview`
-  Builds and runs the Cloudflare application locally to test the production build.
-
-## Deployment
+## Version Management
 
 - `pnpm run deploy:dev`
   Builds and deploys to the development environment.

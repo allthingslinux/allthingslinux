@@ -113,8 +113,7 @@ export interface QuickBooksTransaction {
 // Constants
 const API_TIMEOUT_MS = 10000; // 10 seconds
 
-// Token cache - uses in-memory for development, but for production
-// Cloudflare deployments, consider using Cloudflare KV for persistence
+// Token cache - uses KV storage for Cloudflare Workers, in-memory for development
 interface CachedToken {
   accessToken: string;
   expiresAt: number;
@@ -124,12 +123,13 @@ interface CachedToken {
 
 let tokenCache: CachedToken | null = null;
 
-// For Cloudflare Workers, we skip caching to ensure fresh tokens
-// This is acceptable since QuickBooks API calls are not frequent
+// Check if we should use caching (KV for Cloudflare, in-memory for Node.js)
 const shouldCacheTokens = () => {
-  // In Cloudflare Workers, don't cache to avoid stale tokens
-  return typeof globalThis.caches === 'undefined';
+  return true; // Always cache, but use KV when available
 };
+
+// KV cache key for tokens
+const TOKEN_CACHE_KEY = 'quickbooks_tokens_cache';
 
 /**
  * Gets the QuickBooks API base URL based on environment
@@ -255,8 +255,26 @@ export async function getAccessToken(
   cfEnv?: QuickBooksCloudflareEnv,
   environment: 'sandbox' | 'production' = 'production'
 ): Promise<{ accessToken: string; newRefreshToken?: string } | null> {
-  // Check cache first (skip in Cloudflare Workers for reliability)
-  if (shouldCacheTokens() && tokenCache && tokenCache.expiresAt > Date.now()) {
+  // Check KV cache first if available
+  if (cfEnv?.KV_QUICKBOOKS) {
+    try {
+      const cached = await cfEnv.KV_QUICKBOOKS.get(TOKEN_CACHE_KEY);
+      if (cached) {
+        const parsedCache: CachedToken = JSON.parse(cached);
+        if (parsedCache.expiresAt > Date.now()) {
+          return { accessToken: parsedCache.accessToken };
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to read token cache from KV:', error);
+    }
+  }
+  // Check in-memory cache for Node.js environments
+  else if (
+    shouldCacheTokens() &&
+    tokenCache &&
+    tokenCache.expiresAt > Date.now()
+  ) {
     return { accessToken: tokenCache.accessToken };
   }
 
@@ -270,9 +288,7 @@ export async function getAccessToken(
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization:
-          'Basic ' +
-          Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
+        Authorization: 'Basic ' + btoa(`${clientId}:${clientSecret}`),
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',
@@ -304,12 +320,31 @@ export async function getAccessToken(
     const expiresInMs = (tokens.expires_in - 300) * 1000; // Convert to ms, subtract 5 min
     const now = Date.now();
 
-    tokenCache = {
+    const cacheData: CachedToken = {
       accessToken: tokens.access_token,
       expiresAt: now + expiresInMs,
       refreshToken: tokens.refresh_token,
       lastRefreshed: now,
     };
+
+    // Cache in KV if available (Cloudflare Workers)
+    if (cfEnv?.KV_QUICKBOOKS) {
+      try {
+        await cfEnv.KV_QUICKBOOKS.put(
+          TOKEN_CACHE_KEY,
+          JSON.stringify(cacheData),
+          {
+            expirationTtl: Math.floor(expiresInMs / 1000), // TTL in seconds
+          }
+        );
+      } catch (error) {
+        console.warn('Failed to cache tokens in KV:', error);
+      }
+    }
+    // Cache in memory for Node.js environments
+    else {
+      tokenCache = cacheData;
+    }
 
     // Check if refresh token changed (happens every 24 hours per QuickBooks FAQ)
     const refreshTokenChanged = tokens.refresh_token !== refreshToken;
@@ -656,9 +691,7 @@ export async function exchangeAuthorizationCode(
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization:
-          'Basic ' +
-          Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
+        Authorization: 'Basic ' + btoa(`${clientId}:${clientSecret}`),
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',

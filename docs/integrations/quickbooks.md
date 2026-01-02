@@ -135,24 +135,24 @@ Initial tokens will be obtained via the admin setup route.
 
 ## Troubleshooting
 
-**"Missing QuickBooks credentials"**
+### "Missing QuickBooks credentials"
 
 - Add `QUICKBOOKS_CLIENT_ID` and `QUICKBOOKS_CLIENT_SECRET` to environment
 
-**"CSRF state validation failed"**
+### "CSRF state validation failed"
 
 - Clear browser cookies and retry OAuth flow
 
-**"Rate limit exceeded"**
+### "Rate limit exceeded"
 
 - Integration automatically retries with exponential backoff
 
-**"invalid_grant" error**
+### "invalid_grant" error
 
 - Refresh token may have expired (100 days)
 - Run admin setup again to re-authorize
 
-**"HTTPS Required"**
+### "HTTPS Required"
 
 - QuickBooks requires HTTPS for redirect URIs
 - Use localhost for development or ensure HTTPS in production
@@ -177,6 +177,7 @@ The `QUICKBOOKS_ADMIN_KEY` protects sensitive operations:
 - **Different per environment**: Use separate keys for dev/prod
 
 Example secure key generation:
+
 ```bash
 # Generate a secure random key
 openssl rand -hex 32

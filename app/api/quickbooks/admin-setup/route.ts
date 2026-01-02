@@ -6,11 +6,10 @@ import { env } from '@/env';
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
-  // Only allow in development or with admin key
+  // Require admin key authentication in all environments
   const adminKey = request.nextUrl.searchParams.get('admin');
-  const isDev = env.NODE_ENV === 'development';
 
-  if (!isDev && adminKey !== env.QUICKBOOKS_ADMIN_KEY) {
+  if (adminKey !== env.QUICKBOOKS_ADMIN_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

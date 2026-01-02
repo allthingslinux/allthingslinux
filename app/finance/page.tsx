@@ -83,124 +83,150 @@ function TransactionsTableSkeleton() {
 }
 
 async function TransactionsTable() {
-  // Fetch transactions via API route that has access to Cloudflare KV
-  const response = await fetch(`${env.NEXT_PUBLIC_URL}/api/quickbooks`, {
-    cache: 'no-store', // Always fetch fresh data
-  });
+  try {
+    // Fetch transactions via API route that has access to Cloudflare KV
+    const response = await fetch(`${env.NEXT_PUBLIC_URL}/api/quickbooks`, {
+      cache: 'no-store', // Always fetch fresh data
+    });
 
-  let transactions: QuickBooksTransaction[] = [];
-  if (response.ok) {
+    if (!response.ok) {
+      console.error(
+        'Failed to fetch transactions:',
+        response.status,
+        response.statusText
+      );
+      return (
+        <div className="text-center py-12 text-destructive">
+          Failed to load transactions. Please try again later.
+        </div>
+      );
+    }
+
     const data = (await response.json()) as {
       data?: QuickBooksTransaction[];
     };
-    transactions = data.data || [];
-  }
+    const transactions = data.data || [];
 
-  if (transactions.length === 0) {
-    return (
-      <div className="text-center py-12 text-muted-foreground">
-        No transactions found
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="rounded-lg border">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Vendor
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Description
-                </th>
-                <th className="px-4 py-3 text-right text-sm font-medium">
-                  Amount
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((transaction: QuickBooksTransaction) => (
-                <tr
-                  key={`${transaction.type}-${transaction.id}`}
-                  className="border-b last:border-0 hover:bg-muted/50 transition-colors"
-                >
-                  <td className="px-4 py-3 text-sm">
-                    {formatDate(transaction.txnDate)}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {transaction.customerName || transaction.vendorName || '-'}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {transaction.description || '-'}
-                  </td>
-                  <td
-                    className={`px-4 py-3 text-sm text-right font-medium ${
-                      transaction.amount >= 0
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                    }`}
-                  >
-                    {formatCurrency(transaction.amount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    if (transactions.length === 0) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          No transactions found
         </div>
-      </div>
+      );
+    }
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">
-              Total Transactions
-            </div>
-            <div className="text-2xl font-bold">{transactions.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Total Income</div>
-            <div className="text-2xl font-bold text-green-500">
-              {formatCurrency(
-                transactions
-                  .filter((t: QuickBooksTransaction) => t.amount > 0)
-                  .reduce(
-                    (sum: number, t: QuickBooksTransaction) => sum + t.amount,
-                    0
-                  )
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Total Expenses</div>
-            <div className="text-2xl font-bold text-red-500">
-              {formatCurrency(
-                Math.abs(
+    // Render transactions table...
+
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg border">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-b bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium">
+                    Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">
+                    Vendor
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">
+                    Description
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((transaction: QuickBooksTransaction) => (
+                  <tr
+                    key={`${transaction.type}-${transaction.id}`}
+                    className="border-b last:border-0 hover:bg-muted/50 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-sm">
+                      {formatDate(transaction.txnDate)}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {transaction.customerName ||
+                        transaction.vendorName ||
+                        '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {transaction.description || '-'}
+                    </td>
+                    <td
+                      className={`px-4 py-3 text-sm text-right font-medium ${
+                        transaction.amount >= 0
+                          ? 'text-green-500'
+                          : 'text-red-500'
+                      }`}
+                    >
+                      {formatCurrency(transaction.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-muted-foreground">
+                Total Transactions
+              </div>
+              <div className="text-2xl font-bold">{transactions.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-muted-foreground">Total Income</div>
+              <div className="text-2xl font-bold text-green-500">
+                {formatCurrency(
                   transactions
-                    .filter((t: QuickBooksTransaction) => t.amount < 0)
+                    .filter((t: QuickBooksTransaction) => t.amount > 0)
                     .reduce(
                       (sum: number, t: QuickBooksTransaction) => sum + t.amount,
                       0
                     )
-                )
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-muted-foreground">
+                Total Expenses
+              </div>
+              <div className="text-2xl font-bold text-red-500">
+                {formatCurrency(
+                  Math.abs(
+                    transactions
+                      .filter((t: QuickBooksTransaction) => t.amount < 0)
+                      .reduce(
+                        (sum: number, t: QuickBooksTransaction) =>
+                          sum + t.amount,
+                        0
+                      )
+                  )
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    return (
+      <div className="text-center py-12 text-destructive">
+        An error occurred while loading transactions.
+      </div>
+    );
+  }
 }
 
 export default function FinancePage() {
