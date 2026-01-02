@@ -752,13 +752,9 @@ async function updateCloudflareSecret(
   }
 
   try {
-    // Determine worker name and environment based on QuickBooks environment
-    // Default to dev if not specified
-    const envName =
-      qbEnvironment === 'production' || process.env.NODE_ENV === 'production'
-        ? 'prod'
-        : 'dev';
-    const workerName = `allthingslinux-${envName}`;
+    // Use the single worker name defined in wrangler.jsonc
+    // Environment detection is handled at runtime via middleware and prefixed secrets
+    const workerName = 'allthingslinux';
 
     // Cloudflare API endpoint for updating secrets
     // Use account-level API if accountId is available, otherwise use user-level
