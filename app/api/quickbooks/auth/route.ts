@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { randomBytes } from 'crypto';
 import { getQuickBooksAuthUrl } from '@/lib/integrations/quickbooks';
-import { env } from '@/env';
+import { runtimeEnv as env } from '@/env';
 
 export const runtime = 'nodejs';
 

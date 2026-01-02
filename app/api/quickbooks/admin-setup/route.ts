@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { env } from '@/env';
+import { runtimeEnv as env } from '@/env';
 
 // Simple admin-only OAuth setup
 export const runtime = 'nodejs';

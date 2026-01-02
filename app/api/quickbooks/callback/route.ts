@@ -6,7 +6,7 @@ import {
   escapeHtml,
   type QuickBooksCloudflareEnv,
 } from '@/lib/integrations/quickbooks';
-import { env } from '@/env';
+import { runtimeEnv as env } from '@/env';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export const runtime = 'nodejs';

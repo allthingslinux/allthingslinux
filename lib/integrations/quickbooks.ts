@@ -1,4 +1,4 @@
-import { env } from '@/env';
+import { runtimeEnv as env } from '@/env';
 
 // Cloudflare Workers environment interface
 export interface QuickBooksCloudflareEnv {
