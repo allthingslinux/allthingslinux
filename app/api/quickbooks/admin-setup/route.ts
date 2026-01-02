@@ -30,5 +30,14 @@ export async function GET(request: NextRequest) {
   authUrl.searchParams.set('scope', 'com.intuit.quickbooks.accounting');
   authUrl.searchParams.set('state', 'admin-setup');
 
-  return NextResponse.redirect(authUrl.toString());
+  // Set the state cookie for CSRF validation
+  const response = NextResponse.redirect(authUrl.toString());
+  response.cookies.set('qb_oauth_state', 'admin-setup', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    maxAge: 600, // 10 minutes
+  });
+
+  return response;
 }
