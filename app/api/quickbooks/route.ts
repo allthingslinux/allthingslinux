@@ -40,7 +40,9 @@ export async function GET(request: CloudflareNextRequest) {
       {
         success: false,
         error: 'Failed to fetch QuickBooks data',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: process.env.NODE_ENV === 'development' 
+          ? (error instanceof Error ? error.message : 'Unknown error')
+          : undefined,
       },
       { status: 500 }
     );
@@ -94,7 +96,9 @@ export async function POST(request: CloudflareNextRequest) {
       {
         success: false,
         error: 'API request failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: process.env.NODE_ENV === 'development'
+          ? (error instanceof Error ? error.message : 'Unknown error')
+          : undefined,
       },
       { status: 500 }
     );

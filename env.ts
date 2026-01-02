@@ -10,6 +10,11 @@ import { z } from 'zod';
  * - For Cloudflare deployment, variables are set in the Cloudflare dashboard
  *   and/or in wrangler.toml vars section
  */
+// Helper to determine QuickBooks environment with auto-detection
+const getQuickBooksEnvironment = (): 'sandbox' | 'production' | undefined =>
+  (process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production' | undefined) ||
+  (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox');
+
 export const env = createEnv({
   /**
    * Server-side environment variables (not exposed to browser)
@@ -70,12 +75,7 @@ export const env = createEnv({
     QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
     QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
     QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
-    QUICKBOOKS_ENVIRONMENT:
-      (process.env.QUICKBOOKS_ENVIRONMENT as
-        | 'sandbox'
-        | 'production'
-        | undefined) ||
-      (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
+    QUICKBOOKS_ENVIRONMENT: getQuickBooksEnvironment(),
     QUICKBOOKS_ADMIN_KEY: process.env.QUICKBOOKS_ADMIN_KEY,
     // Client variables
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
@@ -114,12 +114,7 @@ export const cloudflareEnv = {
   QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
   QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
   QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
-  QUICKBOOKS_ENVIRONMENT:
-    (process.env.QUICKBOOKS_ENVIRONMENT as
-      | 'sandbox'
-      | 'production'
-      | undefined) ||
-    (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'),
+  QUICKBOOKS_ENVIRONMENT: getQuickBooksEnvironment(),
   QUICKBOOKS_ADMIN_KEY: process.env.QUICKBOOKS_ADMIN_KEY,
 
   // Client variables

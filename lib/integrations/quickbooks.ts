@@ -85,7 +85,7 @@ export interface QuickBooksQueryResponse<T> {
   time?: string;
 }
 
-interface QuickBooksEntity {
+export interface QuickBooksEntity {
   Id: string;
   TxnDate: string;
   TotalAmt: number;
@@ -232,7 +232,7 @@ async function getQuickBooksOAuthTokenUrl(
 /**
  * Escapes HTML special characters to prevent XSS
  */
-function escapeHtml(str: string): string {
+export function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -694,4 +694,4 @@ export async function exchangeAuthorizationCode(
 /**
  * Helper function to escape HTML in template strings
  */
-export { escapeHtml, saveTokens };
+export { saveTokens };
