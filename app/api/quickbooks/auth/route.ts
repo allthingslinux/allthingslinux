@@ -16,6 +16,11 @@ export async function GET(request: NextRequest) {
   const baseUrl = env.NEXT_PUBLIC_URL || 'http://localhost:3000';
   const redirectUri = `${baseUrl}/api/quickbooks/callback`;
 
+  // Extract host and protocol from request URL for HTTPS validation
+  const url = new URL(request.url);
+  const host = url.hostname;
+  const protocol = url.protocol.replace(':', '');
+
   // QuickBooks requires HTTPS for redirect URIs (except localhost for development)
   if (!host.includes('localhost') && protocol !== 'https') {
     return new NextResponse(
