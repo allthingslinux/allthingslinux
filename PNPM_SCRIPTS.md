@@ -48,17 +48,6 @@ This document explains all available pnpm scripts in the project.
 
 ## Version Management
 
-- `pnpm run deploy:dev`
-  Builds and deploys to the development environment.
-
-- `pnpm run deploy:prod`
-  Builds and deploys to the production environment.
-
-- `pnpm run deploy`
-  Alias for production deployment - the default deploy command.
-
-## Version Management
-
 - `pnpm run version:upload`
   Creates a new version in Cloudflare Workers without deploying it immediately.
 
@@ -98,11 +87,11 @@ This document explains all available pnpm scripts in the project.
 
 ## Infrastructure
 
+- `pnpm run setup:bindings`
+  Sets up Cloudflare bindings (R2 buckets, KV namespaces). IMPORTANT: Update wrangler.jsonc with the KV ID from the script output.
+
 - `pnpm run cf:typegen`
   Generates TypeScript types for Cloudflare Workers bindings and environment variables.
-
-- `pnpm run setup`
-  Runs the main project setup script.
 
 - `pnpm run coc:generate`
   Generates the Code of Conduct markdown file from TOML configuration.

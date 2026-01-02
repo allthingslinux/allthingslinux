@@ -1,7 +1,7 @@
 # All Things Linux
 
 [![Deploy to Production](https://img.shields.io/badge/Production-Deployed-brightgreen)](https://allthingslinux.org)
-[![Deploy to Dev](https://img.shields.io/badge/Dev-Deployed-blue)](https://allthingslinux-dev.allthingslinux.workers.dev)
+[![Deploy to Dev](https://img.shields.io/badge/Dev-Deployed-blue)](https://allthingslinux.dev)
 
 The official website for All Things Linux ([allthingslinux.org](https://allthingslinux.org)).
 
@@ -13,9 +13,8 @@ git clone https://github.com/allthingslinux/allthingslinux.git
 cd allthingslinux
 pnpm install
 
-# Set up secrets
-cp .env.secrets.example .env.secrets
-# Edit .env.secrets with your actual secrets
+# Setup Cloudflare bindings (R2, KV) - IMPORTANT: Update wrangler.jsonc with KV ID from output
+pnpm run setup:bindings
 
 # Start development
 pnpm run dev:all
@@ -49,20 +48,35 @@ cd allthingslinux
 pnpm install
 ```
 
-### 2. Configure Secrets
+### 2. Setup Cloudflare Bindings
 
 ```bash
-# Copy templates for environment-specific secrets
-cp .env.secrets.dev.example .env.secrets.dev    # Development (sandbox)
-cp .env.secrets.prod.example .env.secrets.prod  # Production
-# Edit each file with appropriate credentials (gitignored)
+# Create R2 buckets and KV namespaces
+pnpm run setup:bindings
 
-# Upload secrets to Cloudflare (when needed for deployment)
-# pnpm run secrets:dev   # Upload dev/sandbox secrets
-# pnpm run secrets:prod  # Upload production secrets
+# IMPORTANT: Update wrangler.jsonc with the KV namespace ID shown in the script output
 ```
 
-### 3. Start Development
+### 3. Configure Secrets
+
+**For local development**, create `.env.secrets.dev` and `.env.secrets.prod` files (these are gitignored):
+
+```bash
+# Create .env.secrets.dev for local development (sandbox credentials)
+# Create .env.secrets.prod for production credentials
+# Add your secrets following the format: KEY=value (one per line)
+```
+
+**For CI/CD**, secrets are managed via GitHub Environments (see Deployment section below).
+
+**Upload secrets to Cloudflare manually** (when needed):
+
+```bash
+pnpm run secrets:dev   # Upload dev/sandbox secrets (sets DEV_* prefixed secrets)
+pnpm run secrets:prod  # Upload production secrets (sets PROD_* prefixed secrets)
+```
+
+### 4. Start Development
 
 ```bash
 pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
@@ -79,19 +93,21 @@ pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
 
 **GitHub Actions with GitHub Environments** - Automatic deployments on push/PR:
 
-| Branch   | Environment | URL                                                                      |
-| -------- | ----------- | ------------------------------------------------------------------------ |
-| `main`   | Production  | [allthingslinux.org](https://allthingslinux.org)                         |
-| PR/other | Development | [dev.allthingslinux.workers.dev](https://dev.allthingslinux.workers.dev) |
-
-**Setup:** See [GitHub Environments Setup Guide](docs/GITHUB_ENVIRONMENTS_SETUP.md) for detailed configuration.
+| Branch   | Environment | URL                                              |
+| -------- | ----------- | ------------------------------------------------ |
+| `main`   | Production  | [allthingslinux.org](https://allthingslinux.org) |
+| PR/other | Development | [allthingslinux.dev](https://allthingslinux.dev) |
 
 **Quick setup:**
 
 1. Create GitHub Environments: `dev` and `prod` (Settings → Environments)
-2. Add secrets to each environment (see guide for required secrets)
-3. Push to any branch → Auto-deploys via GitHub Actions
-4. Merge to `main` → Auto-deploys to production
+2. Add secrets and variables to each environment:
+   - **Secrets** (sensitive): `QUICKBOOKS_CLIENT_ID`, `QUICKBOOKS_CLIENT_SECRET`, `QUICKBOOKS_REFRESH_TOKEN`, `QUICKBOOKS_REALM_ID`, `QUICKBOOKS_ADMIN_KEY`, `GITHUB_TOKEN`, `MONDAY_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `TRIGGER_SECRET_KEY`
+   - **Variables** (non-sensitive): `MONDAY_BOARD_ID`, `DISCORD_WEBHOOK_URL`, `QUICKBOOKS_ENVIRONMENT`
+3. Push to any branch → Auto-deploys to development environment
+4. Merge to `main` → Auto-deploys to production environment
+
+See [`docs/integrations/quickbooks.md`](docs/integrations/quickbooks.md) for detailed QuickBooks integration setup.
 
 **Workflow:** `.github/workflows/deploy.yml` automatically handles branch detection and environment selection.
 
@@ -122,10 +138,13 @@ pnpm run version:deploy # Deploy latest version
 ### Build Process
 
 ```bash
-# Full production build
+# Full production build (Next.js + OpenNext for Cloudflare)
+pnpm run build:all
+
+# Next.js build only
 pnpm run build
 
-# Preview build locally
+# Preview build locally (tests the Cloudflare Workers build)
 pnpm run preview
 ```
 
@@ -139,24 +158,23 @@ pnpm run preview
 2. **Add secrets** to each environment (same secret names, different values per environment)
 3. **Secrets are automatically available** in GitHub Actions workflows
 
-See [GitHub Environments Setup Guide](docs/GITHUB_ENVIRONMENTS_SETUP.md) for complete setup instructions.
+**Secrets are prefixed** (`DEV_*` and `PROD_*`) in the single Cloudflare Worker and selected at runtime based on the request host.
 
-### Manual Deployment (Local)
+### Manual Secret Management (Local)
 
-**For manual deployments from your local machine:**
+**Note:** GitHub Actions automatically manages secrets during CI/CD. Manual secret management is mainly for local testing.
+
+**For manual secret setup from your local machine:**
 
 ```bash
-# 1. Copy templates for each environment
-cp .env.secrets.dev.example .env.secrets.dev    # Sandbox credentials
-cp .env.secrets.prod.example .env.secrets.prod  # Production credentials
-
-# 2. Edit with real values
+# 1. Create .env.secrets.dev and .env.secrets.prod files (gitignored)
+# Format: KEY=value (one per line)
 # .env.secrets.dev: Sandbox QuickBooks + other dev secrets
 # .env.secrets.prod: Production QuickBooks + other prod secrets
 
-# 3. Upload to Cloudflare (when needed)
-pnpm run secrets:dev    # Dev environment (uses .env.secrets.dev)
-pnpm run secrets:prod   # Production (uses .env.secrets.prod)
+# 2. Upload to Cloudflare Worker (sets prefixed secrets: DEV_*, PROD_*)
+pnpm run secrets:dev    # Sets DEV_* prefixed secrets
+pnpm run secrets:prod   # Sets PROD_* prefixed secrets
 ```
 
 ### Security Notes
@@ -166,7 +184,7 @@ pnpm run secrets:prod   # Production (uses .env.secrets.prod)
 - **Secrets are encrypted** and managed via `wrangler secret put` or GitHub Environments
 - **Use `.dev.vars`** only for non-sensitive local config
 - **Environment variables** are defined in `wrangler.jsonc` per environment
-- **No prefixing needed**: GitHub Environments handle isolation automatically
+- **Prefixed secrets**: Secrets are stored as `DEV_*` and `PROD_*` in the single worker, selected at runtime
 
 ## 📁 Project Structure
 
@@ -214,12 +232,13 @@ pnpm run version:list   # List all versions
 pnpm run version:deploy # Deploy latest version
 
 # Secrets
-pnpm run secrets:dev    # Upload to dev env
-pnpm run secrets:prod   # Upload to prod env
+pnpm run secrets:dev    # Upload dev secrets (sets DEV_* prefixed)
+pnpm run secrets:prod   # Upload prod secrets (sets PROD_* prefixed)
 
 # Infrastructure
-pnpm run cf:typegen      # Generate Cloudflare types
-pnpm run coc:generate    # Generate Code of Conduct
+pnpm run setup:bindings # Setup Cloudflare bindings (R2, KV)
+pnpm run cf:typegen     # Generate Cloudflare types
+pnpm run coc:generate   # Generate Code of Conduct
 ```
 
 See [`PNPM_SCRIPTS.md`](PNPM_SCRIPTS.md) for detailed script explanations.

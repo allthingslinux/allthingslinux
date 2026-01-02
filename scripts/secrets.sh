@@ -1,170 +1,108 @@
 #!/bin/bash
 
-# Environment to set secrets for (dev, prod, or local)
+# Script to manually set secrets in Cloudflare Worker
+# Note: GitHub Actions automatically handles secrets via prefixed secrets (DEV_*, PROD_*)
+# This script is for manual local secret management only
+
+# Environment to set secrets for (dev or prod)
 ENV=${1:-dev}
 
 # Validate environment parameter
-if [ "$ENV" != "dev" ] && [ "$ENV" != "prod" ] && [ "$ENV" != "local" ]; then
-  echo "Error: Invalid environment specified. Use 'dev', 'prod', or 'local'."
+if [ "$ENV" != "dev" ] && [ "$ENV" != "prod" ]; then
+  echo "Error: Invalid environment specified. Use 'dev' or 'prod'."
   exit 1
 fi
 
-echo "Setting secrets for environment: $ENV (using wrangler.jsonc)"
+# Determine prefix based on environment
+PREFIX="${ENV^^}" # Convert to uppercase (dev -> DEV, prod -> PROD)
+WORKER_NAME="allthingslinux"
 
-# Note: Wrangler auto-creates worker names as <top-level-name>-<env-name>
-# - dev env → allthingslinux-dev
-# - prod env → allthingslinux-prod (or use top-level for production)
-# - top-level (no env) → allthingslinux
+echo "Setting ${PREFIX}_* prefixed secrets for worker: $WORKER_NAME"
+echo "Environment: $ENV"
+echo ""
 
-# Use --env flag for all environments (Wrangler auto-creates worker names)
-# - dev → allthingslinux-dev
-# - prod → allthingslinux-prod  
-echo "Setting secrets for environment: $ENV"
-USE_ENV_FLAG="--env"
-WRANGLER_ENV="$ENV"
-
-# Load secrets from .env.secrets (excluded from git)
-# Try environment-specific file first, then fallback to generic
-SECRETS_FILE=".env.secrets.$ENV"
-if [ ! -f "$SECRETS_FILE" ]; then
-  SECRETS_FILE=".env.secrets"
+# Load secrets from .env.secrets files (same pattern as deploy scripts)
+# These files are optional and may not exist, so we suppress shellcheck warnings
+if [ -f .env.secrets.prod ]; then
+  # shellcheck source=.env.secrets.prod
+  # shellcheck disable=SC1091
+  source .env.secrets.prod 2>/dev/null
+elif [ -f .env.secrets.dev ]; then
+  # shellcheck source=.env.secrets.dev
+  # shellcheck disable=SC1091
+  source .env.secrets.dev 2>/dev/null
 fi
+export CLOUDFLARE_API_TOKEN
 
-if [ -f "$SECRETS_FILE" ]; then
-  echo "Loading secrets from: $SECRETS_FILE"
-  source "$SECRETS_FILE"
-else
-  echo "Error: No secrets file found. Expected $SECRETS_FILE or .env.secrets"
-  exit 1
-fi
-
-# Handle Cloudflare authentication
-# CLOUDFLARE_API_TOKEN can be in the secrets file or environment
-# If not found, wrangler will try OAuth (interactive) or fail (non-interactive)
-if [ -n "${CLOUDFLARE_API_TOKEN:-}" ]; then
-  export CLOUDFLARE_API_TOKEN
-  # Check if it was loaded from secrets file (sourced above) or environment
-  if grep -q "^CLOUDFLARE_API_TOKEN=" "$SECRETS_FILE" 2>/dev/null; then
-    echo "Using CLOUDFLARE_API_TOKEN from secrets file"
-  else
-    echo "Using CLOUDFLARE_API_TOKEN from environment"
-  fi
-else
-  echo "Warning: CLOUDFLARE_API_TOKEN not found in secrets file or environment"
-  echo "Wrangler will attempt OAuth authentication (requires interactive terminal)"
-  echo "For non-interactive environments, add CLOUDFLARE_API_TOKEN to $SECRETS_FILE"
-  echo "Get your token from: https://developers.cloudflare.com/fundamentals/api/get-started/create-token/"
-fi
-
-# Check if required variables exist
-# Add or remove variables here as needed
-REQUIRED_VARS=("GITHUB_TOKEN" "MONDAY_API_KEY" "MONDAY_BOARD_ID" "DISCORD_WEBHOOK_URL" "TRIGGER_SECRET_KEY")
-OPTIONAL_VARS=("QUICKBOOKS_CLIENT_ID" "QUICKBOOKS_CLIENT_SECRET" "QUICKBOOKS_REFRESH_TOKEN" "QUICKBOOKS_REALM_ID" "QUICKBOOKS_ENVIRONMENT" "QUICKBOOKS_ADMIN_KEY")
-MISSING_VARS=()
-for VAR_NAME in "${REQUIRED_VARS[@]}"; do
-  if [ -z "${!VAR_NAME}" ]; then
-    MISSING_VARS+=("$VAR_NAME")
-  fi
-done
-
-if [ ${#MISSING_VARS[@]} -ne 0 ]; then
-  echo "Error: Missing required environment variables in .env.secrets:"
-  for MISSING_VAR in "${MISSING_VARS[@]}"; do
-    echo "  - $MISSING_VAR"
-  done
-  exit 1
-fi
-
-# Verify wrangler authentication before proceeding
+# Verify wrangler authentication
 echo "Verifying Wrangler authentication..."
-if ! npx wrangler whoami >/dev/null 2>&1; then
+if ! pnpm exec wrangler whoami >/dev/null 2>&1; then
   echo "Error: Wrangler authentication failed"
   echo ""
   echo "Troubleshooting steps:"
-  echo "1. If using API token: Add CLOUDFLARE_API_TOKEN to $SECRETS_FILE"
+  echo "1. If using API token: Add CLOUDFLARE_API_TOKEN to .env.secrets.prod or .env.secrets.dev"
   echo "2. If token is invalid: Get a new token from https://developers.cloudflare.com/fundamentals/api/get-started/create-token/"
   echo "3. If OAuth is corrupted: Run 'wrangler logout' then 'wrangler login'"
   echo "4. Token permissions needed: Account:Cloudflare Workers:Edit, Account:Workers KV Storage:Edit, Account:Workers Scripts:Edit"
   exit 1
 fi
-
 echo "✓ Authentication verified"
+echo ""
 
-# Helper function to set a secret
-# Use --env flag for environment-specific secrets (Wrangler auto-targets correct worker)
-set_secret() {
-  local SECRET_NAME=$1
+# Helper function to set a prefixed secret
+set_prefixed_secret() {
+  local BASE_NAME=$1
   local SECRET_VALUE=$2
+  local PREFIXED_NAME="${PREFIX}_${BASE_NAME}"
   
-  echo "Setting $SECRET_NAME..."
-  # Delete existing secret first (ignore error if not found)
-  npx wrangler secret delete "$SECRET_NAME" $USE_ENV_FLAG "$WRANGLER_ENV" >/dev/null 2>&1 || true
+  if [ -z "$SECRET_VALUE" ]; then
+    echo "⚠ Skipping $PREFIXED_NAME (value not provided)"
+    return 0
+  fi
   
-  # Set the new secret value using --env flag (Wrangler auto-targets correct worker)
-  if echo "$SECRET_VALUE" | npx wrangler secret put "$SECRET_NAME" $USE_ENV_FLAG "$WRANGLER_ENV"; then
-    echo "✓ $SECRET_NAME set successfully"
+  echo "Setting $PREFIXED_NAME..."
+  if echo "$SECRET_VALUE" | pnpm exec wrangler secret put "$PREFIXED_NAME"; then
+    echo "✓ $PREFIXED_NAME set successfully"
     return 0
   else
-    echo "✗ Failed to set $SECRET_NAME"
+    echo "✗ Failed to set $PREFIXED_NAME"
     return 1
   fi
 }
 
-# Set secrets using wrangler with environment targeting
-# Delete existing secret first (ignore error if not found), then put the new value.
-echo ""
-echo "Setting secrets for environment: $ENV..."
-
 ERRORS=0
 
-# GITHUB_TOKEN
-set_secret "GITHUB_TOKEN" "$GITHUB_TOKEN" || ((ERRORS++))
+# Set prefixed secrets (same pattern as GitHub Actions workflow)
+echo "Setting ${PREFIX}_* prefixed secrets..."
+echo ""
 
-# MONDAY_API_KEY
-set_secret "MONDAY_API_KEY" "$MONDAY_API_KEY" || ((ERRORS++))
+# Core secrets
+set_prefixed_secret "QUICKBOOKS_CLIENT_ID" "${QUICKBOOKS_CLIENT_ID}" || ((ERRORS++))
+set_prefixed_secret "QUICKBOOKS_CLIENT_SECRET" "${QUICKBOOKS_CLIENT_SECRET}" || ((ERRORS++))
+set_prefixed_secret "QUICKBOOKS_REFRESH_TOKEN" "${QUICKBOOKS_REFRESH_TOKEN}" || ((ERRORS++))
+set_prefixed_secret "QUICKBOOKS_REALM_ID" "${QUICKBOOKS_REALM_ID}" || ((ERRORS++))
+set_prefixed_secret "QUICKBOOKS_ADMIN_KEY" "${QUICKBOOKS_ADMIN_KEY}" || ((ERRORS++))
+set_prefixed_secret "GITHUB_TOKEN" "${GITHUB_TOKEN}" || ((ERRORS++))
+set_prefixed_secret "MONDAY_API_KEY" "${MONDAY_API_KEY}" || ((ERRORS++))
 
-# MONDAY_BOARD_ID
-set_secret "MONDAY_BOARD_ID" "$MONDAY_BOARD_ID" || ((ERRORS++))
+# Variables (non-sensitive) - note: these are set as secrets for consistency
+set_prefixed_secret "MONDAY_BOARD_ID" "${MONDAY_BOARD_ID}" || ((ERRORS++))
+set_prefixed_secret "DISCORD_WEBHOOK_URL" "${DISCORD_WEBHOOK_URL}" || ((ERRORS++))
 
-# DISCORD_WEBHOOK_URL
-set_secret "DISCORD_WEBHOOK_URL" "$DISCORD_WEBHOOK_URL" || ((ERRORS++))
-
-# TRIGGER_SECRET_KEY
-set_secret "TRIGGER_SECRET_KEY" "$TRIGGER_SECRET_KEY" || ((ERRORS++))
-
-# QuickBooks API credentials (optional - only set if provided)
-if [ -n "$QUICKBOOKS_CLIENT_ID" ]; then
-  echo ""
-  echo "Setting QuickBooks secrets..."
-  set_secret "QUICKBOOKS_CLIENT_ID" "$QUICKBOOKS_CLIENT_ID" || ((ERRORS++))
-fi
-
-if [ -n "$QUICKBOOKS_CLIENT_SECRET" ]; then
-  set_secret "QUICKBOOKS_CLIENT_SECRET" "$QUICKBOOKS_CLIENT_SECRET" || ((ERRORS++))
-fi
-
-if [ -n "$QUICKBOOKS_REFRESH_TOKEN" ]; then
-  set_secret "QUICKBOOKS_REFRESH_TOKEN" "$QUICKBOOKS_REFRESH_TOKEN" || ((ERRORS++))
-fi
-
-if [ -n "$QUICKBOOKS_REALM_ID" ]; then
-  set_secret "QUICKBOOKS_REALM_ID" "$QUICKBOOKS_REALM_ID" || ((ERRORS++))
-fi
-
+# QUICKBOOKS_ENVIRONMENT (optional, auto-detected if not set)
 if [ -n "$QUICKBOOKS_ENVIRONMENT" ]; then
-  set_secret "QUICKBOOKS_ENVIRONMENT" "$QUICKBOOKS_ENVIRONMENT" || ((ERRORS++))
-fi
-
-if [ -n "$QUICKBOOKS_ADMIN_KEY" ]; then
-  set_secret "QUICKBOOKS_ADMIN_KEY" "$QUICKBOOKS_ADMIN_KEY" || ((ERRORS++))
+  set_prefixed_secret "QUICKBOOKS_ENVIRONMENT" "${QUICKBOOKS_ENVIRONMENT}" || ((ERRORS++))
 fi
 
 echo ""
 if [ $ERRORS -eq 0 ]; then
-  echo "✓ All secrets set successfully for environment: $ENV"
+  echo "✓ All ${PREFIX}_* prefixed secrets set successfully"
+  echo ""
+  echo "Note: GitHub Actions automatically manages these secrets during CI/CD."
+  echo "This manual script is mainly for local testing and initial setup."
   exit 0
 else
-  echo "✗ Secrets operations completed with $ERRORS error(s) for environment: $ENV"
+  echo "✗ Secret operations completed with $ERRORS error(s)"
   echo "Check output above for details."
   exit 1
-fi 
+fi

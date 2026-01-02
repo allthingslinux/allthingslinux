@@ -18,18 +18,14 @@ function getDeploymentEnvironment(): 'dev' | 'prod' {
   // Check NEXT_PUBLIC_URL (set dynamically in middleware based on request host)
   const publicUrl = process.env.NEXT_PUBLIC_URL || '';
 
-  // Production: allthingslinux.org (and subdomains, but not dev.*)
-  if (
-    publicUrl.includes('allthingslinux.org') &&
-    !publicUrl.includes('dev.allthingslinux')
-  ) {
+  // Production: allthingslinux.org (and subdomains)
+  if (publicUrl.includes('allthingslinux.org')) {
     return 'prod';
   }
 
-  // Development: dev.allthingslinux.workers.dev or any *.workers.dev
+  // Development: allthingslinux.dev or localhost
   if (
-    publicUrl.includes('workers.dev') ||
-    publicUrl.includes('dev.') ||
+    publicUrl.includes('allthingslinux.dev') ||
     publicUrl.includes('localhost')
   ) {
     return 'dev';

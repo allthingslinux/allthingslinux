@@ -25,10 +25,9 @@ The QuickBooks integration enables the All Things Linux website to fetch and dis
 3. Configure redirect URIs in your QuickBooks app settings (for the appropriate environment):
    - **Development (Sandbox) Environment**:
      - `http://localhost:3000/api/quickbooks/callback` (for local dev)
-     - `https://allthingslinux-dev.allthingslinux.workers.dev/api/quickbooks/callback` (for deployed dev worker)
+     - `https://allthingslinux.dev/api/quickbooks/callback` (for deployed dev environment)
    - **Production Environment**:
-     - `https://allthingslinux.org/api/quickbooks/callback` (for production custom domain)
-     - `https://allthingslinux-prod.allthingslinux.workers.dev/api/quickbooks/callback` (for production worker)
+     - `https://allthingslinux.org/api/quickbooks/callback` (for production)
 4. **Important**:
    - The redirect URI must match **exactly** (including protocol and path)
    - No trailing slashes

@@ -2,20 +2,22 @@
   "$schema": "node_modules/wrangler/config-schema.json",
 
   // === SINGLE WORKER CONFIGURATION ===
-  // Single worker named "dev" for cleaner URL: dev.allthingslinux.workers.dev
+  // Worker name: "allthingslinux"
   // Handles both dev and prod traffic via runtime environment detection
   // GitHub Environments handle secret isolation during deployment
-  // Custom route for production: allthingslinux.org -> dev worker
-  "name": "dev",
+  // Custom domains:
+  //   - allthingslinux.dev (development)
+  //   - allthingslinux.org (production)
+  "name": "allthingslinux",
 
-  // Custom route for production domain
+  // Custom domain routes
   "routes": [
     {
-      "pattern": "allthingslinux.org",
+      "pattern": "allthingslinux.dev",
       "custom_domain": true,
     },
     {
-      "pattern": "*.allthingslinux.org",
+      "pattern": "allthingslinux.org",
       "custom_domain": true,
     },
   ],
@@ -28,9 +30,9 @@
   "no_bundle": false,
   "logpush": true,
 
-  // Enable workers.dev subdomain for preview deployments
-  "workers_dev": true,
-  "preview_urls": true,
+  // Custom domains are used instead of workers.dev subdomain
+  "workers_dev": false,
+  "preview_urls": false,
 
   // Performance and resource limits
   "limits": {
@@ -102,11 +104,12 @@
 
   // KV namespace (QuickBooks token storage)
   // Using prod KV as primary; runtime detection handles environment-specific logic
+  // TODO: Run scripts/setup-bindings.sh to create and get the KV namespace ID
   "kv_namespaces": [
     {
       "binding": "KV_QUICKBOOKS",
-      "id": "34e1630d0fea4741934035127ab88c39",
-      "preview_id": "34e1630d0fea4741934035127ab88c39",
+      "id": "TODO_REPLACE_WITH_ACTUAL_ID", // Run: npx wrangler kv:namespace create KV_QUICKBOOKS
+      "preview_id": "TODO_REPLACE_WITH_ACTUAL_ID",
     },
   ],
 
@@ -139,7 +142,7 @@
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
-          "service": "dev",
+          "service": "allthingslinux",
         },
       ],
       "images": {
