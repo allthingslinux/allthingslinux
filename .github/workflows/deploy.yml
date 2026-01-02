@@ -98,7 +98,7 @@ jobs:
             ## 🚀 Deployment Status
 
             **Environment:** ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
-            **Branch:** `${{ github.ref_name }}`
+            **Branch:** `${{ github.event_name == 'pull_request' && 'PR #' || '' }}${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref_name }}`
             **Commit:** `${{ github.sha }}`
 
             **URLs:**
