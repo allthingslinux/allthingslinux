@@ -15,7 +15,7 @@ interface CloudflareNextRequest extends NextRequest {
 export const runtime = 'nodejs';
 
 export async function GET(request: CloudflareNextRequest) {
-  const { nextUrl, cookies, headers } = request;
+  const { nextUrl, cookies } = request;
   const { searchParams } = nextUrl;
   const code = searchParams.get('code');
   const state = searchParams.get('state');
@@ -45,7 +45,13 @@ export async function GET(request: CloudflareNextRequest) {
   // Validate CSRF state token
   const storedState = cookies.get('qb_oauth_state')?.value;
 
-  if (!storedState || storedState !== state) {
+  // Handle admin-setup state format: 'admin-setup:<random_token>'
+  const isValidState =
+    storedState &&
+    (storedState === state ||
+      (storedState.startsWith('admin-setup:') && state === storedState));
+
+  if (!isValidState) {
     console.error('CSRF state validation failed', {
       storedState: storedState ? '[REDACTED]' : 'missing',
       receivedState: state ? '[REDACTED]' : 'missing',
@@ -61,12 +67,8 @@ export async function GET(request: CloudflareNextRequest) {
   const clientId = env.QUICKBOOKS_CLIENT_ID;
   const clientSecret = env.QUICKBOOKS_CLIENT_SECRET;
 
-  // Get the actual host from headers
-  const host = headers.get('host') || 'localhost:3000';
-  const protocol =
-    headers.get('x-forwarded-proto') ||
-    (host.includes('localhost') ? 'http' : 'https');
-  const baseUrl = `${protocol}://${host}`;
+  // Use canonical URL from environment (security: prevents header injection)
+  const baseUrl = env.NEXT_PUBLIC_URL;
   const redirectUri = `${baseUrl}/api/quickbooks/callback`;
 
   if (!clientId || !clientSecret) {
@@ -118,12 +120,17 @@ export async function GET(request: CloudflareNextRequest) {
           '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
         );
         console.log(`QUICKBOOKS_CLIENT_ID=${clientId}`);
-        console.log(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refresh_token}`);
+        console.log(
+          `QUICKBOOKS_REFRESH_TOKEN=${tokens.refresh_token.substring(0, 10)}...${tokens.refresh_token.slice(-4)} (masked)`
+        );
         console.log(`QUICKBOOKS_REALM_ID=${realmId}`);
         console.log(
           `QUICKBOOKS_ENVIRONMENT=${env.QUICKBOOKS_ENVIRONMENT || 'sandbox'}`
         );
         console.log('');
+        console.log(
+          '⚠️  Full refresh token available in browser network tab or server logs.'
+        );
         console.log(
           'Add these to your .env.local file and restart your dev server.'
         );
