@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getPageMetadata } from '../metadata';
 import type { Metadata } from 'next';
-import { fetchQuickBooksTransactions } from '@/lib/integrations/quickbooks';
+import { env } from '@/env';
+import type { QuickBooksTransaction } from '@/lib/integrations/quickbooks';
 
 export const metadata: Metadata = getPageMetadata('finance');
 
@@ -82,7 +83,18 @@ function TransactionsTableSkeleton() {
 }
 
 async function TransactionsTable() {
-  const transactions = await fetchQuickBooksTransactions();
+  // Fetch transactions via API route that has access to Cloudflare KV
+  const response = await fetch(`${env.NEXT_PUBLIC_URL}/api/quickbooks`, {
+    cache: 'no-store', // Always fetch fresh data
+  });
+
+  let transactions: QuickBooksTransaction[] = [];
+  if (response.ok) {
+    const data = (await response.json()) as {
+      transactions?: QuickBooksTransaction[];
+    };
+    transactions = data.transactions || [];
+  }
 
   if (transactions.length === 0) {
     return (
@@ -114,7 +126,7 @@ async function TransactionsTable() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((transaction) => (
+              {transactions.map((transaction: QuickBooksTransaction) => (
                 <tr
                   key={`${transaction.type}-${transaction.id}`}
                   className="border-b last:border-0 hover:bg-muted/50 transition-colors"
@@ -160,8 +172,11 @@ async function TransactionsTable() {
             <div className="text-2xl font-bold text-green-500">
               {formatCurrency(
                 transactions
-                  .filter((t) => t.amount > 0)
-                  .reduce((sum, t) => sum + t.amount, 0)
+                  .filter((t: QuickBooksTransaction) => t.amount > 0)
+                  .reduce(
+                    (sum: number, t: QuickBooksTransaction) => sum + t.amount,
+                    0
+                  )
               )}
             </div>
           </CardContent>
@@ -173,8 +188,11 @@ async function TransactionsTable() {
               {formatCurrency(
                 Math.abs(
                   transactions
-                    .filter((t) => t.amount < 0)
-                    .reduce((sum, t) => sum + t.amount, 0)
+                    .filter((t: QuickBooksTransaction) => t.amount < 0)
+                    .reduce(
+                      (sum: number, t: QuickBooksTransaction) => sum + t.amount,
+                      0
+                    )
                 )
               )}
             </div>
