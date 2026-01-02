@@ -69,13 +69,11 @@ echo "🗄️  Setting up KV namespace..."
 KV_NAMESPACE_NAME="KV_QUICKBOOKS"
 
 # Check if KV namespace already exists by listing all namespaces
-KV_LIST=$(pnpm exec wrangler kv namespace list --json 2>/dev/null || echo "[]")
+KV_LIST=$(pnpm exec wrangler kv namespace list 2>/dev/null || echo "")
 KV_ID=""
-if command -v jq >/dev/null 2>&1; then
-  KV_ID=$(echo "$KV_LIST" | jq -r ".[] | select(.title == \"$KV_NAMESPACE_NAME\") | .id" 2>/dev/null | head -1 || echo "")
-else
-  # Fallback to grep parsing - extract the block for our namespace and then get the id
-  KV_ID=$(echo "$KV_LIST" | grep -A 5 "\"title\"[[:space:]]*:[[:space:]]*\"$KV_NAMESPACE_NAME\"" | grep -oP "\"id\":\s*\"\K[^\"]+" | head -1 || echo "")
+if echo "$KV_LIST" | grep -q "$KV_NAMESPACE_NAME"; then
+  # Extract ID from human-readable format like "KV_QUICKBOOKS (id: abc123...)"
+  KV_ID=$(echo "$KV_LIST" | grep "$KV_NAMESPACE_NAME" | sed 's/.*id: *\([a-zA-Z0-9_-]*\).*/\1/' | head -1 || echo "")
 fi
 
 if [ -n "$KV_ID" ]; then
@@ -83,36 +81,35 @@ if [ -n "$KV_ID" ]; then
   echo "✅ Found existing KV namespace ID: $KV_ID"
 else
   echo "Creating KV namespace: $KV_NAMESPACE_NAME"
-  # Create KV namespace and get its ID (use --json for consistent output)
-  KV_OUTPUT=$(pnpm exec wrangler kv namespace create "$KV_NAMESPACE_NAME" --json 2>&1 || true)
+  # Create KV namespace and get its ID
+  KV_OUTPUT=$(pnpm exec wrangler kv namespace create "$KV_NAMESPACE_NAME" 2>&1 || true)
   
   if echo "$KV_OUTPUT" | grep -q "already exists"; then
     echo "ℹ️  KV namespace already exists (detected after creation attempt), getting ID..."
     # Re-list to get the ID
-    KV_LIST=$(pnpm exec wrangler kv namespace list --json 2>/dev/null || echo "[]")
-    if command -v jq >/dev/null 2>&1; then
-      KV_ID=$(echo "$KV_LIST" | jq -r ".[] | select(.title == \"$KV_NAMESPACE_NAME\") | .id" 2>/dev/null | head -1 || echo "")
-    else
-      # Fallback to grep parsing - extract the block for our namespace and then get the id
-      KV_ID=$(echo "$KV_LIST" | grep -A 5 "\"title\"[[:space:]]*:[[:space:]]*\"$KV_NAMESPACE_NAME\"" | grep -oP "\"id\":\s*\"\K[^\"]+" | head -1 || echo "")
+    KV_LIST=$(pnpm exec wrangler kv namespace list 2>/dev/null || echo "")
+    if echo "$KV_LIST" | grep -q "$KV_NAMESPACE_NAME"; then
+      KV_ID=$(echo "$KV_LIST" | grep "$KV_NAMESPACE_NAME" | sed 's/.*id: *\([a-zA-Z0-9_-]*\).*/\1/' | head -1 || echo "")
     fi
     if [ -n "$KV_ID" ]; then
       echo "✅ Found existing KV namespace ID: $KV_ID"
     else
       echo "⚠️  Could not find KV namespace ID automatically"
-      echo "Please run: pnpm exec wrangler kv namespace list --json | jq -r '.[] | select(.title == \"$KV_NAMESPACE_NAME\") | .id'"
-      echo "Or install jq for better JSON parsing: https://jqlang.github.io/jq/"
+      echo "Please run: pnpm exec wrangler kv namespace list"
+      echo "Look for the line with '$KV_NAMESPACE_NAME' and extract the ID from 'id: <ID>'"
       echo "Then update wrangler.jsonc with the correct ID"
     fi
   else
-    # Extract the ID from the JSON output (creation succeeded)
-    if command -v jq >/dev/null 2>&1; then
-      KV_ID=$(echo "$KV_OUTPUT" | jq -r '.id' 2>/dev/null || echo "")
-      PREVIEW_ID=$(echo "$KV_OUTPUT" | jq -r '.preview_id // .id' 2>/dev/null || echo "")
+    # Extract the ID from the human-readable output (creation succeeded)
+    # Look for patterns like "ID: abc123..." in the output
+    if echo "$KV_OUTPUT" | grep -q "ID:"; then
+      KV_ID=$(echo "$KV_OUTPUT" | grep "ID:" | head -1 | sed 's/.*ID: *\([a-zA-Z0-9_-]*\).*/\1/' || echo "")
+      PREVIEW_ID=$KV_ID  # Preview ID is usually the same as main ID
     else
-      # Fallback to grep parsing
-      KV_ID=$(echo "$KV_OUTPUT" | grep -oP '"id":\s*"\K[^"]+' | head -1 || echo "")
-      PREVIEW_ID=$(echo "$KV_OUTPUT" | grep -oP '"preview_id":\s*"\K[^"]+' | head -1 || echo "$KV_ID")
+      echo "⚠️  Could not extract KV namespace ID from output"
+      echo "Output was: $KV_OUTPUT"
+      KV_ID=""
+      PREVIEW_ID=""
     fi
     
     if [ -n "$KV_ID" ]; then
