@@ -75,20 +75,25 @@ pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
 
 ## 🚀 Deployment
 
-### Automatic Deployments
+### Automatic Deployments (GitHub Actions CI/CD)
 
-**Git-based deployments via Cloudflare Workers Builds:**
+**GitHub Actions with GitHub Environments** - Automatic deployments on push/PR:
 
-| Branch | Environment | URL                                                                      |
-| ------ | ----------- | ------------------------------------------------------------------------ |
-| `main` | Production  | [allthingslinux.org](https://allthingslinux.org)                         |
-| `dev`  | Development | [allthingslinux-dev.allthingslinux.workers.dev](https://allthingslinux-dev.allthingslinux.workers.dev) |
+| Branch   | Environment | URL                                                                      |
+| -------- | ----------- | ------------------------------------------------------------------------ |
+| `main`   | Production  | [allthingslinux.org](https://allthingslinux.org)                         |
+| PR/other | Development | [dev.allthingslinux.workers.dev](https://dev.allthingslinux.workers.dev) |
 
-**Setup:** See [Workers Builds Setup Guide](docs/WORKERS_BUILDS_SETUP.md) for detailed configuration.
+**Setup:** See [GitHub Environments Setup Guide](docs/GITHUB_ENVIRONMENTS_SETUP.md) for detailed configuration.
 
-Quick setup: Connect your GitHub repo in [Cloudflare Dashboard → Workers → Builds](https://dash.cloudflare.com/workers-and-pages) and configure:
-- **Production branch deploy:** `pnpm install && pnpm run build:all && pnpm exec opennextjs-cloudflare deploy -- --env prod`
-- **Non-production branch deploy:** `pnpm install && pnpm run build:all && pnpm exec opennextjs-cloudflare deploy -- --env dev`
+**Quick setup:**
+
+1. Create GitHub Environments: `dev` and `prod` (Settings → Environments)
+2. Add secrets to each environment (see guide for required secrets)
+3. Push to any branch → Auto-deploys via GitHub Actions
+4. Merge to `main` → Auto-deploys to production
+
+**Workflow:** `.github/workflows/deploy.yml` automatically handles branch detection and environment selection.
 
 ### Manual Deployments
 
@@ -126,7 +131,19 @@ pnpm run preview
 
 ## 🔐 Secrets & Environment
 
-### Quick Setup
+### CI/CD (GitHub Actions) - Recommended
+
+**For automatic deployments**, use GitHub Environments with secrets:
+
+1. **Set up GitHub Environments**: Create `dev` and `prod` environments (Settings → Environments)
+2. **Add secrets** to each environment (same secret names, different values per environment)
+3. **Secrets are automatically available** in GitHub Actions workflows
+
+See [GitHub Environments Setup Guide](docs/GITHUB_ENVIRONMENTS_SETUP.md) for complete setup instructions.
+
+### Manual Deployment (Local)
+
+**For manual deployments from your local machine:**
 
 ```bash
 # 1. Copy templates for each environment
@@ -145,10 +162,11 @@ pnpm run secrets:prod   # Production (uses .env.secrets.prod)
 ### Security Notes
 
 - **Never commit** `.env.secrets.*` (they're gitignored)
-- **Secrets are encrypted** and managed via `wrangler secret put`
+- **GitHub Environments** are the recommended way for CI/CD (secrets isolated per environment)
+- **Secrets are encrypted** and managed via `wrangler secret put` or GitHub Environments
 - **Use `.dev.vars`** only for non-sensitive local config
 - **Environment variables** are defined in `wrangler.jsonc` per environment
-- **Environment-specific secrets** automatically selected by upload scripts
+- **No prefixing needed**: GitHub Environments handle isolation automatically
 
 ## 📁 Project Structure
 

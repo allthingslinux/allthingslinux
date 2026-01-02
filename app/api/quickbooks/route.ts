@@ -42,13 +42,20 @@ export async function GET(request: NextRequest) {
     // Get Cloudflare environment
     // Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
     const cfEnv = getCloudflareEnv();
-    
-    console.log('[QuickBooks API] Request received, KV namespace available:', !!cfEnv?.KV_QUICKBOOKS);
+
+    console.log(
+      '[QuickBooks API] Request received, KV namespace available:',
+      !!cfEnv?.KV_QUICKBOOKS
+    );
 
     // Fetch transactions with Cloudflare environment
     const transactions = await fetchQuickBooksTransactions(cfEnv);
-    
-    console.log('[QuickBooks API] Returning', transactions.length, 'transactions');
+
+    console.log(
+      '[QuickBooks API] Returning',
+      transactions.length,
+      'transactions'
+    );
 
     return NextResponse.json({
       success: true,
@@ -58,7 +65,10 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[QuickBooks API] ❌ Error fetching QuickBooks data:', error);
-    console.error('[QuickBooks API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error(
+      '[QuickBooks API] Error stack:',
+      error instanceof Error ? error.stack : 'No stack trace'
+    );
 
     return NextResponse.json(
       {

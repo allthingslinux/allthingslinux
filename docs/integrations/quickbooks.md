@@ -29,7 +29,7 @@ The QuickBooks integration enables the All Things Linux website to fetch and dis
    - **Production Environment**:
      - `https://allthingslinux.org/api/quickbooks/callback` (for production custom domain)
      - `https://allthingslinux-prod.allthingslinux.workers.dev/api/quickbooks/callback` (for production worker)
-4. **Important**: 
+4. **Important**:
    - The redirect URI must match **exactly** (including protocol and path)
    - No trailing slashes
    - Must be in the same environment (Development/Production) as your Client ID
@@ -49,17 +49,20 @@ QUICKBOOKS_ADMIN_KEY=your_secure_random_key  # For admin operations
 ### Admin OAuth Setup
 
 **Local Development:**
+
 1. **Visit**: `http://localhost:3000/api/quickbooks/admin-setup?admin=your_secure_random_key`
 2. **Complete QuickBooks authorization** (one time only)
 3. **Copy the tokens** to your `.env.local` file
 4. **Restart your dev server**
 
 **Cloudflare Worker (Dev/Prod):**
+
 1. **Visit**: `https://your-worker-domain/api/quickbooks/admin-setup?admin=your_secure_random_key`
 2. **Ensure** the redirect URI is configured in QuickBooks app settings (see Prerequisites)
 3. **Complete QuickBooks authorization** - tokens will be automatically saved to Cloudflare KV
 
-**Note**: 
+**Note**:
+
 - The `admin` parameter must match your `QUICKBOOKS_ADMIN_KEY` for security
 - The redirect URI in QuickBooks app settings **must match exactly** the deployed domain
 - If you see an infinite loop, check that the redirect URI in QuickBooks matches your worker domain
@@ -109,6 +112,7 @@ The system handles token expiration automatically:
    - Token rotation still works - refresh tokens are automatically updated when rotated
 
 **Important Note for Next.js on Cloudflare Workers**:
+
 - According to [OpenNext documentation](https://opennext.js.org/cloudflare/howtos/env-vars), environment variables are the recommended approach
 - In Next.js API routes, `request.env` is not automatically populated (unlike regular Cloudflare Workers where `env` is passed as a parameter)
 - The system automatically falls back to **environment variables** for token storage, which is the correct approach per OpenNext guidance
@@ -134,12 +138,12 @@ curl -X POST https://your-domain.com/api/quickbooks \
 ### Troubleshooting Token Issues
 
 - **"Failed to get access token"**: Check that refresh token is valid and not revoked
-- **"KV namespace not available"**: 
+- **"KV namespace not available"**:
   - ✅ **This is expected and normal** - Next.js API routes don't receive `request.env`
   - ✅ **Your system is working correctly** - it's using environment variables
   - ✅ **Tokens are stored as secrets** (via `pnpm run secrets:dev` / `secrets:prod`)
   - ✅ **Token refresh and rotation work automatically** with environment variables
-- **Token rotation not working**: 
+- **Token rotation not working**:
   - Refresh tokens automatically rotate every 24 hours
   - **The system now automatically updates Cloudflare Secrets via API** when refresh tokens rotate
   - Requires `CLOUDFLARE_API_TOKEN` in your secrets file (already set up for deployments)

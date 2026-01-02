@@ -92,12 +92,13 @@ async function TransactionsTable() {
     // Construct absolute URL for fetch (required in server components)
     const headersList = await headers();
     const host = headersList.get('host') || 'localhost:3000';
-    const protocol = headersList.get('x-forwarded-proto') || 
-                     headersList.get('x-forwarded-scheme') || 
-                     (host.includes('localhost') ? 'http' : 'https');
+    const protocol =
+      headersList.get('x-forwarded-proto') ||
+      headersList.get('x-forwarded-scheme') ||
+      (host.includes('localhost') ? 'http' : 'https');
     const baseUrl = `${protocol}://${host}`;
     const apiUrl = `${baseUrl}/api/quickbooks`;
-    
+
     // Fetch transactions via API route that has access to Cloudflare KV
     const response = await fetch(apiUrl, {
       cache: 'no-store', // Always fetch fresh data - prevents static generation

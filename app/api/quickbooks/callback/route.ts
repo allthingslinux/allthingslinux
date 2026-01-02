@@ -65,11 +65,13 @@ export async function GET(request: NextRequest) {
 
   if (!isValidState) {
     console.error('CSRF state validation failed', {
-      storedState: storedState ? `[${storedState.substring(0, 8)}...]` : 'missing',
+      storedState: storedState
+        ? `[${storedState.substring(0, 8)}...]`
+        : 'missing',
       receivedState: state ? `[${state.substring(0, 8)}...]` : 'missing',
       allCookies: Array.from(cookies.getAll()).map((c) => c.name),
     });
-    
+
     // Return helpful error page instead of JSON for better debugging
     const errorHtml = `<!DOCTYPE html>
     <html>
@@ -87,7 +89,7 @@ export async function GET(request: NextRequest) {
       <p><a href="/api/quickbooks/admin-setup?admin=${encodeURIComponent(env.QUICKBOOKS_ADMIN_KEY || '')}">Try again</a></p>
     </body>
     </html>`;
-    
+
     return new NextResponse(errorHtml, {
       headers: { 'Content-Type': 'text/html' },
       status: 403,
@@ -144,8 +146,11 @@ export async function GET(request: NextRequest) {
     // Get Cloudflare environment if available
     // Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
     const cfEnv = getCloudflareEnv();
-    
-    console.log('[QuickBooks Callback] KV namespace available:', !!cfEnv?.KV_QUICKBOOKS);
+
+    console.log(
+      '[QuickBooks Callback] KV namespace available:',
+      !!cfEnv?.KV_QUICKBOOKS
+    );
     console.log('[QuickBooks Callback] Attempting to save tokens...', {
       hasClientId: !!tokenData.clientId,
       hasClientSecret: !!tokenData.clientSecret,
@@ -158,12 +163,20 @@ export async function GET(request: NextRequest) {
     const saved = await saveTokens(tokenData, cfEnv);
 
     if (saved) {
-      console.log('[QuickBooks Callback] ✅ QuickBooks tokens saved (KV or Secrets API)');
+      console.log(
+        '[QuickBooks Callback] ✅ QuickBooks tokens saved (KV or Secrets API)'
+      );
     } else {
-      console.warn('[QuickBooks Callback] ⚠️ Tokens NOT saved to KV/Secrets (using environment variables)');
+      console.warn(
+        '[QuickBooks Callback] ⚠️ Tokens NOT saved to KV/Secrets (using environment variables)'
+      );
       console.log('[QuickBooks Callback] 💡 To enable automatic token saving:');
-      console.log('[QuickBooks Callback]    1. Ensure KV namespace is accessible, OR');
-      console.log('[QuickBooks Callback]    2. Add CLOUDFLARE_API_TOKEN as a secret to enable automatic secret updates');
+      console.log(
+        '[QuickBooks Callback]    1. Ensure KV namespace is accessible, OR'
+      );
+      console.log(
+        '[QuickBooks Callback]    2. Add CLOUDFLARE_API_TOKEN as a secret to enable automatic secret updates'
+      );
       // Fallback for development/local environments - only log in development
       if (env.NODE_ENV === 'development') {
         console.log('');

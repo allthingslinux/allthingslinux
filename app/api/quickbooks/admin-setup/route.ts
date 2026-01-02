@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
   // Set the state cookie for CSRF validation
   const response = NextResponse.redirect(authUrl.toString());
-  
+
   // Cookie settings: secure in production, work with both localhost and workers.dev
   const isSecure = protocol === 'https';
   response.cookies.set('qb_oauth_state', state, {
@@ -61,8 +61,14 @@ export async function GET(request: NextRequest) {
   console.log('[QuickBooks OAuth] Protocol:', protocol);
   console.log('[QuickBooks OAuth] Redirect URI:', redirectUri);
   console.log('[QuickBooks OAuth] State:', state.substring(0, 16) + '...');
-  console.log('[QuickBooks OAuth] ⚠️  IMPORTANT: This redirect URI must be added to your QuickBooks app');
-  console.log('[QuickBooks OAuth] ⚠️  Make sure it is in the "' + (environment === 'sandbox' ? 'Development' : 'Production') + '" environment tab');
+  console.log(
+    '[QuickBooks OAuth] ⚠️  IMPORTANT: This redirect URI must be added to your QuickBooks app'
+  );
+  console.log(
+    '[QuickBooks OAuth] ⚠️  Make sure it is in the "' +
+      (environment === 'sandbox' ? 'Development' : 'Production') +
+      '" environment tab'
+  );
 
   return response;
 }

@@ -12,13 +12,64 @@ import { z } from 'zod';
  *   - Dev environment: .env.secrets.dev (sandbox credentials)
  *   - Prod environment: .env.secrets.prod (production credentials)
  */
+// Helper to detect deployment environment at runtime (dev vs prod)
+// Checks request host or NEXT_PUBLIC_URL to determine which prefix to use
+function getDeploymentEnvironment(): 'dev' | 'prod' {
+  // Check NEXT_PUBLIC_URL (set dynamically in middleware based on request host)
+  const publicUrl = process.env.NEXT_PUBLIC_URL || '';
+
+  // Production: allthingslinux.org (and subdomains, but not dev.*)
+  if (
+    publicUrl.includes('allthingslinux.org') &&
+    !publicUrl.includes('dev.allthingslinux')
+  ) {
+    return 'prod';
+  }
+
+  // Development: dev.allthingslinux.workers.dev or any *.workers.dev
+  if (
+    publicUrl.includes('workers.dev') ||
+    publicUrl.includes('dev.') ||
+    publicUrl.includes('localhost')
+  ) {
+    return 'dev';
+  }
+
+  // Default based on NODE_ENV (conservative - prefer dev for safety)
+  return process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
+}
+
+// Helper to get environment variable with prefixed fallback
+// In Cloudflare Workers, secrets are prefixed (DEV_*, PROD_*) for isolation
+function getEnvVar(baseName: string): string | undefined {
+  const env = getDeploymentEnvironment();
+  const prefix = env === 'prod' ? 'PROD' : 'DEV';
+
+  // Try prefixed version first (Cloudflare Workers with prefixed secrets)
+  const prefixedName = `${prefix}_${baseName}`;
+  const prefixedValue = process.env[prefixedName];
+  if (prefixedValue) {
+    return prefixedValue;
+  }
+
+  // Fallback to non-prefixed (local development, legacy, or vars)
+  return process.env[baseName];
+}
+
 // Helper to determine QuickBooks environment with auto-detection
-const getQuickBooksEnvironment = (): 'sandbox' | 'production' | undefined =>
-  (process.env.QUICKBOOKS_ENVIRONMENT as
+const getQuickBooksEnvironment = (): 'sandbox' | 'production' | undefined => {
+  const explicitEnv = process.env.QUICKBOOKS_ENVIRONMENT as
     | 'sandbox'
     | 'production'
-    | undefined) ||
-  (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox');
+    | undefined;
+  if (explicitEnv) {
+    return explicitEnv;
+  }
+
+  // Auto-detect: prod deployment → production QuickBooks, dev → sandbox
+  const deploymentEnv = getDeploymentEnvironment();
+  return deploymentEnv === 'prod' ? 'production' : 'sandbox';
+};
 
 export const env = createEnv({
   /**
@@ -104,23 +155,26 @@ export const env = createEnv({
  * Cloudflare Workers environment fallback
  * This provides direct access to environment variables when running in Cloudflare Workers
  * since the t3-env validation may not work correctly in that environment
+ *
+ * Uses prefixed secrets (DEV_*, PROD_*) based on runtime environment detection
+ * Falls back to non-prefixed for local development
  */
 export const cloudflareEnv = {
-  // Server variables
+  // Server variables (with prefixed secret support)
   NODE_ENV: process.env.NODE_ENV,
-  GITHUB_TOKEN: process.env.GITHUB_TOKEN,
-  MONDAY_API_KEY: process.env.MONDAY_API_KEY,
-  MONDAY_BOARD_ID: process.env.MONDAY_BOARD_ID,
-  DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
-  TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
-  QUICKBOOKS_CLIENT_ID: process.env.QUICKBOOKS_CLIENT_ID,
-  QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
-  QUICKBOOKS_REFRESH_TOKEN: process.env.QUICKBOOKS_REFRESH_TOKEN,
-  QUICKBOOKS_REALM_ID: process.env.QUICKBOOKS_REALM_ID,
+  GITHUB_TOKEN: getEnvVar('GITHUB_TOKEN'),
+  MONDAY_API_KEY: getEnvVar('MONDAY_API_KEY'),
+  MONDAY_BOARD_ID: getEnvVar('MONDAY_BOARD_ID'),
+  DISCORD_WEBHOOK_URL: getEnvVar('DISCORD_WEBHOOK_URL') as string | undefined,
+  TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY, // Not prefixed (Trigger.dev handles separately)
+  QUICKBOOKS_CLIENT_ID: getEnvVar('QUICKBOOKS_CLIENT_ID'),
+  QUICKBOOKS_CLIENT_SECRET: getEnvVar('QUICKBOOKS_CLIENT_SECRET'),
+  QUICKBOOKS_REFRESH_TOKEN: getEnvVar('QUICKBOOKS_REFRESH_TOKEN'),
+  QUICKBOOKS_REALM_ID: getEnvVar('QUICKBOOKS_REALM_ID'),
   QUICKBOOKS_ENVIRONMENT: getQuickBooksEnvironment(),
-  QUICKBOOKS_ADMIN_KEY: process.env.QUICKBOOKS_ADMIN_KEY,
+  QUICKBOOKS_ADMIN_KEY: getEnvVar('QUICKBOOKS_ADMIN_KEY'),
 
-  // Client variables
+  // Client variables (not prefixed - these are public anyway)
   NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   NEXT_PUBLIC_GITHUB_REPO_OWNER: process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER,

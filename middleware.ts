@@ -3,8 +3,28 @@ import type { NextRequest } from 'next/server';
 import { formSubmissionRateLimit, apiRateLimit } from '@/lib/rate-limit';
 
 export async function middleware(request: NextRequest) {
+  // Set NEXT_PUBLIC_URL dynamically based on request host for environment detection
+  // This allows prefixed secrets (DEV_*, PROD_*) to be selected correctly
+  const host = request.headers.get('host') || '';
+  const protocol =
+    request.headers.get('x-forwarded-proto') ||
+    (host.includes('localhost') ? 'http' : 'https');
+  const baseUrl = `${protocol}://${host}`;
+
+  // Update process.env for this request (only works if nodejs_compat_populate_process_env is enabled)
+  // This helps with runtime environment detection in env.ts
+  if (typeof process !== 'undefined' && process.env) {
+    (process.env as any).NEXT_PUBLIC_URL = baseUrl;
+    (process.env as any).NEXT_PUBLIC_API_URL = `${baseUrl}/api`;
+  }
+
   // Debug middleware execution
-  console.log('Middleware running for path:', request.nextUrl.pathname);
+  console.log(
+    'Middleware running for path:',
+    request.nextUrl.pathname,
+    'Host:',
+    host
+  );
 
   // Only apply to /api routes
   if (request.nextUrl.pathname.startsWith('/api/')) {

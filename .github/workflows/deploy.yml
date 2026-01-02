@@ -1,0 +1,107 @@
+---
+name: Deploy to Cloudflare Workers
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  # renovate: datasource=node depName=node
+  NODE_VERSION: 22.14.0
+  PNPM_VERSION: 10.17.0
+jobs:
+  deploy:
+    name: Deploy to ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+    runs-on: ubuntu-latest
+    # Use GitHub Environments: 'prod' for main branch, 'dev' for PRs/other branches
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm run build:all
+
+      - name: Set secrets in Cloudflare Worker (Prefixed)
+        run: |
+          ENV_TYPE="${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}"
+          echo "🔐 Setting $ENV_TYPE prefixed secrets in Cloudflare Worker..."
+          # Set prefixed secrets so both dev and prod can coexist in the same worker
+          # Runtime detection will select the correct prefix based on request host
+          PREFIX="$ENV_TYPE"
+
+          # Sensitive secrets (use GitHub Secrets)
+          echo "${{ secrets.QUICKBOOKS_CLIENT_ID }}" | pnpm exec wrangler secret put ${PREFIX}_QUICKBOOKS_CLIENT_ID
+          echo "${{ secrets.QUICKBOOKS_CLIENT_SECRET }}" | pnpm exec wrangler secret put ${PREFIX}_QUICKBOOKS_CLIENT_SECRET
+          echo "${{ secrets.QUICKBOOKS_REFRESH_TOKEN }}" | pnpm exec wrangler secret put ${PREFIX}_QUICKBOOKS_REFRESH_TOKEN || true
+          echo "${{ secrets.QUICKBOOKS_REALM_ID }}" | pnpm exec wrangler secret put ${PREFIX}_QUICKBOOKS_REALM_ID || true
+          echo "${{ secrets.QUICKBOOKS_ADMIN_KEY }}" | pnpm exec wrangler secret put ${PREFIX}_QUICKBOOKS_ADMIN_KEY || true
+          echo "${{ secrets.GITHUB_TOKEN }}" | pnpm exec wrangler secret put ${PREFIX}_GITHUB_TOKEN || true
+          echo "${{ secrets.MONDAY_API_KEY }}" | pnpm exec wrangler secret put ${PREFIX}_MONDAY_API_KEY || true
+
+          # Non-sensitive variables (use GitHub Variables - still set as Cloudflare secrets for prefixed runtime access)
+          # Note: Even though not sensitive, we set as secrets to maintain prefix structure for environment isolation
+          if [ -n "${{ vars.DISCORD_WEBHOOK_URL }}" ]; then
+            echo "${{ vars.DISCORD_WEBHOOK_URL }}" | pnpm exec wrangler secret put ${PREFIX}_DISCORD_WEBHOOK_URL || true
+          fi
+          if [ -n "${{ vars.MONDAY_BOARD_ID }}" ]; then
+            echo "${{ vars.MONDAY_BOARD_ID }}" | pnpm exec wrangler secret put ${PREFIX}_MONDAY_BOARD_ID || true
+          fi
+          if [ -n "${{ vars.QUICKBOOKS_ENVIRONMENT }}" ]; then
+            echo "${{ vars.QUICKBOOKS_ENVIRONMENT }}" | pnpm exec wrangler secret put ${PREFIX}_QUICKBOOKS_ENVIRONMENT || true
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Deploy to Cloudflare Workers
+        run: |
+          echo "🚀 Deploying to ${{ github.ref == 'refs/heads/main' && 'PRODUCTION' || 'DEVELOPMENT' }} environment..."
+          # Deploy to single worker "dev" (no --env flag = base worker)
+          # Worker URL: dev.allthingslinux.workers.dev
+          # Production: allthingslinux.org (custom route in wrangler.jsonc)
+          # Secrets are prefixed (DEV_* / PROD_*) - runtime detection selects correct prefix
+          pnpm exec opennextjs-cloudflare deploy
+        env:
+          # Only Cloudflare API token needed for deployment (secrets are set separately above)
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Create deployment comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v5
+        continue-on-error: true
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🚀 Deployment Status
+
+            **Environment:** ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+            **Branch:** `${{ github.ref_name }}`
+            **Commit:** `${{ github.sha }}`
+
+            **URLs:**
+            - **Production:** [https://allthingslinux.org](https://allthingslinux.org)
+            - **Development:** [https://dev.allthingslinux.workers.dev](https://dev.allthingslinux.workers.dev)
+
+            Deployment completed successfully! ✨

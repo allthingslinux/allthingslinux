@@ -482,7 +482,10 @@ async function getStoredTokens(cfEnv?: QuickBooksCloudflareEnv) {
     try {
       console.log('[QuickBooks] Attempting to read tokens from KV...');
       const tokens = await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens');
-      console.log('[QuickBooks] KV get() result:', tokens ? `Found (${tokens.length} chars)` : 'null/undefined');
+      console.log(
+        '[QuickBooks] KV get() result:',
+        tokens ? `Found (${tokens.length} chars)` : 'null/undefined'
+      );
       if (tokens) {
         console.log('[QuickBooks] ✅ Tokens found in KV, parsing...');
         try {
@@ -495,29 +498,51 @@ async function getStoredTokens(cfEnv?: QuickBooksCloudflareEnv) {
             environment: parsed.environment,
           });
           // Verify required fields
-          if (parsed.clientId && parsed.clientSecret && parsed.refreshToken && parsed.realmId) {
-            console.log('[QuickBooks] ✅ All required fields present, using KV tokens');
+          if (
+            parsed.clientId &&
+            parsed.clientSecret &&
+            parsed.refreshToken &&
+            parsed.realmId
+          ) {
+            console.log(
+              '[QuickBooks] ✅ All required fields present, using KV tokens'
+            );
             return parsed;
           } else {
-            console.warn('[QuickBooks] ⚠️ Tokens in KV missing required fields:', {
-              hasClientId: !!parsed.clientId,
-              hasClientSecret: !!parsed.clientSecret,
-              hasRefreshToken: !!parsed.refreshToken,
-              hasRealmId: !!parsed.realmId,
-            });
+            console.warn(
+              '[QuickBooks] ⚠️ Tokens in KV missing required fields:',
+              {
+                hasClientId: !!parsed.clientId,
+                hasClientSecret: !!parsed.clientSecret,
+                hasRefreshToken: !!parsed.refreshToken,
+                hasRealmId: !!parsed.realmId,
+              }
+            );
           }
         } catch (parseError) {
-          console.error('[QuickBooks] ❌ Failed to parse tokens from KV:', parseError);
-          console.error('[QuickBooks] Raw tokens value (first 200 chars):', tokens.substring(0, 200));
+          console.error(
+            '[QuickBooks] ❌ Failed to parse tokens from KV:',
+            parseError
+          );
+          console.error(
+            '[QuickBooks] Raw tokens value (first 200 chars):',
+            tokens.substring(0, 200)
+          );
         }
       } else {
-        console.log('[QuickBooks] ⚠️ No tokens found in KV (key "quickbooks_tokens" returned null), falling back to environment variables');
+        console.log(
+          '[QuickBooks] ⚠️ No tokens found in KV (key "quickbooks_tokens" returned null), falling back to environment variables'
+        );
         // Try listing keys to see what's actually in KV
         try {
           // Note: KV doesn't have a list() method, but we can try other known keys
-          const cacheTokens = await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens_cache');
+          const cacheTokens = await cfEnv.KV_QUICKBOOKS.get(
+            'quickbooks_tokens_cache'
+          );
           if (cacheTokens) {
-            console.log('[QuickBooks] Found quickbooks_tokens_cache in KV, but not quickbooks_tokens');
+            console.log(
+              '[QuickBooks] Found quickbooks_tokens_cache in KV, but not quickbooks_tokens'
+            );
           }
         } catch {
           // Ignore
@@ -533,7 +558,9 @@ async function getStoredTokens(cfEnv?: QuickBooksCloudflareEnv) {
       // Fall through to environment variables on error
     }
   } else {
-    console.log('[QuickBooks] KV namespace not available, using environment variables');
+    console.log(
+      '[QuickBooks] KV namespace not available, using environment variables'
+    );
   }
 
   // Fallback to environment variables (development or KV not available)
@@ -544,7 +571,7 @@ async function getStoredTokens(cfEnv?: QuickBooksCloudflareEnv) {
     realmId: env.QUICKBOOKS_REALM_ID,
     environment: env.QUICKBOOKS_ENVIRONMENT || 'sandbox',
   };
-  
+
   console.log('[QuickBooks] Using environment variables:', {
     hasClientId: !!envTokens.clientId,
     hasClientSecret: !!envTokens.clientSecret,
@@ -552,7 +579,7 @@ async function getStoredTokens(cfEnv?: QuickBooksCloudflareEnv) {
     hasRealmId: !!envTokens.realmId,
     environment: envTokens.environment,
   });
-  
+
   return envTokens;
 }
 
@@ -573,7 +600,7 @@ async function saveTokens(
     hasRefreshToken: !!tokens.refreshToken,
     hasRealmId: !!tokens.realmId,
   });
-  
+
   // Try Cloudflare KV first (production)
   if (cfEnv?.KV_QUICKBOOKS) {
     try {
@@ -583,15 +610,19 @@ async function saveTokens(
         JSON.stringify(tokens)
       );
       console.log('[QuickBooks saveTokens] ✅ Tokens saved to Cloudflare KV');
-      
+
       // Verify the save worked
       const verify = await cfEnv.KV_QUICKBOOKS.get('quickbooks_tokens');
       if (verify) {
-        console.log('[QuickBooks saveTokens] ✅ Verified: tokens can be read back from KV');
+        console.log(
+          '[QuickBooks saveTokens] ✅ Verified: tokens can be read back from KV'
+        );
       } else {
-        console.warn('[QuickBooks saveTokens] ⚠️ Warning: tokens saved but could not be read back');
+        console.warn(
+          '[QuickBooks saveTokens] ⚠️ Warning: tokens saved but could not be read back'
+        );
       }
-      
+
       return true;
     } catch (error) {
       console.error('[QuickBooks saveTokens] ❌ Failed to save to KV:', error);
@@ -601,40 +632,50 @@ async function saveTokens(
       }
     }
   } else {
-    console.log('[QuickBooks saveTokens] ⚠️ KV namespace not available in cfEnv');
+    console.log(
+      '[QuickBooks saveTokens] ⚠️ KV namespace not available in cfEnv'
+    );
   }
 
   // Fallback: Try to update Cloudflare Secrets via API
   // This allows automatic persistence of tokens when KV is not available
   // Update refresh token and realm ID (obtained from OAuth callback)
   let secretsUpdated = false;
-  
+
   if (tokens.refreshToken) {
-    console.log('[QuickBooks saveTokens] Attempting to update QUICKBOOKS_REFRESH_TOKEN via Cloudflare API...');
+    console.log(
+      '[QuickBooks saveTokens] Attempting to update QUICKBOOKS_REFRESH_TOKEN via Cloudflare API...'
+    );
     const updated = await updateCloudflareSecret(
-      'QUICKBOOKS_REFRESH_TOKEN', 
+      'QUICKBOOKS_REFRESH_TOKEN',
       tokens.refreshToken,
       tokens.environment
     );
     if (updated) {
-      console.log('[QuickBooks saveTokens] ✅ QUICKBOOKS_REFRESH_TOKEN updated in Cloudflare Secrets via API');
+      console.log(
+        '[QuickBooks saveTokens] ✅ QUICKBOOKS_REFRESH_TOKEN updated in Cloudflare Secrets via API'
+      );
       secretsUpdated = true;
     }
   }
-  
+
   if (tokens.realmId) {
-    console.log('[QuickBooks saveTokens] Attempting to update QUICKBOOKS_REALM_ID via Cloudflare API...');
+    console.log(
+      '[QuickBooks saveTokens] Attempting to update QUICKBOOKS_REALM_ID via Cloudflare API...'
+    );
     const updated = await updateCloudflareSecret(
       'QUICKBOOKS_REALM_ID',
       tokens.realmId,
       tokens.environment
     );
     if (updated) {
-      console.log('[QuickBooks saveTokens] ✅ QUICKBOOKS_REALM_ID updated in Cloudflare Secrets via API');
+      console.log(
+        '[QuickBooks saveTokens] ✅ QUICKBOOKS_REALM_ID updated in Cloudflare Secrets via API'
+      );
       secretsUpdated = true;
     }
   }
-  
+
   if (secretsUpdated) {
     return true;
   }
@@ -668,32 +709,42 @@ async function saveTokens(
  * Requires CLOUDFLARE_API_TOKEN and optionally CLOUDFLARE_ACCOUNT_ID
  */
 async function updateCloudflareSecret(
-  secretName: string, 
+  secretName: string,
   secretValue: string,
   qbEnvironment?: string
 ): Promise<boolean> {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN;
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  
-  console.log('[QuickBooks updateCloudflareSecret] Attempting to update secret:', {
-    secretName,
-    hasApiToken: !!apiToken,
-    hasAccountId: !!accountId,
-    qbEnvironment,
-  });
-  
+
+  console.log(
+    '[QuickBooks updateCloudflareSecret] Attempting to update secret:',
+    {
+      secretName,
+      hasApiToken: !!apiToken,
+      hasAccountId: !!accountId,
+      qbEnvironment,
+    }
+  );
+
   if (!apiToken) {
-    console.log('[QuickBooks updateCloudflareSecret] ⚠️ CLOUDFLARE_API_TOKEN not available - skipping automatic secret update');
-    console.log('[QuickBooks updateCloudflareSecret] 💡 To enable automatic secret updates, add CLOUDFLARE_API_TOKEN as a secret to your worker');
+    console.log(
+      '[QuickBooks updateCloudflareSecret] ⚠️ CLOUDFLARE_API_TOKEN not available - skipping automatic secret update'
+    );
+    console.log(
+      '[QuickBooks updateCloudflareSecret] 💡 To enable automatic secret updates, add CLOUDFLARE_API_TOKEN as a secret to your worker'
+    );
     return false;
   }
 
   try {
     // Determine worker name and environment based on QuickBooks environment
     // Default to dev if not specified
-    const envName = (qbEnvironment === 'production' || process.env.NODE_ENV === 'production') ? 'prod' : 'dev';
+    const envName =
+      qbEnvironment === 'production' || process.env.NODE_ENV === 'production'
+        ? 'prod'
+        : 'dev';
     const workerName = `allthingslinux-${envName}`;
-    
+
     // Cloudflare API endpoint for updating secrets
     // Use account-level API if accountId is available, otherwise use user-level
     const baseUrl = accountId
@@ -703,7 +754,7 @@ async function updateCloudflareSecret(
     const response = await fetch(`${baseUrl}/secrets`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${apiToken}`,
+        Authorization: `Bearer ${apiToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -714,15 +765,22 @@ async function updateCloudflareSecret(
     });
 
     if (response.ok) {
-      console.log(`[QuickBooks updateCloudflareSecret] ✅ Successfully updated ${secretName} in Cloudflare Secrets (worker: ${workerName})`);
+      console.log(
+        `[QuickBooks updateCloudflareSecret] ✅ Successfully updated ${secretName} in Cloudflare Secrets (worker: ${workerName})`
+      );
       return true;
     } else {
       const errorText = await response.text();
-      console.warn(`[QuickBooks updateCloudflareSecret] ⚠️ Failed to update ${secretName} (${response.status}): ${errorText.substring(0, 200)}`);
+      console.warn(
+        `[QuickBooks updateCloudflareSecret] ⚠️ Failed to update ${secretName} (${response.status}): ${errorText.substring(0, 200)}`
+      );
       return false;
     }
   } catch (error) {
-    console.warn(`[QuickBooks updateCloudflareSecret] ⚠️ Error updating secret ${secretName}:`, error instanceof Error ? error.message : String(error));
+    console.warn(
+      `[QuickBooks updateCloudflareSecret] ⚠️ Error updating secret ${secretName}:`,
+      error instanceof Error ? error.message : String(error)
+    );
     return false;
   }
 }
@@ -750,8 +808,10 @@ export async function fetchQuickBooksTransactions(
     );
     return [];
   }
-  
-  console.log('[QuickBooks] ✅ All credentials present, proceeding with API calls');
+
+  console.log(
+    '[QuickBooks] ✅ All credentials present, proceeding with API calls'
+  );
 
   // Get access token (with caching and refresh token rotation handling)
   const tokenResult = await getAccessToken(

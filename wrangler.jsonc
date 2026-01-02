@@ -1,9 +1,24 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
 
-  // === BASE CONFIGURATION (Shared across all environments) ===
-  // Base name for production worker
-  "name": "allthingslinux",
+  // === SINGLE WORKER CONFIGURATION ===
+  // Single worker named "dev" for cleaner URL: dev.allthingslinux.workers.dev
+  // Handles both dev and prod traffic via runtime environment detection
+  // GitHub Environments handle secret isolation during deployment
+  // Custom route for production: allthingslinux.org -> dev worker
+  "name": "dev",
+
+  // Custom route for production domain
+  "routes": [
+    {
+      "pattern": "allthingslinux.org",
+      "custom_domain": true,
+    },
+    {
+      "pattern": "*.allthingslinux.org",
+      "custom_domain": true,
+    },
+  ],
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-01-02",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -13,13 +28,16 @@
   "no_bundle": false,
   "logpush": true,
 
+  // Enable workers.dev subdomain for preview deployments
+  "workers_dev": true,
+  "preview_urls": true,
 
   // Performance and resource limits
   "limits": {
     "cpu_ms": 300000, // 5 minutes max per request
   },
 
-  // Assets configuration (shared)
+  // Assets configuration
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets",
@@ -28,7 +46,7 @@
     "binding": "IMAGES",
   },
 
-  // Observability (shared across all environments)
+  // Observability (full sampling for both dev and prod)
   "observability": {
     "enabled": true,
     "logs": {
@@ -37,212 +55,97 @@
     "head_sampling_rate": 1.0,
   },
 
-  // === ENVIRONMENT-SPECIFIC CONFIGURATIONS ===
+  // Service bindings (self-reference)
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "allthingslinux",
+    },
+  ],
 
-  // Dev Environment (Preview Deployments)
+  // Durable Objects for advanced caching features
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "NEXT_CACHE_DO_QUEUE",
+        "class_name": "DOQueueHandler",
+      },
+      {
+        "name": "NEXT_TAG_CACHE_DO_SHARDED",
+        "class_name": "DOShardedTagCache",
+      },
+      {
+        "name": "NEXT_CACHE_DO_PURGE",
+        "class_name": "BucketCachePurge",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "DOQueueHandler",
+        "DOShardedTagCache",
+        "BucketCachePurge",
+      ],
+    },
+  ],
+
+  // R2 bucket (Next.js incremental cache)
+  // Using prod bucket as primary; runtime detection handles environment-specific logic
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "atl-cache-prod",
+    },
+  ],
+
+  // KV namespace (QuickBooks token storage)
+  // Using prod KV as primary; runtime detection handles environment-specific logic
+  "kv_namespaces": [
+    {
+      "binding": "KV_QUICKBOOKS",
+      "id": "34e1630d0fea4741934035127ab88c39",
+      "preview_id": "34e1630d0fea4741934035127ab88c39",
+    },
+  ],
+
+  // Environment variables (runtime detection will override based on request host)
+  // These are defaults; NEXT_PUBLIC_URL is set dynamically in middleware/API routes
+  "vars": {
+    "NEXT_PUBLIC_URL": "https://allthingslinux.org",
+    "NEXT_PUBLIC_API_URL": "https://allthingslinux.org/api",
+    "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+    "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+  },
+
+  // === LOCAL ENVIRONMENT (for `wrangler dev`) ===
+  // Keep local env for local development with separate R2/KV
   "env": {
-    "dev": {
-      // Auto-creates worker: allthingslinux-dev (allows environment-specific secrets)
-      // Explicit name not needed - Wrangler auto-generates: <top-level-name>-<env-name>
-      "workers_dev": true,
-      // Note: Preview URLs won't work with Durable Objects, but enabled for clarity
-      "preview_urls": true,
-      "minify": true,
-      "preserve_file_names": false,
-
-      // Development observability (reduced sampling to save costs)
-      "observability": {
-        "enabled": true,
-        "logs": {
-          "invocation_logs": true,
-        },
-        "head_sampling_rate": 0.1, // 10% of requests logged
-      },
-
-      // Dev service bindings (self-reference - use auto-generated name)
-      "services": [
-        {
-          "binding": "WORKER_SELF_REFERENCE",
-          "service": "allthingslinux-dev",
-        },
-      ],
-      "images": {
-        "binding": "IMAGES",
-      },
-
-      // Durable Objects for advanced caching features
-      "durable_objects": {
-        "bindings": [
-          {
-            "name": "NEXT_CACHE_DO_QUEUE",
-            "class_name": "DOQueueHandler",
-          },
-          {
-            "name": "NEXT_TAG_CACHE_DO_SHARDED",
-            "class_name": "DOShardedTagCache",
-          },
-          {
-            "name": "NEXT_CACHE_DO_PURGE",
-            "class_name": "BucketCachePurge",
-          },
-        ],
-      },
-      "migrations": [
-        {
-          "tag": "v1",
-          "new_sqlite_classes": [
-            "DOQueueHandler",
-            "DOShardedTagCache",
-            "BucketCachePurge",
-          ],
-        },
-      ],
-
-      // Dev R2 bucket (Next.js incremental cache - separate for safety)
-      "r2_buckets": [
-        {
-          "binding": "NEXT_INC_CACHE_R2_BUCKET",
-          "bucket_name": "atl-cache-dev",
-        },
-      ],
-
-      // Dev KV namespaces
-      "kv_namespaces": [
-        {
-          "binding": "KV_QUICKBOOKS",
-          "id": "b58a50d9090b46a181322eb96d0c8c90",
-          "preview_id": "b58a50d9090b46a181322eb96d0c8c90",
-        },
-      ],
-
-      // Dev environment variables
-      // Note: NODE_ENV is automatically set by Next.js during build - do not override it
-      // Worker URL format: allthingslinux-dev.<your-subdomain>.workers.dev
-      "vars": {
-        "NEXT_PUBLIC_URL": "https://allthingslinux-dev.allthingslinux.workers.dev",
-        "NEXT_PUBLIC_API_URL": "https://allthingslinux-dev.allthingslinux.workers.dev/api",
-        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
-        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
-      },
-    },
-
-    // Prod Environment
-    "prod": {
-      // Auto-creates worker: allthingslinux-prod (separate from dev for isolation)
-      // Production secrets/bindings are isolated on this worker
-      // Custom domain routes point to this worker (worker name doesn't affect public URLs)
-      "workers_dev": false,
-      // Preview URLs disabled for production (no preview deployments)
-      "preview_urls": false,
-      "minify": false,
-      "preserve_file_names": false,
-      "no_bundle": false,
-      "logpush": true,
-
-      // Production observability (full sampling for monitoring)
-      "observability": {
-        "enabled": true,
-        "logs": {
-          "invocation_logs": true,
-        },
-        "head_sampling_rate": 1.0, // 100% of requests logged
-      },
-
-      // Prod service bindings (self-reference to prod worker)
-      "services": [
-        {
-          "binding": "WORKER_SELF_REFERENCE",
-          "service": "allthingslinux-prod",
-        },
-      ],
-      "images": {
-        "binding": "IMAGES",
-      },
-
-      // Durable Objects for advanced caching features
-      "durable_objects": {
-        "bindings": [
-          {
-            "name": "NEXT_CACHE_DO_QUEUE",
-            "class_name": "DOQueueHandler",
-          },
-          {
-            "name": "NEXT_TAG_CACHE_DO_SHARDED",
-            "class_name": "DOShardedTagCache",
-          },
-          {
-            "name": "NEXT_CACHE_DO_PURGE",
-            "class_name": "BucketCachePurge",
-          },
-        ],
-      },
-      "migrations": [
-        {
-          "tag": "v1",
-          "new_sqlite_classes": [
-            "DOQueueHandler",
-            "DOShardedTagCache",
-            "BucketCachePurge",
-          ],
-        },
-      ],
-
-      // Prod R2 bucket (Next.js incremental cache - isolated from dev)
-      "r2_buckets": [
-        {
-          "binding": "NEXT_INC_CACHE_R2_BUCKET",
-          "bucket_name": "atl-cache-prod",
-        },
-      ],
-
-      // Prod KV namespaces
-      "kv_namespaces": [
-        {
-          "binding": "KV_QUICKBOOKS",
-          "id": "34e1630d0fea4741934035127ab88c39",
-          "preview_id": "34e1630d0fea4741934035127ab88c39",
-        },
-      ],
-
-      // Production environment variables
-      // Note: NODE_ENV is automatically set by Next.js during build - do not override it
-      "vars": {
-        "NEXT_PUBLIC_URL": "https://allthingslinux.org",
-        "NEXT_PUBLIC_API_URL": "https://allthingslinux.org/api",
-        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
-        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
-      },
-    },
-
-    // Local Environment (for `wrangler dev`)
     "local": {
-      // Uses base worker name "allthingslinux" (local dev uses .dev.vars file)
       "workers_dev": true,
       "minify": false,
       "preserve_file_names": true,
       "find_additional_modules": true,
 
-      // Local development observability (full sampling for debugging)
       "observability": {
         "enabled": true,
         "logs": {
           "invocation_logs": true,
         },
-        "head_sampling_rate": 1.0, // 100% of requests logged for debugging
+        "head_sampling_rate": 1.0,
       },
 
-      // Local service bindings (self-reference for local dev)
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
-          "service": "allthingslinux",
+          "service": "dev",
         },
       ],
       "images": {
         "binding": "IMAGES",
       },
 
-      // Durable Objects for advanced caching features
       "durable_objects": {
         "bindings": [
           {
@@ -270,7 +173,6 @@
         },
       ],
 
-      // Local R2 bucket (separate for local development)
       "r2_buckets": [
         {
           "binding": "NEXT_INC_CACHE_R2_BUCKET",
@@ -278,7 +180,6 @@
         },
       ],
 
-      // Local KV namespaces
       "kv_namespaces": [
         {
           "binding": "KV_QUICKBOOKS",
@@ -287,8 +188,6 @@
         },
       ],
 
-      // Local environment variables
-      // Note: NODE_ENV is automatically set by Next.js during build - do not override it
       "vars": {
         "NEXT_PUBLIC_URL": "http://localhost:8788",
         "NEXT_PUBLIC_API_URL": "http://localhost:8788/api",
