@@ -65,16 +65,17 @@ jobs:
           .github/scripts/secrets.sh "$ENV_NAME"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          # Export all secrets as environment variables for the script
+          # Export all secrets as environment variables for the script (now environment-scoped)
           QUICKBOOKS_CLIENT_ID: ${{ secrets.QUICKBOOKS_CLIENT_ID }}
           QUICKBOOKS_CLIENT_SECRET: ${{ secrets.QUICKBOOKS_CLIENT_SECRET }}
           QUICKBOOKS_REFRESH_TOKEN: ${{ secrets.QUICKBOOKS_REFRESH_TOKEN }}
           QUICKBOOKS_REALM_ID: ${{ secrets.QUICKBOOKS_REALM_ID }}
+          # Environment-specific admin key (now from environment secrets)
           QUICKBOOKS_ADMIN_KEY: ${{ secrets.QUICKBOOKS_ADMIN_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MONDAY_API_KEY: ${{ secrets.MONDAY_API_KEY }}
           TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
-          # Variables (non-sensitive)
+          # Variables (non-sensitive, now environment-scoped)
           MONDAY_BOARD_ID: ${{ vars.MONDAY_BOARD_ID }}
           DISCORD_WEBHOOK_URL: ${{ vars.DISCORD_WEBHOOK_URL }}
           QUICKBOOKS_ENVIRONMENT: ${{ vars.QUICKBOOKS_ENVIRONMENT }}

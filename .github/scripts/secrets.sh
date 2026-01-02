@@ -30,6 +30,8 @@ elif [ -f .env.secrets.dev ]; then
   # shellcheck disable=SC1091
   source .env.secrets.dev 2>/dev/null
 fi
+
+# QUICKBOOKS_ADMIN_KEY should be set directly in the environment files
 export CLOUDFLARE_API_TOKEN
 
 # Verify wrangler authentication
