@@ -56,34 +56,33 @@ jobs:
       - name: Build application
         run: pnpm run build:all
 
-      - name: Set secrets in Cloudflare Worker (Prefixed)
+      - name: Set secrets in Cloudflare Worker
         run: |
-          ENV_TYPE="${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}"
-          # Ensure script is executable (defensive - file should already have execute permission)
-          chmod +x .github/scripts/set-cloudflare-secrets.sh
-          .github/scripts/set-cloudflare-secrets.sh "$ENV_TYPE"
+          ENV_NAME="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}"
+          echo "🔐 Setting secrets for ${ENV_NAME} environment..."
+          # Deploy to separate workers - no need for prefix logic
+          # Each environment worker has its own secrets
+          pnpm exec wrangler secret put QUICKBOOKS_CLIENT_ID --env $ENV_NAME <<< "${{ secrets.QUICKBOOKS_CLIENT_ID }}"
+          pnpm exec wrangler secret put QUICKBOOKS_CLIENT_SECRET --env $ENV_NAME <<< "${{ secrets.QUICKBOOKS_CLIENT_SECRET }}"
+          pnpm exec wrangler secret put QUICKBOOKS_REFRESH_TOKEN --env $ENV_NAME <<< "${{ secrets.QUICKBOOKS_REFRESH_TOKEN }}"
+          pnpm exec wrangler secret put QUICKBOOKS_REALM_ID --env $ENV_NAME <<< "${{ secrets.QUICKBOOKS_REALM_ID }}"
+          pnpm exec wrangler secret put QUICKBOOKS_ADMIN_KEY --env $ENV_NAME <<< "${{ secrets.QUICKBOOKS_ADMIN_KEY }}"
+          pnpm exec wrangler secret put GITHUB_TOKEN --env $ENV_NAME <<< "${{ secrets.GITHUB_TOKEN }}"
+          pnpm exec wrangler secret put MONDAY_API_KEY --env $ENV_NAME <<< "${{ secrets.MONDAY_API_KEY }}"
+          pnpm exec wrangler secret put MONDAY_BOARD_ID --env $ENV_NAME <<< "${{ vars.MONDAY_BOARD_ID }}"
+          pnpm exec wrangler secret put DISCORD_WEBHOOK_URL --env $ENV_NAME <<< "${{ vars.DISCORD_WEBHOOK_URL }}"
+          pnpm exec wrangler secret put QUICKBOOKS_ENVIRONMENT --env $ENV_NAME <<< "${{ vars.QUICKBOOKS_ENVIRONMENT }}"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          # Pass GitHub Environment Secrets as environment variables
-          QUICKBOOKS_CLIENT_ID: ${{ secrets.QUICKBOOKS_CLIENT_ID }}
-          QUICKBOOKS_CLIENT_SECRET: ${{ secrets.QUICKBOOKS_CLIENT_SECRET }}
-          QUICKBOOKS_REFRESH_TOKEN: ${{ secrets.QUICKBOOKS_REFRESH_TOKEN }}
-          QUICKBOOKS_REALM_ID: ${{ secrets.QUICKBOOKS_REALM_ID }}
-          QUICKBOOKS_ADMIN_KEY: ${{ secrets.QUICKBOOKS_ADMIN_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MONDAY_API_KEY: ${{ secrets.MONDAY_API_KEY }}
-          # Pass GitHub Environment Variables as environment variables
-          MONDAY_BOARD_ID: ${{ vars.MONDAY_BOARD_ID }}
-          DISCORD_WEBHOOK_URL: ${{ vars.DISCORD_WEBHOOK_URL }}
-          QUICKBOOKS_ENVIRONMENT: ${{ vars.QUICKBOOKS_ENVIRONMENT }}
 
       - name: Deploy to Cloudflare Workers
         run: |
-          echo "🚀 Deploying to ${{ github.ref == 'refs/heads/main' && 'PRODUCTION' || 'DEVELOPMENT' }} environment..."
-          # Deploy to single worker "allthingslinux" (no --env flag = base worker, not using Wrangler environments)
-          # Custom domains: allthingslinux.dev (dev) and allthingslinux.org (prod)
-          # Secrets are prefixed (DEV_* / PROD_*) - runtime detection selects correct prefix based on request host
-          pnpm exec opennextjs-cloudflare deploy
+          ENV_NAME="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}"
+          echo "🚀 Deploying to ${{ github.ref == 'refs/heads/main' && 'PRODUCTION' || 'DEVELOPMENT' }} environment (worker: allthingslinux-${ENV_NAME})..."
+          # Deploy to separate workers for dev/prod environments
+          # Dev: allthingslinux-dev worker serving allthingslinux.dev
+          # Prod: allthingslinux-prod worker serving allthingslinux.org
+          pnpm exec opennextjs-cloudflare deploy --env $ENV_NAME
         env:
           # Only Cloudflare API token needed for deployment (secrets are set separately above)
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

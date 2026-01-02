@@ -12,47 +12,11 @@ import { z } from 'zod';
  *   - Dev environment: .env.secrets.dev (sandbox credentials)
  *   - Prod environment: .env.secrets.prod (production credentials)
  */
-// Helper to detect deployment environment at runtime (dev vs prod)
-// Checks request host or NEXT_PUBLIC_URL to determine which prefix to use
+// Helper to detect deployment environment (now static per worker)
+// Each worker environment is hardcoded since we use separate workers
 function getDeploymentEnvironment(): 'dev' | 'prod' {
-  // Check NEXT_PUBLIC_URL (set dynamically in middleware based on request host)
-  const publicUrl = process.env.NEXT_PUBLIC_URL || '';
-
-  // Parse URL safely and extract hostname for strict domain checking
-  try {
-    let url: URL;
-    if ((publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) && publicUrl.length > 8) {
-      // Has protocol prefix and content after it (e.g., https://example.com)
-      url = new URL(publicUrl);
-    } else if (publicUrl && !publicUrl.includes('://')) {
-      // Looks like just a hostname (no protocol)
-      url = new URL(`https://${publicUrl}`);
-    } else {
-      // Invalid format (e.g., just "https://" or empty), throw to fallback
-      throw new Error('Invalid URL format');
-    }
-
-    const hostname = url.hostname;
-
-    // Production: exact match or subdomain of allthingslinux.org
-    if (hostname === 'allthingslinux.org' || hostname.endsWith('.allthingslinux.org')) {
-      return 'prod';
-    }
-
-    // Development: exact match or subdomain of allthingslinux.dev, or localhost
-    if (
-      hostname === 'allthingslinux.dev' ||
-      hostname.endsWith('.allthingslinux.dev') ||
-      hostname === 'localhost'
-    ) {
-      return 'dev';
-    }
-  } catch (error) {
-    // Invalid URL format, fall back to NODE_ENV logic
-    console.warn('[getDeploymentEnvironment] Failed to parse URL, falling back to NODE_ENV:', publicUrl, error);
-  }
-
-  // Default based on NODE_ENV (conservative - prefer dev for safety)
+  // Since we now use separate workers for dev/prod, we can hardcode this
+  // The build process will set the appropriate value based on the worker environment
   return process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
 }
 

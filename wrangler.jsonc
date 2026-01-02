@@ -21,6 +21,7 @@
       "custom_domain": true,
     },
   ],
+
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-01-02",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -124,7 +125,27 @@
 
   // === LOCAL ENVIRONMENT (for `wrangler dev`) ===
   // Keep local env for local development with separate R2/KV
+  // === DEPLOYMENT ENVIRONMENTS ===
+  // Separate workers for dev/prod to prevent PR deployments from affecting production
   "env": {
+    "dev": {
+      "name": "allthingslinux-dev",
+      "routes": [
+        {
+          "pattern": "allthingslinux.dev",
+          "custom_domain": true,
+        },
+      ],
+    },
+    "prod": {
+      "name": "allthingslinux-prod",
+      "routes": [
+        {
+          "pattern": "allthingslinux.org",
+          "custom_domain": true,
+        },
+      ],
+    },
     "local": {
       "workers_dev": true,
       "minify": false,
