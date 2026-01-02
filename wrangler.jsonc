@@ -214,6 +214,27 @@
         "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
         "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
       },
+
+      "images": {
+        "binding": "IMAGES",
+      },
+
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler",
+          },
+          {
+            "name": "NEXT_TAG_CACHE_DO_SHARDED",
+            "class_name": "DOShardedTagCache",
+          },
+          {
+            "name": "NEXT_CACHE_DO_PURGE",
+            "class_name": "BucketCachePurge",
+          },
+        ],
+      },
     },
   },
 }

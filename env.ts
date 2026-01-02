@@ -20,20 +20,9 @@ function getDeploymentEnvironment(): 'dev' | 'prod' {
   return process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
 }
 
-// Helper to get environment variable with prefixed fallback
-// In Cloudflare Workers, secrets are prefixed (DEV_*, PROD_*) for isolation
+// Helper to get environment variable
+// With separate workers (dev/prod), secrets are set directly without prefixes
 function getEnvVar(baseName: string): string | undefined {
-  const env = getDeploymentEnvironment();
-  const prefix = env === 'prod' ? 'PROD' : 'DEV';
-
-  // Try prefixed version first (Cloudflare Workers with prefixed secrets)
-  const prefixedName = `${prefix}_${baseName}`;
-  const prefixedValue = process.env[prefixedName];
-  if (prefixedValue) {
-    return prefixedValue;
-  }
-
-  // Fallback to non-prefixed (local development, legacy, or vars)
   return process.env[baseName];
 }
 
@@ -141,7 +130,7 @@ export const env = createEnv({
  * Falls back to non-prefixed for local development
  */
 export const cloudflareEnv = {
-  // Server variables (with prefixed secret support)
+  // Server variables (secrets are set directly in each environment worker)
   NODE_ENV: process.env.NODE_ENV,
   GITHUB_TOKEN: getEnvVar('GITHUB_TOKEN'),
   MONDAY_API_KEY: getEnvVar('MONDAY_API_KEY'),

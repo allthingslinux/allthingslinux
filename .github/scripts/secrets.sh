@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script to manually set secrets in Cloudflare Worker
-# Note: GitHub Actions automatically handles secrets via prefixed secrets (DEV_*, PROD_*)
+# Script to manually set secrets in Cloudflare Worker environment
+# Note: GitHub Actions automatically handles secrets in separate environment workers
 # This script is for manual local secret management only
 
 # Environment to set secrets for (dev or prod)
@@ -13,11 +13,9 @@ if [ "$ENV" != "dev" ] && [ "$ENV" != "prod" ]; then
   exit 1
 fi
 
-# Determine prefix based on environment
-PREFIX="${ENV^^}" # Convert to uppercase (dev -> DEV, prod -> PROD)
-WORKER_NAME="allthingslinux"
+WORKER_NAME="allthingslinux-${ENV}"
 
-echo "Setting ${PREFIX}_* prefixed secrets for worker: $WORKER_NAME"
+echo "Setting secrets for worker: $WORKER_NAME"
 echo "Environment: $ENV"
 echo ""
 
@@ -49,54 +47,54 @@ fi
 echo "✓ Authentication verified"
 echo ""
 
-# Helper function to set a prefixed secret
-set_prefixed_secret() {
-  local BASE_NAME=$1
+# Helper function to set a secret
+set_secret() {
+  local SECRET_NAME=$1
   local SECRET_VALUE=$2
-  local PREFIXED_NAME="${PREFIX}_${BASE_NAME}"
-  
+
   if [ -z "$SECRET_VALUE" ]; then
-    echo "⚠ Skipping $PREFIXED_NAME (value not provided)"
+    echo "⚠ Skipping $SECRET_NAME (value not provided)"
     return 0
   fi
-  
-  echo "Setting $PREFIXED_NAME..."
-  if echo "$SECRET_VALUE" | pnpm exec wrangler secret put "$PREFIXED_NAME"; then
-    echo "✓ $PREFIXED_NAME set successfully"
+
+  echo "Setting $SECRET_NAME..."
+  if echo "$SECRET_VALUE" | pnpm exec wrangler secret put "$SECRET_NAME" --env "$ENV"; then
+    echo "✓ $SECRET_NAME set successfully"
     return 0
   else
-    echo "✗ Failed to set $PREFIXED_NAME"
+    echo "✗ Failed to set $SECRET_NAME"
     return 1
   fi
 }
 
 ERRORS=0
 
-# Set prefixed secrets (same pattern as GitHub Actions workflow)
-echo "Setting ${PREFIX}_* prefixed secrets..."
+# Set secrets (same pattern as GitHub Actions workflow)
+echo "Setting secrets..."
 echo ""
 
 # Core secrets
-set_prefixed_secret "QUICKBOOKS_CLIENT_ID" "${QUICKBOOKS_CLIENT_ID}" || ((ERRORS++))
-set_prefixed_secret "QUICKBOOKS_CLIENT_SECRET" "${QUICKBOOKS_CLIENT_SECRET}" || ((ERRORS++))
-set_prefixed_secret "QUICKBOOKS_REFRESH_TOKEN" "${QUICKBOOKS_REFRESH_TOKEN}" || ((ERRORS++))
-set_prefixed_secret "QUICKBOOKS_REALM_ID" "${QUICKBOOKS_REALM_ID}" || ((ERRORS++))
-set_prefixed_secret "QUICKBOOKS_ADMIN_KEY" "${QUICKBOOKS_ADMIN_KEY}" || ((ERRORS++))
-set_prefixed_secret "GITHUB_TOKEN" "${GITHUB_TOKEN}" || ((ERRORS++))
-set_prefixed_secret "MONDAY_API_KEY" "${MONDAY_API_KEY}" || ((ERRORS++))
+set_secret "QUICKBOOKS_CLIENT_ID" "${QUICKBOOKS_CLIENT_ID}" || ((ERRORS++))
+set_secret "QUICKBOOKS_CLIENT_SECRET" "${QUICKBOOKS_CLIENT_SECRET}" || ((ERRORS++))
+set_secret "QUICKBOOKS_REFRESH_TOKEN" "${QUICKBOOKS_REFRESH_TOKEN}" || ((ERRORS++))
+set_secret "QUICKBOOKS_REALM_ID" "${QUICKBOOKS_REALM_ID}" || ((ERRORS++))
+set_secret "QUICKBOOKS_ADMIN_KEY" "${QUICKBOOKS_ADMIN_KEY}" || ((ERRORS++))
+set_secret "GITHUB_TOKEN" "${GITHUB_TOKEN}" || ((ERRORS++))
+set_secret "MONDAY_API_KEY" "${MONDAY_API_KEY}" || ((ERRORS++))
+set_secret "TRIGGER_SECRET_KEY" "${TRIGGER_SECRET_KEY}" || ((ERRORS++))
 
 # Variables (non-sensitive) - note: these are set as secrets for consistency
-set_prefixed_secret "MONDAY_BOARD_ID" "${MONDAY_BOARD_ID}" || ((ERRORS++))
-set_prefixed_secret "DISCORD_WEBHOOK_URL" "${DISCORD_WEBHOOK_URL}" || ((ERRORS++))
+set_secret "MONDAY_BOARD_ID" "${MONDAY_BOARD_ID}" || ((ERRORS++))
+set_secret "DISCORD_WEBHOOK_URL" "${DISCORD_WEBHOOK_URL}" || ((ERRORS++))
 
 # QUICKBOOKS_ENVIRONMENT (optional, auto-detected if not set)
 if [ -n "$QUICKBOOKS_ENVIRONMENT" ]; then
-  set_prefixed_secret "QUICKBOOKS_ENVIRONMENT" "${QUICKBOOKS_ENVIRONMENT}" || ((ERRORS++))
+  set_secret "QUICKBOOKS_ENVIRONMENT" "${QUICKBOOKS_ENVIRONMENT}" || ((ERRORS++))
 fi
 
 echo ""
 if [ $ERRORS -eq 0 ]; then
-  echo "✓ All ${PREFIX}_* prefixed secrets set successfully"
+  echo "✓ All secrets set successfully"
   echo ""
   echo "Note: GitHub Actions automatically manages these secrets during CI/CD."
   echo "This manual script is mainly for local testing and initial setup."

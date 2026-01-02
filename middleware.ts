@@ -3,23 +3,9 @@ import type { NextRequest } from 'next/server';
 import { formSubmissionRateLimit, apiRateLimit } from '@/lib/rate-limit';
 
 export async function middleware(request: NextRequest) {
-  // Set NEXT_PUBLIC_URL dynamically based on request host for environment detection
-  // This allows prefixed secrets (DEV_*, PROD_*) to be selected correctly at runtime
-  // With nodejs_compat_populate_process_env (enabled by default for compatibility_date >= 2025-04-01),
-  // we can mutate process.env and it will be available to downstream code
+  // Environment URLs are now set statically in wrangler.jsonc for each environment
+  // No need for dynamic runtime environment detection with separate workers
   const host = request.headers.get('host') || '';
-  const protocol =
-    request.headers.get('x-forwarded-proto') ||
-    (host.includes('localhost') ? 'http' : 'https');
-  const baseUrl = `${protocol}://${host}`;
-
-  // Update process.env for runtime environment detection in env.ts
-  // This works because nodejs_compat_populate_process_env is enabled (compatibility_date: 2026-01-02)
-  // See: https://developers.cloudflare.com/workers/configuration/environment-variables/#environment-variables-and-nodejs-compatibility
-  if (typeof process !== 'undefined' && process.env) {
-    (process.env as any).NEXT_PUBLIC_URL = baseUrl;
-    (process.env as any).NEXT_PUBLIC_API_URL = `${baseUrl}/api`;
-  }
 
   // Debug middleware execution
   console.log(

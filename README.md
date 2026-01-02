@@ -19,10 +19,12 @@ pnpm run setup:bindings
 # Start development
 pnpm run dev:all
 ```
+
 ```bash
 # Development with all services
 pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
 ```
+
 ```bash
 # Development with all services
 pnpm run dev:all  # Next.js + Wrangler + Trigger.dev
@@ -36,6 +38,8 @@ Open [http://localhost:3000](http://localhost:3000) for Next.js dev, or [http://
 - **Styling:** Tailwind CSS
 - **Content:** Contentlayer (MDX blogs)
 - **Deployment:** Cloudflare Workers + OpenNext (^1.14.7)
+  - Multi-worker architecture: Separate `dev` and `prod` environments
+  - PR deployments target dev environment only
 - **Background Jobs:** Trigger.dev
 - **Package Manager:** pnpm
 
@@ -50,12 +54,12 @@ Open [http://localhost:3000](http://localhost:3000) for Next.js dev, or [http://
 
 ### 1. Clone & Install
 
-```bash
+````bash
 git clone https://github.com/allthingslinux/allthingslinux.git
 ```bash
 cd allthingslinux
 pnpm install
-```
+````
 
 ### 2. Setup Cloudflare Bindings
 
@@ -80,11 +84,11 @@ pnpm run setup:bindings
 
 **Upload secrets to Cloudflare manually** (when needed):
 
+````bash
 ```bash
-```bash
-pnpm run secrets:dev   # Upload dev/sandbox secrets (sets DEV_* prefixed secrets)
-pnpm run secrets:prod  # Upload production secrets (sets PROD_* prefixed secrets)
-```
+pnpm run secrets:dev   # Upload dev/sandbox secrets to dev worker
+pnpm run secrets:prod  # Upload production secrets to prod worker
+````
 
 ### 4. Start Development
 
@@ -125,21 +129,21 @@ See [`docs/integrations/quickbooks.md`](docs/integrations/quickbooks.md) for det
 
 #### Quick Deploy (Immediate)
 
-```bash
+````bash
 pnpm run deploy:dev     # Deploy immediately to dev
 ```bash
 pnpm run deploy:prod    # Deploy immediately to prod
 pnpm run deploy         # Quick production deploy
-```
+````
 
 #### Version Management (Safer Production)
 
-```bash
+````bash
 pnpm run version:upload # Upload version to production
 ```bash
 pnpm run version:list   # List all versions
 pnpm run version:deploy # Deploy latest version
-```
+````
 
 **Benefits:**
 
@@ -160,12 +164,13 @@ pnpm run build
 pnpm run preview           # Standard preview
 pnpm run preview:profile   # Preview with profiling settings
 ```
-```bash
+
+````bash
 # Development commands
 ```bash
 pnpm run dev:all       # Start all services
 pnpm run trigger       # Start Trigger.dev CLI
-```
+````
 
 ## 📁 Project Structure
 
@@ -187,17 +192,17 @@ pnpm run trigger       # Start Trigger.dev CLI
 
 **For manual secret setup from your local machine:**
 
-```bash
+````bash
 # 1. Create .env.secrets.dev and .env.secrets.prod files (gitignored)
 # Format: KEY=value (one per line)
 # .env.secrets.dev: Sandbox QuickBooks + other dev secrets
 # .env.secrets.prod: Production QuickBooks + other prod secrets
 
-# 2. Upload to Cloudflare Worker (sets prefixed secrets: DEV_*, PROD_*)
+# 2. Upload to Cloudflare Worker (sets secrets in respective environment workers)
 ```bash
-pnpm run secrets:dev    # Sets DEV_* prefixed secrets
-pnpm run secrets:prod   # Sets PROD_* prefixed secrets
-```
+pnpm run secrets:dev    # Upload secrets to dev worker
+pnpm run secrets:prod   # Upload secrets to prod worker
+````
 
 ### Security Notes
 
@@ -206,11 +211,11 @@ pnpm run secrets:prod   # Sets PROD_* prefixed secrets
 - **Secrets are encrypted** and managed via `wrangler secret put` or GitHub Environments
 - **Use `.dev.vars`** only for non-sensitive local config
 - **Environment variables** are defined in `wrangler.jsonc` per environment
-- **Prefixed secrets**: Secrets are stored as `DEV_*` and `PROD_*` in the single worker, selected at runtime
+- **Environment isolation**: Separate workers for dev/prod with isolated secrets
 
 ## 📁 Project Structure
 
-```text
+````text
 ├── app/                 # Next.js App Router pages
 ├── components/          # React components
 ├── content/            # MDX blog content
@@ -220,11 +225,11 @@ pnpm run secrets:prod   # Sets PROD_* prefixed secrets
 ```text
 ├── trigger/            # Background job definitions
 └── wrangler.jsonc      # Cloudflare Workers config
-```
+````
 
 ## 🛠️ Development Scripts
 
-```bash
+````bash
 # Development
 pnpm run dev:all        # Full stack (Next.js + Wrangler + Trigger)
 pnpm run dev            # Next.js development server
@@ -256,8 +261,8 @@ pnpm run version:list   # List all versions
 pnpm run version:deploy # Deploy latest version
 
 # Secrets
-pnpm run secrets:dev    # Upload dev secrets (sets DEV_* prefixed)
-pnpm run secrets:prod   # Upload prod secrets (sets PROD_* prefixed)
+pnpm run secrets:dev    # Upload dev secrets to dev worker (.github/scripts/secrets.sh)
+pnpm run secrets:prod   # Upload prod secrets to prod worker (.github/scripts/secrets.sh)
 
 # Infrastructure
 pnpm run setup:bindings # Setup Cloudflare bindings (R2, KV)
@@ -265,7 +270,7 @@ pnpm run setup:bindings # Setup Cloudflare bindings (R2, KV)
 pnpm run cf:typegen     # Generate Cloudflare types
 pnpm run analyze:bundle # Bundle size analysis guidance
 pnpm run coc:generate   # Generate Code of Conduct
-```
+````
 
 ### Troubleshooting
 
@@ -277,31 +282,33 @@ See [`PNPM_SCRIPTS.md`](PNPM_SCRIPTS.md) for detailed script explanations.
 
 #### Build fails with "Module not found"
 
-```bash
+````bash
 # Clear caches and reinstall
 ```bash
 rm -rf node_modules .next .open-next
 pnpm install
-```
+````
 
 #### Wrangler secrets not working
 
 ```bash
-# Check secrets are uploaded
-npx wrangler secret list --env local
+# Check secrets are uploaded (for dev environment)
+npx wrangler secret list --env dev
 
-```bash
+# For production environment
+npx wrangler secret list --env prod
+
 # Re-upload if needed
 # Local secrets are handled via .dev.vars
 ```
 
 #### Trigger.dev not connecting
 
-```bash
+````bash
 ```bash
 # Check Trigger.dev CLI is running
 pnpm run trigger
-```
+````
 
 #### Environment variables not loading
 
@@ -314,14 +321,16 @@ pnpm run trigger
 For performance analysis and debugging:
 
 ```bash
-# Build with profiling (unminified code)
+# Build with profiling (unminified code for easier debugging)
 pnpm run build:opennext:profile
 
 # Preview with profiling settings
 pnpm run preview:profile
 
-# Analyze bundle size
+# Analyze bundle size after building
 pnpm run analyze:bundle
+# After running, check .open-next/server-functions/default/handler.mjs.meta.json
+# Upload to https://esbuild.github.io/analyze/ for detailed bundle analysis
 ```
 
 ### Need Help?

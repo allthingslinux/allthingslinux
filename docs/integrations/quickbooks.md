@@ -151,7 +151,7 @@ curl -X POST https://your-domain.com/api/quickbooks \
 - **Tokens not persisting after deployment**:
   - Ensure secrets are uploaded: `pnpm run secrets:dev` or `pnpm run secrets:prod`
   - Check that `CLOUDFLARE_API_TOKEN` is set correctly
-  - Verify secrets exist in Cloudflare: `wrangler secret list --env dev`
+  - Verify secrets exist in Cloudflare: `wrangler secret list --env dev` (or `--env prod` for production)
 
 ## Architecture
 

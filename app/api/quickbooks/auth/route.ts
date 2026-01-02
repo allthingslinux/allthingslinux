@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { randomBytes } from 'crypto';
-import { getQuickBooksAuthUrl, escapeHtml } from '@/lib/integrations/quickbooks';
+import {
+  getQuickBooksAuthUrl,
+  escapeHtml,
+} from '@/lib/integrations/quickbooks';
 import { runtimeEnv as env } from '@/env';
 
 export const runtime = 'nodejs';

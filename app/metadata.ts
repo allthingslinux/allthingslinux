@@ -12,6 +12,12 @@ export const siteConfig = {
   },
 };
 
+// Helper to determine if we're on the dev environment
+const isDevEnvironment = () => {
+  const url = process.env.NEXT_PUBLIC_URL || '';
+  return url.includes('allthingslinux.dev') || url.includes('workers.dev');
+};
+
 export const defaultMetadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -22,8 +28,8 @@ export const defaultMetadata: Metadata = {
   creator: 'All Things Linux',
   publisher: 'All Things Linux',
   robots: {
-    index: true,
-    follow: true,
+    index: !isDevEnvironment(), // noindex for dev environments
+    follow: !isDevEnvironment(),
   },
   openGraph: {
     type: 'website',

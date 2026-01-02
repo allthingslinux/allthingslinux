@@ -382,7 +382,9 @@ export async function getAccessToken(
                 accessToken: tokens.access_token,
                 refreshToken: tokens.refresh_token,
                 realmId: null, // Will be set later if needed
-                expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+                expiresAt: new Date(
+                  Date.now() + tokens.expires_in * 1000
+                ).toISOString(),
                 lastUpdated: new Date().toISOString(),
               };
 

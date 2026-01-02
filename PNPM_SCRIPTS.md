@@ -44,10 +44,10 @@ This document explains all available pnpm scripts in the project.
 ## Deployment
 
 - `pnpm run deploy:dev`
-  Builds and deploys to the development environment.
+  Builds and deploys to the development Cloudflare Worker (allthingslinux-dev) with separate R2/KV bindings.
 
 - `pnpm run deploy:prod`
-  Builds and deploys to the production environment.
+  Builds and deploys to the production Cloudflare Worker (allthingslinux-prod) with separate R2/KV bindings.
 
 - `pnpm run deploy`
   Alias for production deployment - the default deploy command.
@@ -55,21 +55,21 @@ This document explains all available pnpm scripts in the project.
 ## Version Management
 
 - `pnpm run version:upload`
-  Creates a new version in Cloudflare Workers without deploying it immediately.
+  Creates a new version in the development Cloudflare Worker without deploying it immediately.
 
 - `pnpm run version:deploy`
-  Deploys the latest uploaded version to production.
+  Deploys the latest uploaded version to the development Cloudflare Worker.
 
 - `pnpm run version:list`
-  Lists all versions of the Cloudflare Worker with metadata.
+  Lists all versions of the development Cloudflare Worker with metadata.
 
 ## Secrets Management
 
 - `pnpm run secrets:dev`
-  Uploads secrets from `.env.secrets.dev` (sandbox credentials) to the development Cloudflare Worker environment.
+  Uploads secrets from `.env.secrets.dev` to the development Cloudflare Worker (uses `.github/scripts/secrets.sh`).
 
 - `pnpm run secrets:prod`
-  Uploads secrets from `.env.secrets.prod` (production credentials) to the production Cloudflare Worker environment.
+  Uploads secrets from `.env.secrets.prod` to the production Cloudflare Worker (uses `.github/scripts/secrets.sh`).
 
 ## Code Quality
 
@@ -98,6 +98,9 @@ This document explains all available pnpm scripts in the project.
 
 - `pnpm run cf:typegen`
   Generates TypeScript types for Cloudflare Workers bindings and environment variables.
+
+- `pnpm run test`
+  Runs the test suite using Vitest with Cloudflare Workers testing capabilities.
 
 - `pnpm run analyze:bundle`
   Provides guidance for bundle size analysis using ESBuild Bundle Analyzer on the built worker code.

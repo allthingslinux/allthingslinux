@@ -24,15 +24,16 @@
     "deploy": "pnpm run deploy:prod",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "preview:local": "pnpm run build:all && pnpm exec opennextjs-cloudflare preview -- --env local",
-    "version:upload": "pnpm run build:all && pnpm exec wrangler versions upload",
-    "version:deploy": "pnpm exec wrangler versions deploy",
-    "version:list": "pnpm exec wrangler versions list",
-    "secrets:dev": "bash scripts/secrets.sh dev",
-    "secrets:prod": "bash scripts/secrets.sh prod",
+    "version:upload": "pnpm run build:all && pnpm exec wrangler versions upload --env dev",
+    "version:deploy": "pnpm exec wrangler versions deploy --env dev",
+    "version:list": "pnpm exec wrangler versions list --env dev",
+    "secrets:dev": "bash .github/scripts/secrets.sh dev",
+    "secrets:prod": "bash .github/scripts/secrets.sh prod",
     "setup:bindings": "bash scripts/setup-bindings.sh",
     "lint": "eslint .",
     "format": "prettier --write .",
     "check": "pnpm run check:ts && pnpm run check:format && pnpm run check:mdx",
+    "test": "vitest",
     "check:ts": "tsc --noEmit",
     "check:format": "prettier --check .",
     "check:mdx": "remark content/blog/*.mdx --quiet",
@@ -95,6 +96,7 @@
     "zod": "^4.3.4"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.11.1",
     "@cloudflare/workers-types": "^4.20260101.0",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
@@ -122,6 +124,7 @@
     "tailwindcss": "^4.1.18",
     "ts-node": "^10.9.2",
     "typescript-eslint": "^8.51.0",
+    "vitest": "^3.2.0",
     "wrangler": "^4.54.0"
   }
 }
