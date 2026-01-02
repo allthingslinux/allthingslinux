@@ -1,7 +1,297 @@
-// Minimal wrangler.jsonc to satisfy the @opennextjs/cloudflare build check.
-// Deployment configurations are in wrangler.production.jsonc and wrangler.dev.jsonc.
 {
-  "$schema": "https://unpkg.com/wrangler@4.10.0/config-schema.json",
-  "name": "allthingslinux", // A generic project name, not tied to a specific environment
-  // No other configuration needed here, as it's not used for actual deployment.
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // === BASE CONFIGURATION (Shared across all environments) ===
+  "name": "allthingslinux",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-04-02",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "find_additional_modules": true,
+  "preserve_file_names": false,
+  "minify": false,
+  "no_bundle": false,
+  "logpush": true,
+
+  // Workers Builds configuration for automatic deployments
+  "build": {
+    "command": "pnpm install --frozen-lockfile && pnpm run build:content && pnpm run build:fast && pnpm exec opennextjs-cloudflare build",
+    "cwd": ".",
+    "watch_dir": ".",
+  },
+
+  // Performance and resource limits
+  "limits": {
+    "cpu_ms": 300000, // 5 minutes max per request
+  },
+
+  // Assets configuration (shared)
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets",
+  },
+  "images": {
+    "binding": "IMAGES",
+  },
+
+  // Observability (shared across all environments)
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "invocation_logs": true,
+    },
+    "head_sampling_rate": 1.0,
+  },
+
+  // === ENVIRONMENT-SPECIFIC CONFIGURATIONS ===
+
+  // Dev Environment (Preview Deployments)
+  "env": {
+    "dev": {
+      "name": "dev",
+      "workers_dev": true,
+      "minify": true,
+      "preserve_file_names": false,
+
+      // Development observability (reduced sampling to save costs)
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "invocation_logs": true,
+        },
+        "head_sampling_rate": 0.1, // 10% of requests logged
+      },
+
+      // Dev service bindings
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "dev",
+        },
+      ],
+      "images": {
+        "binding": "IMAGES",
+      },
+
+      // Durable Objects for advanced caching features
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler",
+          },
+          {
+            "name": "NEXT_TAG_CACHE_DO_SHARDED",
+            "class_name": "DOShardedTagCache",
+          },
+          {
+            "name": "NEXT_CACHE_DO_PURGE",
+            "class_name": "BucketCachePurge",
+          },
+        ],
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "DOQueueHandler",
+            "DOShardedTagCache",
+            "BucketCachePurge",
+          ],
+        },
+      ],
+
+      // Dev R2 bucket (Next.js incremental cache - separate for safety)
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "atl-cache-dev",
+        },
+      ],
+
+      // Dev KV namespaces
+      "kv_namespaces": [
+        {
+          "binding": "KV_QUICKBOOKS",
+          "id": "b58a50d9090b46a181322eb96d0c8c90",
+          "preview_id": "b58a50d9090b46a181322eb96d0c8c90",
+        },
+      ],
+
+      // Dev environment variables
+      "vars": {
+        "NEXT_PUBLIC_URL": "https://dev.allthingslinux.workers.dev",
+        "NEXT_PUBLIC_API_URL": "https://dev.allthingslinux.workers.dev/api",
+        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+        "NODE_ENV": "development",
+      },
+    },
+
+    // Prod Environment
+    "prod": {
+      "name": "prod",
+      "workers_dev": false,
+      "minify": false,
+      "preserve_file_names": false,
+      "no_bundle": false,
+      "logpush": true,
+
+      // Production observability (full sampling for monitoring)
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "invocation_logs": true,
+        },
+        "head_sampling_rate": 1.0, // 100% of requests logged
+      },
+
+      // Prod service bindings
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "prod",
+        },
+      ],
+      "images": {
+        "binding": "IMAGES",
+      },
+
+      // Durable Objects for advanced caching features
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler",
+          },
+          {
+            "name": "NEXT_TAG_CACHE_DO_SHARDED",
+            "class_name": "DOShardedTagCache",
+          },
+          {
+            "name": "NEXT_CACHE_DO_PURGE",
+            "class_name": "BucketCachePurge",
+          },
+        ],
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "DOQueueHandler",
+            "DOShardedTagCache",
+            "BucketCachePurge",
+          ],
+        },
+      ],
+
+      // Prod R2 bucket (Next.js incremental cache - isolated from dev)
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "atl-cache-prod",
+        },
+      ],
+
+      // Prod KV namespaces
+      "kv_namespaces": [
+        {
+          "binding": "KV_QUICKBOOKS",
+          "id": "34e1630d0fea4741934035127ab88c39",
+          "preview_id": "34e1630d0fea4741934035127ab88c39",
+        },
+      ],
+
+      // Production environment variables
+      "vars": {
+        "NEXT_PUBLIC_URL": "https://allthingslinux.org",
+        "NEXT_PUBLIC_API_URL": "https://allthingslinux.org/api",
+        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+        "NODE_ENV": "production",
+      },
+    },
+
+    // Local Environment (for `wrangler dev`)
+    "local": {
+      "name": "local",
+      "workers_dev": true,
+      "minify": false,
+      "preserve_file_names": true,
+      "find_additional_modules": true,
+
+      // Local development observability (full sampling for debugging)
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "invocation_logs": true,
+        },
+        "head_sampling_rate": 1.0, // 100% of requests logged for debugging
+      },
+
+      // Local service bindings (self-reference for local dev)
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "local",
+        },
+      ],
+      "images": {
+        "binding": "IMAGES",
+      },
+
+      // Durable Objects for advanced caching features
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler",
+          },
+          {
+            "name": "NEXT_TAG_CACHE_DO_SHARDED",
+            "class_name": "DOShardedTagCache",
+          },
+          {
+            "name": "NEXT_CACHE_DO_PURGE",
+            "class_name": "BucketCachePurge",
+          },
+        ],
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "DOQueueHandler",
+            "DOShardedTagCache",
+            "BucketCachePurge",
+          ],
+        },
+      ],
+
+      // Local R2 bucket (separate for local development)
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "atl-cache-local",
+        },
+      ],
+
+      // Local KV namespaces
+      "kv_namespaces": [
+        {
+          "binding": "KV_QUICKBOOKS",
+          "id": "b58a50d9090b46a181322eb96d0c8c90",
+          "preview_id": "b58a50d9090b46a181322eb96d0c8c90",
+        },
+      ],
+
+      // Local environment variables
+      "vars": {
+        "NEXT_PUBLIC_URL": "http://localhost:8788",
+        "NEXT_PUBLIC_API_URL": "http://localhost:8788/api",
+        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+        "NODE_ENV": "development",
+      },
+    },
+  },
 }
