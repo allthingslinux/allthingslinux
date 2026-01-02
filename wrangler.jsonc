@@ -1,7 +1,240 @@
-// Minimal wrangler.jsonc to satisfy the @opennextjs/cloudflare build check.
-// Deployment configurations are in wrangler.production.jsonc and wrangler.dev.jsonc.
 {
-  "$schema": "https://unpkg.com/wrangler@4.10.0/config-schema.json",
-  "name": "allthingslinux", // A generic project name, not tied to a specific environment
-  // No other configuration needed here, as it's not used for actual deployment.
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // === BASE CONFIGURATION ===
+  // Common settings shared across all environments
+  // Environment-specific settings are defined in the "env" sections below
+
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-01-02",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "find_additional_modules": true,
+  "preserve_file_names": false,
+  "minify": false,
+  "no_bundle": false,
+  "logpush": true,
+
+  // Custom domains are used instead of workers.dev subdomain
+  "workers_dev": false,
+  "preview_urls": false,
+
+  // Performance and resource limits
+  "limits": {
+    "cpu_ms": 300000, // 5 minutes max per request
+  },
+
+  // Assets configuration (shared across environments)
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets",
+  },
+  "images": {
+    "binding": "IMAGES",
+  },
+
+  // Observability (full sampling for both dev and prod)
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "invocation_logs": true,
+    },
+    "head_sampling_rate": 1.0,
+  },
+
+  // Durable Objects for advanced caching features (shared across environments)
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "NEXT_CACHE_DO_QUEUE",
+        "class_name": "DOQueueHandler",
+      },
+      {
+        "name": "NEXT_TAG_CACHE_DO_SHARDED",
+        "class_name": "DOShardedTagCache",
+      },
+      {
+        "name": "NEXT_CACHE_DO_PURGE",
+        "class_name": "BucketCachePurge",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "DOQueueHandler",
+        "DOShardedTagCache",
+        "BucketCachePurge",
+      ],
+    },
+  ],
+
+  // === LOCAL ENVIRONMENT (for `wrangler dev`) ===
+  // Keep local env for local development with separate R2/KV
+  // === DEPLOYMENT ENVIRONMENTS ===
+  // Separate workers for dev/prod to prevent PR deployments from affecting production
+  "env": {
+    "dev": {
+      "name": "allthingslinux-dev",
+      "routes": [
+        {
+          "pattern": "allthingslinux.dev",
+          "custom_domain": true,
+        },
+      ],
+      // Bindings for dev environment
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "atl-cache-dev",
+        },
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "KV_QUICKBOOKS",
+          "id": "a7e7f8796625426c8355ec8bd60b75c1",
+        },
+      ],
+      "vars": {
+        "NEXT_PUBLIC_URL": "https://allthingslinux.dev",
+        "NEXT_PUBLIC_API_URL": "https://allthingslinux.dev/api",
+        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+      },
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "allthingslinux-dev",
+        },
+      ],
+      "images": {
+        "binding": "IMAGES",
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler",
+          },
+          {
+            "name": "NEXT_TAG_CACHE_DO_SHARDED",
+            "class_name": "DOShardedTagCache",
+          },
+          {
+            "name": "NEXT_CACHE_DO_PURGE",
+            "class_name": "BucketCachePurge",
+          },
+        ],
+      },
+    },
+    "prod": {
+      "name": "allthingslinux-prod",
+      "routes": [
+        {
+          "pattern": "allthingslinux.org",
+          "custom_domain": true,
+        },
+      ],
+      // Bindings for prod environment
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "atl-cache-prod",
+        },
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "KV_QUICKBOOKS",
+          "id": "7bfc722d19ea48b0b35422ac27029dfa",
+        },
+      ],
+      "vars": {
+        "NEXT_PUBLIC_URL": "https://allthingslinux.org",
+        "NEXT_PUBLIC_API_URL": "https://allthingslinux.org/api",
+        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+      },
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "allthingslinux-prod",
+        },
+      ],
+      "images": {
+        "binding": "IMAGES",
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler",
+          },
+          {
+            "name": "NEXT_TAG_CACHE_DO_SHARDED",
+            "class_name": "DOShardedTagCache",
+          },
+          {
+            "name": "NEXT_CACHE_DO_PURGE",
+            "class_name": "BucketCachePurge",
+          },
+        ],
+      },
+    },
+    "local": {
+      "name": "allthingslinux-local",
+      "workers_dev": true, // Override to enable workers.dev for local development
+      "minify": false,
+      "preserve_file_names": true,
+
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "allthingslinux-local",
+        },
+      ],
+
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "atl-cache-local",
+        },
+      ],
+
+      "kv_namespaces": [
+        {
+          "binding": "KV_QUICKBOOKS",
+          "id": "b58a50d9090b46a181322eb96d0c8c90",
+          "preview_id": "b58a50d9090b46a181322eb96d0c8c90",
+        },
+      ],
+
+      "vars": {
+        "NEXT_PUBLIC_URL": "http://localhost:8788",
+        "NEXT_PUBLIC_API_URL": "http://localhost:8788/api",
+        "NEXT_PUBLIC_GITHUB_REPO_OWNER": "allthingslinux",
+        "NEXT_PUBLIC_GITHUB_REPO_NAME": "applications",
+      },
+
+      "images": {
+        "binding": "IMAGES",
+      },
+
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler",
+          },
+          {
+            "name": "NEXT_TAG_CACHE_DO_SHARDED",
+            "class_name": "DOShardedTagCache",
+          },
+          {
+            "name": "NEXT_CACHE_DO_PURGE",
+            "class_name": "BucketCachePurge",
+          },
+        ],
+      },
+    },
+  },
 }

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { defineStepper } from '@stepperize/react';
 import FormWrapper from '@/components/forms/FormWrapper';
 import { generateFormSchema } from '@/lib/utils';
@@ -31,9 +30,7 @@ export const shouldShowQuestion = (
     if (Array.isArray(requiredValue)) {
       // Convert to string for comparison since form values are often strings
       const strValue =
-        typeof fieldValue === 'string'
-          ? fieldValue
-          : String(fieldValue ?? '');
+        typeof fieldValue === 'string' ? fieldValue : String(fieldValue ?? '');
       if (!requiredValue.includes(strValue)) {
         return false;
       }
@@ -184,7 +181,8 @@ function StepperFormContent({
         .map((q) => q.name);
 
       // Manually validate using the appropriate schema
-      const currentSchema = methods.current.id === 'general' ? generalSchema : roleSchema;
+      const currentSchema =
+        methods.current.id === 'general' ? generalSchema : roleSchema;
       const currentValues = form.getValues();
       const validationResult = currentSchema.safeParse(currentValues);
 
@@ -200,11 +198,11 @@ function StepperFormContent({
             });
           }
         });
-        
+
         scrollToFirstError();
         return; // Don't proceed if validation fails
       }
-      
+
       // Clear errors on successful validation
       requiredFields.forEach((fieldName) => {
         form.clearErrors(fieldName);
@@ -431,7 +429,9 @@ function StepForm({
             }}
             size="lg"
             className="md:w-auto min-w-[200px]"
-            disabled={isSubmitting || formState.isSubmitting || !allRequiredFilled}
+            disabled={
+              isSubmitting || formState.isSubmitting || !allRequiredFilled
+            }
           >
             {isSubmitting || formState.isSubmitting
               ? isLastStep

@@ -1,8 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export interface LoadingSpinnerProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'small' | 'medium' | 'large';
   className?: string;
 }

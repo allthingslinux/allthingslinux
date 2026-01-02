@@ -9,18 +9,17 @@ import { getBaseUrl } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     category: string;
     slug: string;
-  };
+  }>;
 }
 
 // Generate metadata for the post
 export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
-  const { category, slug } = resolvedParams;
+  const { category, slug } = await params;
   const post = await getPost(category, slug);
 
   if (!post) {
@@ -101,9 +100,7 @@ function formatDate(dateString: string): string {
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  // Properly await params
-  const resolvedParams = await Promise.resolve(params);
-  const { category, slug } = resolvedParams;
+  const { category, slug } = await params;
 
   const post = await getPost(category, slug);
 

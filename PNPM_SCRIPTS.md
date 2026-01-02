@@ -1,118 +1,109 @@
 # PNPM Scripts Reference
 
-This file explains the purpose of the various scripts defined in `package.json`.
+This document explains all available pnpm scripts in the project.
 
 ## Development
 
-Scripts used for local development.
-
 - `pnpm run dev`
-  Starts the standard Next.js development server (with Hot Module Replacement). Usually available at `http://localhost:3000`.
+  Starts Next.js development server with hot module replacement at `http://localhost:3000`.
 
-- `pnpm run turbo`
-  Starts the Next.js development server using TurboPack (experimental faster Rust-based engine).
-
-- `pnpm run dev:wrangler`
-  Starts the Wrangler development server using the `wrangler.local.jsonc` configuration. This simulates the Cloudflare environment locally, including bindings. Usually available at `http://localhost:8788`.
-
-- `pnpm run trigger:dev`
-  Starts the Trigger.dev local development process/CLI.
+- `pnpm run dev:turbo`
+  Starts Next.js development server using TurboPack (experimental faster Rust-based engine).
 
 - `pnpm run dev:all`
-  Uses `concurrently` to run `dev`, `dev:wrangler`, and `trigger:dev` simultaneously for a complete local development environment.
+  Runs full-stack development: Next.js + Cloudflare Workers simulator + Trigger.dev background jobs.
 
-## Build Steps
+- `pnpm run wrangler`
+  Starts Cloudflare Workers development server with local environment simulation at `http://localhost:8788`.
 
-Individual steps involved in building the application and the Cloudflare worker bundle.
+- `pnpm run trigger`
+  Starts Trigger.dev development server for background job management.
 
-- `pnpm run build:coc`
-  Generates the Code of Conduct component using `scripts/generate-code-of-conduct.mjs`.
-
-- `pnpm run build:content`
-  Builds content types and data using Contentlayer (`contentlayer2 build`).
-
-- `pnpm run build:next`
-  Runs the standard Next.js production build (`next build`).
-
-- `pnpm run build:opennext`
-  Runs the OpenNext adapter (`pnpm exec opennextjs-cloudflare build`) to convert the Next.js build output into a Cloudflare Worker bundle located in `.open-next/`.
-
-## Full Build
+## Building
 
 - `pnpm run build`
-  Executes the complete build sequence: `build:coc` -> `build:content` -> `build:next` -> `build:opennext`. This is the command typically used in CI/CD build steps.
+  Compiles Next.js application for production.
 
-## Deployment Steps (Worker Only)
+- `pnpm run build:all`
+  Builds both Next.js and OpenNext.js Cloudflare adapter for complete deployment preparation.
 
-These scripts perform _only_ the deployment step, assuming the project has already been built (e.g., by `pnpm run build`). These are primarily used by the Cloudflare automated deployment system.
+- `pnpm run build:opennext`
+  Compiles the application using OpenNext.js Cloudflare adapter for Cloudflare Workers deployment.
 
-- `pnpm run deploy:opennext:dev`
-  Deploys the built worker (`.open-next` directory) to the `allthingslinux-development` Cloudflare Worker service, using configuration from `wrangler.dev.jsonc`.
+- `pnpm run build:opennext:profile`
+  Compiles with --noMinify flag for performance profiling and debugging (unminified code).
 
-- `pnpm run deploy:opennext:prod`
-  Deploys the built worker (`.open-next` directory) to the `allthingslinux-production` Cloudflare Worker service, using configuration from `wrangler.production.jsonc`.
+## Testing & Preview
 
-## Full Deployment (Build & Deploy)
+- `pnpm run preview`
+  Builds and runs the Cloudflare application locally to test the production build.
 
-These scripts perform the full build _and_ then deploy to the specified environment. Useful for manual deployments.
+- `pnpm run preview:profile`
+  Builds with profiling settings and runs locally for performance analysis.
+
+## Deployment
 
 - `pnpm run deploy:dev`
-  Runs `pnpm run build` followed by `pnpm run deploy:opennext:dev`.
+  Builds and deploys to the development Cloudflare Worker (allthingslinux-dev) with separate R2/KV bindings.
 
 - `pnpm run deploy:prod`
-  Runs `pnpm run build` followed by `pnpm run deploy:opennext:prod`.
+  Builds and deploys to the production Cloudflare Worker (allthingslinux-prod) with separate R2/KV bindings.
 
 - `pnpm run deploy`
-  Alias for `pnpm run deploy:prod`. The default deploy action targets production.
+  Alias for production deployment - the default deploy command.
 
-## Preview & Start
+## Version Management
 
-- `pnpm run preview:built`
-  Runs a full `pnpm run build` and then starts a local preview server using `opennextjs-cloudflare preview` and the `wrangler.local.jsonc` configuration. This allows testing the final build artifact locally.
+- `pnpm run version:upload`
+  Creates a new version in the development Cloudflare Worker without deploying it immediately.
 
-- `pnpm run start`
-  Starts the standard Next.js production server using the output from `pnpm run build:next`. Note: This does _not_ run the Cloudflare worker adapter and is generally not used for previewing the deployed Cloudflare version.
+- `pnpm run version:deploy`
+  Deploys the latest uploaded version to the development Cloudflare Worker.
 
-## Checks & Formatting
+- `pnpm run version:list`
+  Lists all versions of the development Cloudflare Worker with metadata.
 
-Scripts for code quality and consistency checks.
-
-- `pnpm run lint`
-  Runs ESLint to check for code style and potential errors.
-
-- `pnpm run format`
-  Runs Prettier to automatically format code according to defined rules.
-
-- `pnpm run check`
-  Runs a sequence of checks: TypeScript (`check:ts`), Prettier format (`check:format`), and MDX linting (`check:mdx`).
-
-- `pnpm run check:format`
-  Runs Prettier in check mode (reports formatting issues without changing files).
-
-- `pnpm run check:mdx`
-  Runs Remark CLI to lint `.mdx` files in `content/blog/`.
-
-- `pnpm run check:ts`
-  Runs the TypeScript compiler (`tsc --noEmit`) to check for type errors without generating JavaScript output.
-
-## Utilities
-
-Miscellaneous helper scripts.
-
-- `pnpm run populate-cache:local`
-  Uses OpenNext to populate the local cache (requires bindings to be set up correctly in `wrangler.local.jsonc`).
-
-- `pnpm run populate-cache:remote`
-  Uses OpenNext to populate the remote cache (requires bindings to be set up correctly in the relevant deployed environment config).
-
-- `pnpm run cf-typegen`
-  Uses Wrangler to generate a `cloudflare-env.d.ts` file based on the bindings defined in `wrangler.local.jsonc`. This provides TypeScript types for Cloudflare environment variables and bindings.
+## Secrets Management
 
 - `pnpm run secrets:dev`
-  Executes `bash scripts/secrets.sh development`. Likely part of a custom script to manage secrets for the development environment.
+  Uploads secrets from `.env.secrets.dev` to the development Cloudflare Worker (uses `.github/scripts/secrets.sh`).
 
 - `pnpm run secrets:prod`
-  Executes `bash scripts/secrets.sh production`. Likely part of a custom script to manage secrets for the production environment.
+  Uploads secrets from `.env.secrets.prod` to the production Cloudflare Worker (uses `.github/scripts/secrets.sh`).
 
-- `pnpm run trigger:deploy`
-  Deploys Trigger.dev jobs using the Trigger.dev CLI.
+## Code Quality
+
+- `pnpm run lint`
+  Runs ESLint to check JavaScript/TypeScript code quality.
+
+- `pnpm run format`
+  Runs Prettier to format all code files.
+
+- `pnpm run check`
+  Runs all code quality checks: TypeScript, formatting, and MDX validation.
+
+- `pnpm run check:ts`
+  Runs TypeScript compiler to validate types.
+
+- `pnpm run check:format`
+  Checks if files are properly formatted with Prettier.
+
+- `pnpm run check:mdx`
+  Validates MDX files in the blog content directory.
+
+## Infrastructure
+
+- `pnpm run setup:bindings`
+  Sets up Cloudflare bindings (R2 buckets, KV namespaces). IMPORTANT: Update wrangler.jsonc with the KV ID from the script output.
+
+- `pnpm run cf:typegen`
+  Generates TypeScript types for Cloudflare Workers bindings and environment variables.
+
+- `pnpm run test`
+  Runs the test suite using Vitest with Cloudflare Workers testing capabilities.
+
+- `pnpm run analyze:bundle`
+  Provides guidance for bundle size analysis using ESBuild Bundle Analyzer on the built worker code.
+
+- `pnpm run coc:generate`
+  Generates the Code of Conduct markdown file from TOML configuration.

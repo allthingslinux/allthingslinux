@@ -13,9 +13,11 @@ Starting on August 3rd, 2025, the All Things Linux infrastructure experienced a 
 ## Timeline of Events
 
 ### Initial Attack
+
 At roughly 8:45AM UTC on August 3rd, [atl.wiki](https://atl.wiki) became inaccessible due to a coordinated network flood DDoS attack that overwhelmed our servers. The malicious actor initially presented themselves in our Discord server as someone attempting to help diagnose the issue, while simultaneously continuing their malicious activities against our infrastructure.
 
 ### Immediate Response
+
 The malicious user publicly disclosed that our server was directly accessible via its IP address, which they had obtained from a public database. Upon verification of this vulnerability, we immediately implemented emergency mitigations:
 
 - **Cloudflare Security Activation**: Enabled all available Cloudflare security features
@@ -25,13 +27,16 @@ The malicious user publicly disclosed that our server was directly accessible vi
 
 **No data integrity was compromised** during this incident due to systems that were previously configured for resilience to handle infrastructure degradation.
 
-###  Continued Attacks
+### Continued Attacks
+
 At 8:30PM UTC on August 7th, the same malicious actor began launching waves of network flood DDoS attacks against all ATL services, lasting 15 minutes, stopping, then returning 15 minutes later. This pattern continued until 1:00AM UTC, causing intermittent service availability across our entire platform. This pattern was repeated over the following 3 days until the migration was completed. **No data integrity was compromised** at any point during these ongoing attacks.
 
 ### Migration Begins
+
 From the 8th of August to the 10th of August, we began the migration of services to our new distributed infrastructure to better protect against ongoing attacks. We subsequently implemented comprehensive security and anti-DDoS systems as part of our infrastructure redesign.
 
 ### Migration Completion
+
 On August 14th, we finalized all migrations and implemented extra security protocols and systems. We also gained access to Cloudflare Alexandria protection for our most critical domains, significantly enhancing our defensive capabilities against future attacks.
 
 ## Root Cause Analysis
@@ -43,22 +48,27 @@ Our investigation revealed that DNS records had been improperly configured at so
 Following the initial incident, we developed and began implementing a comprehensive infrastructure redesign focused on DDoS protection and service resilience:
 
 ### Security Enhancements
+
 - **Cloudflare Proxy Protection**: Secured all services behind Cloudflare's proxy infrastructure
 - **Multi-layered Firewall Strategy**: Implemented both VPS provider firewalls and built-in server firewalls to block all non-Cloudflare traffic
 - **SSH Bastion Implementation**: Established secure SSH access protocols via a bastion which has been designed to provide maximum resilience to future attacks
 - **Infrastructure Distribution**: Migrated from a single dedicated server for atl.tools, atl.dev and atl.chat services to multiple smaller, distributed servers for improved resilience
 
 ### Ongoing Challenges
+
 During the implementation of these security measures, the same malicious actor continued launching similar network flood DDoS attacks against all of our services intermittently, which were still hosted on our main VPS during the migration period. These attacks caused intermittent service availability across our entire platform throughout the following days, prompting us to expedite our migration timeline.
 
 ## Resolution and Current Status
 
 ### Migration Completion
+
 After about a week, we successfully completed migration of most of our systems to the new distributed infrastructure. However, some services remain offline to ensure they can be properly secured for the future:
+
 - **atl.chat Services**: Temporarily taken offline pending a migration to urealircd to improve security and resilience and ease upkeep of the platform.
 - **Monitoring Infrastructure**: Currently being restructured for improved efficiency and capability
 
 ### Additional Support
+
 We're grateful to have received access to **Cloudflare Alexandria** protection for our most critical domains, significantly enhancing our defensive capabilities against future attacks.
 
 ## Lessons Learned and Future Prevention
@@ -79,6 +89,7 @@ Please see how to disclose vulnerabilities on our [security page](https://allthi
 ## Acknowledgments
 
 We extend our sincere gratitude to:
+
 - **Our users** for their patience during the extended service disruptions
 - **Community members** who provided advice and assistance during the incident
 - **Cloudflare** for their support in protecting our services through the Alexandria program
@@ -89,4 +100,4 @@ We are now significantly more confident in our infrastructure's resilience again
 
 In the coming weeks, we will be focusing on restoring the remaining services that were temporarily taken offline during the migration, including atl.chat services and our monitoring infrastructure. These services will be brought back online with enhanced security configurations and improved Cloudflare compatibility. Additionally, we are implementing comprehensive infrastructure redundancy improvements to ensure that future incidents have minimal impact on service availability, including distributed backup systems and automated failover mechanisms.
 
-*For questions about this incident report or our security practices, please open a ticket on our Discord server for more information.*
+_For questions about this incident report or our security practices, please open a ticket on our Discord server for more information._

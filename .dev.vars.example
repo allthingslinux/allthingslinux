@@ -1,0 +1,18 @@
+# Cloudflare Workers Local Development Secrets
+# This file is used by `wrangler dev` for local development
+# Copy from .env.secrets.example and fill in your actual values
+
+# Core integrations
+GITHUB_TOKEN=your_github_token_here
+MONDAY_API_KEY=your_monday_api_key_here
+MONDAY_BOARD_ID=your_monday_board_id_here
+DISCORD_WEBHOOK_URL=your_discord_webhook_url_here
+TRIGGER_SECRET_KEY=your_trigger_secret_key_here
+
+# QuickBooks integration (optional)
+QUICKBOOKS_CLIENT_ID=your_quickbooks_client_id_here
+QUICKBOOKS_CLIENT_SECRET=your_quickbooks_client_secret_here
+QUICKBOOKS_REFRESH_TOKEN=your_quickbooks_refresh_token_here
+QUICKBOOKS_REALM_ID=your_quickbooks_realm_id_here
+QUICKBOOKS_ENVIRONMENT=sandbox
+QUICKBOOKS_ADMIN_KEY=your_quickbooks_admin_key_here

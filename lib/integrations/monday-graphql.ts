@@ -313,7 +313,7 @@ async function addDetailsToItem(
         // Optional: Add a small delay between requests if rate limiting becomes an issue
         // await new Promise(resolve => setTimeout(resolve, 200));
         return true;
-      } catch (updateError: any) {
+      } catch (updateError: unknown) {
         console.error(
           'Initial error sending update:',
           updateError,
@@ -323,7 +323,11 @@ async function addDetailsToItem(
 
         // Check if the error looks like a length/complexity limit
         const errorMessage =
-          updateError.response?.errors?.[0]?.message?.toLowerCase() || '';
+          (
+            updateError as {
+              response?: { errors?: Array<{ message?: string }> };
+            }
+          )?.response?.errors?.[0]?.message?.toLowerCase() || '';
         const isLengthError =
           errorMessage.includes('limit') ||
           errorMessage.includes('length') ||

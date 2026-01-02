@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { env } from '@/env';
 import { roles } from '@/data/forms/roles';
 import { generalQuestions } from '@/data/forms/questions/general';
 import type { FormData, Role, SubmissionPayload } from '@/lib/types';
@@ -12,12 +13,13 @@ export const fetchCache = 'force-no-store';
 
 export async function POST(
   req: NextRequest,
-  context: { params: { role: string } }
+  context: { params: Promise<{ role: string }> }
 ) {
   try {
     console.log('POST request received for application submission');
 
-    // Apply additional rate limiting at the route level
+    // Await params in Next.js 15+
+    const { role } = await context.params;
     const rateLimitResponse = await formSubmissionRateLimit(req);
     if (rateLimitResponse) {
       console.log('Rate limit exceeded for form submission');
@@ -28,33 +30,19 @@ export async function POST(
     console.log('Environment variables in API route:');
     console.log(
       'DISCORD_WEBHOOK_URL:',
-      process.env.DISCORD_WEBHOOK_URL ? '✓ Set' : '✗ Not set'
+      env.DISCORD_WEBHOOK_URL ? '✓ Set' : '✗ Not set'
     );
-    console.log(
-      'GITHUB_TOKEN:',
-      process.env.GITHUB_TOKEN ? '✓ Set' : '✗ Not set'
-    );
-    console.log(
-      'GITHUB_REPO_OWNER:',
-      process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER || 'allthingslinux'
-    );
-    console.log(
-      'GITHUB_REPO_NAME:',
-      process.env.NEXT_PUBLIC_GITHUB_REPO_NAME || 'applications'
-    );
-    console.log(
-      'MONDAY_API_KEY:',
-      process.env.MONDAY_API_KEY ? '✓ Set' : '✗ Not set'
-    );
+    console.log('GITHUB_TOKEN:', env.GITHUB_TOKEN ? '✓ Set' : '✗ Not set');
+    console.log('GITHUB_REPO_OWNER:', env.NEXT_PUBLIC_GITHUB_REPO_OWNER);
+    console.log('GITHUB_REPO_NAME:', env.NEXT_PUBLIC_GITHUB_REPO_NAME);
+    console.log('MONDAY_API_KEY:', env.MONDAY_API_KEY ? '✓ Set' : '✗ Not set');
     console.log(
       'MONDAY_BOARD_ID:',
-      process.env.MONDAY_BOARD_ID ? '✓ Set' : '✗ Not set'
+      env.MONDAY_BOARD_ID ? '✓ Set' : '✗ Not set'
     );
 
     // Get role and questions
-
-    const params = await context.params;
-    const roleSlug = params.role;
+    const roleSlug = role;
 
     console.log(`Processing application for role: ${roleSlug}`);
 
@@ -106,7 +94,9 @@ export async function POST(
 
     // Validate required fields
     const requiredFields = ['discord_username', 'discord_id'];
-    const missingFields = requiredFields.filter((field) => !typedFormObject[field]);
+    const missingFields = requiredFields.filter(
+      (field) => !typedFormObject[field]
+    );
 
     if (missingFields.length > 0) {
       console.error(`Missing required fields: ${missingFields.join(', ')}`);

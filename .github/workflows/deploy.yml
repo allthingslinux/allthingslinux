@@ -1,0 +1,112 @@
+---
+name: Deploy to Cloudflare Workers
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  # renovate: datasource=node depName=node
+  NODE_VERSION: 22.14.0
+  PNPM_VERSION: 10.17.0
+jobs:
+  deploy:
+    name: Deploy to ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+    runs-on: ubuntu-latest
+    # Use GitHub Environments: 'prod' for main branch, 'dev' for PRs/other branches
+    # URLs appear on the deployments page and in the workflow run visualization
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+      url: ${{ github.ref == 'refs/heads/main' && 'https://allthingslinux.org' || 'https://allthingslinux.dev' }}
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Cloudflare Bindings (R2, KV)
+        run: |
+          echo "🔧 Setting up Cloudflare bindings (R2, KV) if they don't exist..."
+          chmod +x scripts/setup-bindings.sh
+          # Run setup-bindings script - it's idempotent and checks for existing resources
+          # Use || true to prevent workflow failure if bindings already exist or script has minor issues
+          scripts/setup-bindings.sh || true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Build application
+        run: pnpm run build:all
+
+      - name: Set secrets in Cloudflare Worker
+        run: |
+          ENV_NAME="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}"
+          echo "🔐 Setting secrets for ${ENV_NAME} environment..."
+          # Use the same secrets.sh script for consistency between manual and CI/CD
+          chmod +x .github/scripts/secrets.sh
+          .github/scripts/secrets.sh "$ENV_NAME"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Export all secrets as environment variables for the script
+          QUICKBOOKS_CLIENT_ID: ${{ secrets.QUICKBOOKS_CLIENT_ID }}
+          QUICKBOOKS_CLIENT_SECRET: ${{ secrets.QUICKBOOKS_CLIENT_SECRET }}
+          QUICKBOOKS_REFRESH_TOKEN: ${{ secrets.QUICKBOOKS_REFRESH_TOKEN }}
+          QUICKBOOKS_REALM_ID: ${{ secrets.QUICKBOOKS_REALM_ID }}
+          QUICKBOOKS_ADMIN_KEY: ${{ secrets.QUICKBOOKS_ADMIN_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MONDAY_API_KEY: ${{ secrets.MONDAY_API_KEY }}
+          TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
+          # Variables (non-sensitive)
+          MONDAY_BOARD_ID: ${{ vars.MONDAY_BOARD_ID }}
+          DISCORD_WEBHOOK_URL: ${{ vars.DISCORD_WEBHOOK_URL }}
+          QUICKBOOKS_ENVIRONMENT: ${{ vars.QUICKBOOKS_ENVIRONMENT }}
+
+      - name: Deploy to Cloudflare Workers
+        run: |
+          ENV_NAME="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}"
+          echo "🚀 Deploying to ${{ github.ref == 'refs/heads/main' && 'PRODUCTION' || 'DEVELOPMENT' }} environment (worker: allthingslinux-${ENV_NAME})..."
+          # Deploy to separate workers for dev/prod environments
+          # Dev: allthingslinux-dev worker serving allthingslinux.dev
+          # Prod: allthingslinux-prod worker serving allthingslinux.org
+          pnpm exec opennextjs-cloudflare deploy --env $ENV_NAME
+        env:
+          # Only Cloudflare API token needed for deployment (secrets are set separately above)
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Create deployment comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v5
+        continue-on-error: true
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🚀 Deployment Status
+
+            **Environment:** ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+            **Branch:** `${{ github.event_name == 'pull_request' && 'PR #' || '' }}${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref_name }} ${{ github.event_name == 'pull_request' && '(' || '' }}${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || '' }} ${{ github.event_name == 'pull_request' && ')' || '' }}`
+            **Commit:** `${{ github.sha }}`
+
+            **URLs:**
+            - **Production:** [https://allthingslinux.org](https://allthingslinux.org)
+            - **Development:** [https://allthingslinux.dev](https://allthingslinux.dev)
+
+            Deployment completed successfully! ✨

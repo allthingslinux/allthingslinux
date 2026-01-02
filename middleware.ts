@@ -3,8 +3,17 @@ import type { NextRequest } from 'next/server';
 import { formSubmissionRateLimit, apiRateLimit } from '@/lib/rate-limit';
 
 export async function middleware(request: NextRequest) {
+  // Environment URLs are now set statically in wrangler.jsonc for each environment
+  // No need for dynamic runtime environment detection with separate workers
+  const host = request.headers.get('host') || '';
+
   // Debug middleware execution
-  console.log('Middleware running for path:', request.nextUrl.pathname);
+  console.log(
+    'Middleware running for path:',
+    request.nextUrl.pathname,
+    'Host:',
+    host
+  );
 
   // Only apply to /api routes
   if (request.nextUrl.pathname.startsWith('/api/')) {
@@ -30,8 +39,11 @@ export async function middleware(request: NextRequest) {
 
     // Apply rate limiting based on the endpoint
     let rateLimitResponse = null;
-    
-    if (request.nextUrl.pathname.includes('/forms/') && request.method === 'POST') {
+
+    if (
+      request.nextUrl.pathname.includes('/forms/') &&
+      request.method === 'POST'
+    ) {
       // Apply stricter rate limiting for form submissions
       rateLimitResponse = await formSubmissionRateLimit(request);
     } else {
