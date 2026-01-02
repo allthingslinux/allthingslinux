@@ -21,11 +21,15 @@ function getDeploymentEnvironment(): 'dev' | 'prod' {
   // Parse URL safely and extract hostname for strict domain checking
   try {
     let url: URL;
-    if (publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) {
+    if ((publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) && publicUrl.length > 8) {
+      // Has protocol prefix and content after it (e.g., https://example.com)
       url = new URL(publicUrl);
-    } else {
-      // Handle cases where publicUrl might just be a hostname (add fake scheme)
+    } else if (publicUrl && !publicUrl.includes('://')) {
+      // Looks like just a hostname (no protocol)
       url = new URL(`https://${publicUrl}`);
+    } else {
+      // Invalid format (e.g., just "https://" or empty), throw to fallback
+      throw new Error('Invalid URL format');
     }
 
     const hostname = url.hostname;
