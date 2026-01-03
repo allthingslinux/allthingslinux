@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   try {
     // Get Cloudflare environment
     // Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
-    const cfEnv = getCloudflareEnv();
+    const cfEnv = await getCloudflareEnv();
 
     console.log(
       '[QuickBooks API] Request received, KV namespace available:',
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'refresh_tokens') {
       // Fetch latest transactions (tokens will be refreshed automatically if needed)
-      const cfEnv = getCloudflareEnv();
+      const cfEnv = await getCloudflareEnv();
       const transactions = await fetchQuickBooksTransactions(cfEnv);
 
       return NextResponse.json({

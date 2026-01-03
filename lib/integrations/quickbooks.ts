@@ -1,5 +1,7 @@
 import { runtimeEnv as env } from '@/env';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { writeFileSync, readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 
 // Cloudflare Workers environment interface
 export interface QuickBooksCloudflareEnv {
@@ -9,16 +11,42 @@ export interface QuickBooksCloudflareEnv {
 /**
  * Get Cloudflare environment context for QuickBooks operations
  * This helper is shared across QuickBooks API routes to avoid duplication
+ * 
+ * During `next dev`, bindings should be available via initOpenNextCloudflareForDev()
+ * During `wrangler dev`, bindings are available via the Worker runtime
  */
-export function getCloudflareEnv(): QuickBooksCloudflareEnv | undefined {
+export async function getCloudflareEnv(): Promise<QuickBooksCloudflareEnv | undefined> {
   try {
-    const context = getCloudflareContext();
-    if (context?.env?.KV_QUICKBOOKS) {
-      return context.env as QuickBooksCloudflareEnv;
+    // Try synchronous access first (works in most contexts)
+    let context: ReturnType<typeof getCloudflareContext> | undefined;
+    try {
+      context = getCloudflareContext();
+    } catch {
+      // If synchronous fails, try async mode (required for SSG routes)
+      try {
+        context = await getCloudflareContext({ async: true });
+      } catch (asyncError) {
+        console.log('[QuickBooks getCloudflareEnv] getCloudflareContext() not available:', 
+          asyncError instanceof Error ? asyncError.message : String(asyncError));
+        return undefined;
+      }
     }
-  } catch {
+
+    if (context?.env?.KV_QUICKBOOKS) {
+      console.log('[QuickBooks getCloudflareEnv] ✅ KV namespace available from getCloudflareContext()');
+      return context.env as QuickBooksCloudflareEnv;
+    } else {
+      console.log('[QuickBooks getCloudflareEnv] ⚠️ getCloudflareContext() returned but KV_QUICKBOOKS not found:', {
+        hasContext: !!context,
+        hasEnv: !!context?.env,
+        envKeys: context?.env ? Object.keys(context.env) : [],
+      });
+    }
+  } catch (error) {
     // getCloudflareContext() throws if not in a request context or during SSG
     // This is expected and fine - we'll fall back to environment variables
+    console.log('[QuickBooks getCloudflareEnv] getCloudflareContext() error:', 
+      error instanceof Error ? error.message : String(error));
   }
   return undefined;
 }
@@ -319,7 +347,31 @@ export async function getAccessToken(
 
     if (!response.ok) {
       const errorText = await response.text();
+      let errorData: { error?: string; error_description?: string } = {};
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        // If not JSON, use the raw text
+      }
+
       console.error('Token refresh failed:', errorText);
+
+      // Handle invalid grant (expired/invalid refresh token)
+      if (response.status === 400 && errorData.error === 'invalid_grant') {
+        console.error('');
+        console.error('❌ QuickBooks refresh token is invalid or expired');
+        console.error('💡 To fix this, you need to re-authenticate:');
+        console.error('');
+        console.error('   1. Visit the admin setup URL to re-authenticate:');
+        console.error(
+          `      http://localhost:3000/api/quickbooks/admin-setup?admin=${env.QUICKBOOKS_ADMIN_KEY || 'YOUR_ADMIN_KEY'}`
+        );
+        console.error('   2. Or visit: http://localhost:8787/api/quickbooks/admin-setup?admin=YOUR_ADMIN_KEY');
+        console.error('   3. After authentication, update your refresh token in:');
+        console.error('      - .env.local (for Next.js dev on port 3000)');
+        console.error('      - .dev.vars (for Wrangler dev on port 8787)');
+        console.error('');
+      }
 
       // Handle rate limiting (429 Too Many Requests)
       if (response.status === 429) {
@@ -424,6 +476,7 @@ export async function getAccessToken(
 /**
  * Fetches QuickBooks entities of a specific type
  * Handles rate limiting and retries with exponential backoff
+ * Handles 401 authentication errors by refreshing token and retrying
  */
 async function fetchQuickBooksEntities<T extends QuickBooksEntity>(
   baseUrl: string,
@@ -431,7 +484,8 @@ async function fetchQuickBooksEntities<T extends QuickBooksEntity>(
   accessToken: string,
   entityType: string,
   mapEntity: (raw: T) => QuickBooksTransaction,
-  retryCount = 0
+  retryCount = 0,
+  getFreshToken?: () => Promise<string | null>
 ): Promise<QuickBooksTransaction[]> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
@@ -449,6 +503,54 @@ async function fetchQuickBooksEntities<T extends QuickBooksEntity>(
     );
 
     clearTimeout(timeoutId);
+
+    // Handle authentication errors (401) - token expired
+    if (response.status === 401) {
+      const errorText = await response.text();
+      let errorData: { fault?: { error?: Array<{ code?: string }> } } = {};
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        // If not JSON, continue with retry logic
+      }
+
+      const isTokenExpired =
+        errorData.fault?.error?.[0]?.code === '3200' ||
+        errorText.includes('Token expired') ||
+        errorText.includes('AuthenticationFailed');
+
+      if (isTokenExpired && getFreshToken && retryCount === 0) {
+        console.log(
+          `[QuickBooks] 🔄 Token expired for ${entityType}, refreshing and retrying...`
+        );
+        const freshToken = await getFreshToken();
+        if (freshToken) {
+          console.log(
+            `[QuickBooks] ✅ Got fresh token for ${entityType}, retrying request...`
+          );
+          return fetchQuickBooksEntities(
+            baseUrl,
+            realmId,
+            freshToken,
+            entityType,
+            mapEntity,
+            retryCount + 1,
+            getFreshToken
+          );
+        } else {
+          console.error(
+            `[QuickBooks] ❌ Failed to refresh token for ${entityType}. Refresh token may be expired - re-authentication required.`
+          );
+        }
+      }
+
+      console.warn(
+        `Failed to fetch ${entityType}:`,
+        response.status,
+        errorText.substring(0, 200)
+      );
+      return [];
+    }
 
     // Handle rate limiting (429 Too Many Requests)
     if (response.status === 429) {
@@ -469,7 +571,8 @@ async function fetchQuickBooksEntities<T extends QuickBooksEntity>(
           accessToken,
           entityType,
           mapEntity,
-          retryCount + 1
+          retryCount + 1,
+          getFreshToken
         );
       }
 
@@ -484,7 +587,7 @@ async function fetchQuickBooksEntities<T extends QuickBooksEntity>(
       console.warn(
         `Failed to fetch ${entityType}:`,
         response.status,
-        errorText
+        errorText.substring(0, 200)
       );
       return [];
     }
@@ -726,8 +829,24 @@ async function saveTokens(
     return true;
   }
 
-  // Final fallback: log for manual setup (development)
+  // Final fallback: automatically update local env files in development
   if (env.NODE_ENV === 'development') {
+    try {
+      const updated = await updateLocalEnvFiles(tokens);
+      if (updated) {
+        console.log(
+          '[QuickBooks saveTokens] ✅ Automatically updated .env.local and .dev.vars with new tokens'
+        );
+        return true;
+      }
+    } catch (error) {
+      console.warn(
+        '[QuickBooks saveTokens] ⚠️ Failed to auto-update local env files:',
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+
+    // Fallback to logging if auto-update fails
     console.log(
       '🔑 QuickBooks OAuth Setup - Copy these to your environment variables:'
     );
@@ -747,6 +866,106 @@ async function saveTokens(
       console.log(`QUICKBOOKS_ENVIRONMENT=${tokens.environment}`);
   }
   return false;
+}
+
+/**
+ * Updates local environment files (.env.local and .dev.vars) automatically
+ * Only works in development mode and when files are writable
+ */
+async function updateLocalEnvFiles(tokens: {
+  refreshToken: string;
+  realmId: string;
+  clientId?: string;
+  environment?: string;
+}): Promise<boolean> {
+  try {
+    const projectRoot = process.cwd();
+    const envLocalPath = join(projectRoot, '.env.local');
+    const devVarsPath = join(projectRoot, '.dev.vars');
+
+    let updatedAny = false;
+
+    // Update .env.local (for Next.js dev on port 3000)
+    if (existsSync(envLocalPath)) {
+      try {
+        const content = readFileSync(envLocalPath, 'utf8');
+        const lines = content.split('\n');
+        const updatedLines = lines.map((line) => {
+          if (line.startsWith('QUICKBOOKS_REFRESH_TOKEN=')) {
+            return `QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`;
+          }
+          if (line.startsWith('QUICKBOOKS_REALM_ID=')) {
+            return `QUICKBOOKS_REALM_ID=${tokens.realmId}`;
+          }
+          return line;
+        });
+
+        // Add if missing
+        const hasRefreshToken = lines.some((line) =>
+          line.startsWith('QUICKBOOKS_REFRESH_TOKEN=')
+        );
+        const hasRealmId = lines.some((line) =>
+          line.startsWith('QUICKBOOKS_REALM_ID=')
+        );
+
+        if (!hasRefreshToken) {
+          updatedLines.push(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`);
+        }
+        if (!hasRealmId) {
+          updatedLines.push(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
+        }
+
+        writeFileSync(envLocalPath, updatedLines.join('\n'), 'utf8');
+        updatedAny = true;
+        console.log('[QuickBooks] ✅ Updated .env.local');
+      } catch (error) {
+        console.warn('[QuickBooks] ⚠️ Failed to update .env.local:', error);
+      }
+    }
+
+    // Update .dev.vars (for Wrangler dev on port 8787)
+    if (existsSync(devVarsPath)) {
+      try {
+        const content = readFileSync(devVarsPath, 'utf8');
+        const lines = content.split('\n');
+        const updatedLines = lines.map((line) => {
+          if (line.startsWith('QUICKBOOKS_REFRESH_TOKEN=')) {
+            return `QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`;
+          }
+          if (line.startsWith('QUICKBOOKS_REALM_ID=')) {
+            return `QUICKBOOKS_REALM_ID=${tokens.realmId}`;
+          }
+          return line;
+        });
+
+        // Add if missing
+        const hasRefreshToken = lines.some((line) =>
+          line.startsWith('QUICKBOOKS_REFRESH_TOKEN=')
+        );
+        const hasRealmId = lines.some((line) =>
+          line.startsWith('QUICKBOOKS_REALM_ID=')
+        );
+
+        if (!hasRefreshToken) {
+          updatedLines.push(`QUICKBOOKS_REFRESH_TOKEN=${tokens.refreshToken}`);
+        }
+        if (!hasRealmId) {
+          updatedLines.push(`QUICKBOOKS_REALM_ID=${tokens.realmId}`);
+        }
+
+        writeFileSync(devVarsPath, updatedLines.join('\n'), 'utf8');
+        updatedAny = true;
+        console.log('[QuickBooks] ✅ Updated .dev.vars');
+      } catch (error) {
+        console.warn('[QuickBooks] ⚠️ Failed to update .dev.vars:', error);
+      }
+    }
+
+    return updatedAny;
+  } catch (error) {
+    console.error('[QuickBooks] ❌ Error updating local env files:', error);
+    return false;
+  }
 }
 
 /**
@@ -864,7 +1083,7 @@ export async function fetchQuickBooksTransactions(
     tokens.environment
   );
   if (!tokenResult) {
-    console.error('Failed to get access token');
+    console.error('[QuickBooks] ❌ Failed to get access token - check logs above for re-authentication instructions');
     return [];
   }
 
@@ -885,6 +1104,67 @@ export async function fetchQuickBooksTransactions(
   // Get the correct base URL based on environment
   const baseUrl = getQuickBooksApiBaseUrl(tokens.environment);
 
+  // Create a token refresh function for retries on 401 errors
+  // Use a shared promise to prevent multiple simultaneous refreshes
+  let refreshPromise: Promise<string | null> | null = null;
+  const getFreshToken = async (): Promise<string | null> => {
+    // If a refresh is already in progress, wait for it
+    if (refreshPromise) {
+      console.log('[QuickBooks] ⏳ Token refresh already in progress, waiting...');
+      return refreshPromise;
+    }
+
+    console.log('[QuickBooks] 🔄 Refreshing access token due to 401 error...');
+    refreshPromise = (async () => {
+      try {
+        // Force refresh by clearing cache first (401 means cached token is invalid)
+        if (cfEnv?.KV_QUICKBOOKS) {
+          try {
+            await cfEnv.KV_QUICKBOOKS.delete(TOKEN_CACHE_KEY);
+            console.log('[QuickBooks] 🗑️ Cleared expired token from KV cache');
+          } catch (error) {
+            console.warn('[QuickBooks] ⚠️ Failed to clear KV cache:', error);
+          }
+        } else {
+          // Clear in-memory cache
+          tokenCache = null;
+          console.log('[QuickBooks] 🗑️ Cleared expired token from memory cache');
+        }
+
+        const freshTokenResult = await getAccessToken(
+          tokens.clientId,
+          tokens.clientSecret,
+          tokens.refreshToken,
+          cfEnv,
+          tokens.environment
+        );
+        if (freshTokenResult) {
+          console.log('[QuickBooks] ✅ Successfully refreshed access token');
+          // Update refresh token if rotated
+          if (freshTokenResult.newRefreshToken && freshTokenResult.newRefreshToken !== tokens.refreshToken) {
+            console.log('🔄 Updating stored refresh token due to rotation (during retry)');
+            await saveTokens(
+              {
+                ...tokens,
+                refreshToken: freshTokenResult.newRefreshToken,
+              },
+              cfEnv
+            );
+          }
+          return freshTokenResult.accessToken;
+        } else {
+          console.error('[QuickBooks] ❌ Token refresh failed - refresh token may be expired. Check logs above for re-authentication instructions.');
+          return null;
+        }
+      } finally {
+        // Clear the promise after completion (success or failure)
+        refreshPromise = null;
+      }
+    })();
+
+    return refreshPromise;
+  };
+
   try {
     // Fetch all entity types in parallel
     const [purchases, invoices, payments, deposits] = await Promise.all([
@@ -901,7 +1181,9 @@ export async function fetchQuickBooksTransactions(
           vendorName: purchase.EntityRef?.name,
           description: purchase.PrivateNote || purchase.PaymentType || '',
           status: 'reconciled' as const,
-        })
+        }),
+        0,
+        getFreshToken
       ),
       fetchQuickBooksEntities(
         baseUrl,
@@ -916,7 +1198,9 @@ export async function fetchQuickBooksTransactions(
           customerName: invoice.CustomerRef?.name,
           description: invoice.PrivateNote || '',
           status: 'pending' as const,
-        })
+        }),
+        0,
+        getFreshToken
       ),
       fetchQuickBooksEntities(
         baseUrl,
@@ -931,7 +1215,9 @@ export async function fetchQuickBooksTransactions(
           customerName: payment.CustomerRef?.name,
           description: payment.PrivateNote || '',
           status: 'cleared' as const,
-        })
+        }),
+        0,
+        getFreshToken
       ),
       fetchQuickBooksEntities(
         baseUrl,
@@ -946,7 +1232,9 @@ export async function fetchQuickBooksTransactions(
           customerName: deposit.PrivateNote || 'Bank Deposit',
           description: deposit.PrivateNote || '',
           status: 'cleared' as const,
-        })
+        }),
+        0,
+        getFreshToken
       ),
     ]);
 

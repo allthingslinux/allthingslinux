@@ -193,3 +193,24 @@ export function getApiUrl(path: string): string {
 
   return url;
 }
+
+/**
+ * Format currency amount as USD
+ */
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount);
+}
+
+/**
+ * Format date string to readable format
+ */
+export function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}

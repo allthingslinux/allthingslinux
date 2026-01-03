@@ -13,16 +13,21 @@ export async function GET(request: NextRequest) {
   const clientId = env.QUICKBOOKS_CLIENT_ID;
   const environment = env.QUICKBOOKS_ENVIRONMENT || 'sandbox';
 
-  const baseUrl = env.NEXT_PUBLIC_URL || 'http://localhost:3000';
-  const redirectUri = `${baseUrl}/api/quickbooks/callback`;
-
-  // Extract host and protocol from request URL for HTTPS validation
+  // Extract host and protocol from request URL to support different ports (3000, 8787, etc.)
   const url = new URL(request.url);
   const host = url.hostname;
+  const port = url.port;
   const protocol = url.protocol.replace(':', '');
+  
+  // Force http for localhost (Cloudflare Workers might set forwarded headers incorrectly)
+  const finalProtocol = host.includes('localhost') ? 'http' : protocol;
+  const baseUrl = port 
+    ? `${finalProtocol}://${host}:${port}`
+    : `${finalProtocol}://${host}`;
+  const redirectUri = `${baseUrl}/api/quickbooks/callback`;
 
   // QuickBooks requires HTTPS for redirect URIs (except localhost for development)
-  if (!host.includes('localhost') && protocol !== 'https') {
+  if (!host.includes('localhost') && finalProtocol !== 'https') {
     return new NextResponse(
       `
       <!DOCTYPE html>
@@ -176,7 +181,7 @@ export async function GET(request: NextRequest) {
   // Set OAuth state cookie server-side with httpOnly flag for CSRF protection
   response.cookies.set('qb_oauth_state', state, {
     httpOnly: true,
-    secure: baseUrl.startsWith('https://'),
+    secure: finalProtocol === 'https',
     sameSite: 'lax',
     maxAge: 600,
     path: '/',

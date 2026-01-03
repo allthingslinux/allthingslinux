@@ -91,7 +91,17 @@ export async function GET(request: NextRequest) {
   const clientId = env.QUICKBOOKS_CLIENT_ID;
   const clientSecret = env.QUICKBOOKS_CLIENT_SECRET;
 
-  const baseUrl = env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+  // Extract host and protocol from request URL to support different ports (3000, 8787, etc.)
+  const url = new URL(request.url);
+  const host = url.hostname;
+  const port = url.port;
+  const protocol = url.protocol.replace(':', '');
+  
+  // Force http for localhost (Cloudflare Workers might set forwarded headers incorrectly)
+  const finalProtocol = host.includes('localhost') ? 'http' : protocol;
+  const baseUrl = port 
+    ? `${finalProtocol}://${host}:${port}`
+    : `${finalProtocol}://${host}`;
   const redirectUri = `${baseUrl}/api/quickbooks/callback`;
 
   if (!clientId || !clientSecret) {
@@ -129,7 +139,7 @@ export async function GET(request: NextRequest) {
 
     // Get Cloudflare environment if available
     // Uses getCloudflareContext() which is the recommended way in OpenNext Cloudflare
-    const cfEnv = getCloudflareEnv();
+    const cfEnv = await getCloudflareEnv();
 
     console.log(
       '[QuickBooks Callback] KV namespace available:',
