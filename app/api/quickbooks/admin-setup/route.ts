@@ -10,7 +10,10 @@ export async function GET(request: NextRequest) {
   // Require admin key authentication in all environments
   const adminKey = request.nextUrl.searchParams.get('admin');
 
-  if (adminKey !== env.QUICKBOOKS_ADMIN_KEY) {
+  // URL decode the admin key to handle special characters like +
+  const decodedAdminKey = adminKey ? decodeURIComponent(adminKey) : null;
+
+  if (decodedAdminKey !== env.QUICKBOOKS_ADMIN_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
