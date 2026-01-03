@@ -30,21 +30,21 @@ export const ReviewCard = memo(
   }) => {
     return (
       <Card
-        className="max-w-96 select-none bg-card p-6"
+        className="max-w-[500px] select-none bg-card p-6 border border-dashed border-muted-foreground/10"
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
         <div className="mb-4">
           <div className="flex items-center gap-4">
-            <Avatar className="size-14 rounded-full ring-1 ring-input">
+            <Avatar className="size-12 rounded-full ring-1 ring-input">
               <AvatarImage loading="lazy" src={avatar} alt={name} />
             </Avatar>
             <div>
-              <p className="font-large text-foreground">{name}</p>
+              <p className="text-sm font-medium text-foreground">{name}</p>
             </div>
           </div>
         </div>
-        <q className="text-card-foreground text-balance leading-7">{content}</q>
+        <q className="text-sm text-card-foreground text-balance leading-6">{content}</q>
       </Card>
     );
   }
@@ -63,13 +63,13 @@ export default function Testimonials() {
   );
 
   return (
-    <section className="py-32">
-      <div className="container mb-16">
+    <section className="py-4 md:py-6">
+      <div className="container mb-12">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="mb-4 text-3xl font-semibold md:text-4xl">
+          <h2 className="mb-4 text-2xl font-semibold md:text-3xl">
             See what our members are saying
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             Join our growing community of Linux enthusiasts and discover why
             they love being part of our network.
           </p>
@@ -87,7 +87,7 @@ export default function Testimonials() {
         >
           <CarouselContent className="-ml-4 px-4">
             {[...reviews, ...reviews].map((review, index) => (
-              <CarouselItem key={index} className="pl-4 md:basis-[400px]">
+              <CarouselItem key={index} className="pl-4 md:basis-[520px]">
                 <ReviewCard
                   avatar={`/images/penguins/${avatars[index % avatars.length]}.svg`}
                   {...review}

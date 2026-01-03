@@ -4,12 +4,12 @@ import DiscordSkeleton from './discord-skeleton';
 
 const Hero = memo(() => {
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32">
+    <section className="py-4 md:py-6 pb-4 md:pb-16">
       <div className="container flex flex-col items-center text-center">
-        <h1 className="mb-6 sm:mb-8 md:mb-10 lg:mb-12 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-center">
+        <h1 className="mb-6 sm:mb-8 md:mb-10 lg:mb-12 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-center">
           Let&apos;s build the future of Linux together
         </h1>
-        <p className="max-w-4xl text-lg sm:text-xl md:text-xl lg:text-2xl pb-4">
+        <p className="max-w-4xl text-base sm:text-lg md:text-lg lg:text-xl pb-4">
           All Things Linux is a 501(c)(3) non-profit organization with a mission
           to empower the Linux ecosystem through education, collaboration, and
           support.
@@ -160,7 +160,7 @@ const Hero = memo(() => {
             />
           </div>
           {/* Hero images */}
-          <div className="container mx-auto mt-8 sm:mt-10 md:mt-12">
+          <div className="container mx-auto mt-8 sm:mt-10 md:mt-12 px-4 sm:px-6 md:px-8">
             <DiscordSkeleton />
           </div>
         </div>

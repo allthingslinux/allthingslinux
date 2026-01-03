@@ -202,7 +202,7 @@ const CentralContent = memo(() => (
 
 // Description component
 const Description = memo(() => (
-  <p className="text-center text-balance text-muted-foreground text-xl py-8">
+  <p className="text-center text-balance text-muted-foreground text-lg sm:text-xl py-4 sm:py-8 max-w-3xl mx-auto">
     Make new friends, share your knowledge and learn from the biggest Linux
     community on Discord.
   </p>
