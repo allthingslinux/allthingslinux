@@ -86,7 +86,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-base;
   }
 }
 
@@ -134,6 +134,7 @@
 }
 
 @keyframes blink {
+
   0%,
   100% {
     border-color: transparent;
