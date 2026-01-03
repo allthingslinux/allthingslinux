@@ -40,5 +40,13 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "[github-actions-workflow]": {
     "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "files.associations": {
+    ".env": "dotenv",
+    ".env.local": "dotenv",
+    ".env.secrets": "dotenv",
+    ".env.secrets.dev": "dotenv",
+    ".env.secrets.prod": "dotenv",
+    ".dev.vars": "dotenv"
   }
 }
