@@ -71,7 +71,7 @@ jobs:
             .github/renovate.json
             renovate.json
   deploy:
-    name: Deploy to ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+    name: Deploy to ${{ contains(github.ref, 'main') && 'Production' || 'Development' }}
     runs-on: ubuntu-latest
     needs: [changes]
     # Skip deployment for Renovate bot PRs or when no deploy-relevant files changed
@@ -79,8 +79,8 @@ jobs:
     # Use GitHub Environments: 'prod' for main branch, 'dev' for PRs/other branches
     # URLs appear on the deployments page and in the workflow run visualization
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-      url: ${{ github.ref == 'refs/heads/main' && 'https://allthingslinux.org' || 'https://allthingslinux.dev' }}
+      name: ${{ contains(github.ref, 'main') && 'prod' || 'dev' }}
+      url: ${{ contains(github.ref, 'main') && 'https://allthingslinux.org' || 'https://allthingslinux.dev' }}
     permissions:
       contents: read
       deployments: write
@@ -117,7 +117,7 @@ jobs:
 
       - name: Set secrets in Cloudflare Worker
         run: |
-          ENV_NAME="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}"
+          ENV_NAME="${{ contains(github.ref, 'main') && 'prod' || 'dev' }}"
           echo "🔐 Setting secrets for ${ENV_NAME} environment..."
           # Use the same secrets.sh script for consistency between manual and CI/CD
           chmod +x .github/scripts/secrets.sh
@@ -141,8 +141,8 @@ jobs:
 
       - name: Deploy to Cloudflare Workers
         run: |
-          ENV_NAME="${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}"
-          echo "🚀 Deploying to ${{ github.ref == 'refs/heads/main' && 'PRODUCTION' || 'DEVELOPMENT' }} environment (worker: allthingslinux-${ENV_NAME})..."
+          ENV_NAME="${{ contains(github.ref, 'main') && 'prod' || 'dev' }}"
+          echo "🚀 Deploying to ${{ contains(github.ref, 'main') && 'PRODUCTION' || 'DEVELOPMENT' }} environment (worker: allthingslinux-${ENV_NAME})..."
           # Deploy to separate workers for dev/prod environments
           # Dev: allthingslinux-dev worker serving allthingslinux.dev
           # Prod: allthingslinux-prod worker serving allthingslinux.org
@@ -161,7 +161,7 @@ jobs:
           body: |
             ## 🚀 Deployment Status
 
-            **Environment:** ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+            **Environment:** ${{ contains(github.ref, 'main') && 'Production' || 'Development' }}
             **Branch:** `${{ github.event_name == 'pull_request' && 'PR #' || '' }}${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref_name }} ${{ github.event_name == 'pull_request' && '(' || '' }}${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || '' }} ${{ github.event_name == 'pull_request' && ')' || '' }}`
             **Commit:** `${{ github.sha }}`
 
