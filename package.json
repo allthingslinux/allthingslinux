@@ -14,7 +14,7 @@
     "wrangler": "pnpm run build:opennext && pnpm exec wrangler dev --env local",
     "trigger": "node scripts/trigger-dev.mjs dev",
     "build": "next build",
-    "build:all": "pnpm run build && pnpm run build:opennext",
+    "build:all": "pnpm run build:opennext",
     "build:opennext": "pnpm exec opennextjs-cloudflare build",
     "build:opennext:profile": "pnpm exec opennextjs-cloudflare build --noMinify",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
