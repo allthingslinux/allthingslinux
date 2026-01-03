@@ -1,6 +1,8 @@
 import { cpus } from 'node:os';
+
 import type { NextConfig } from 'next';
 import { withContentlayer } from 'next-contentlayer2';
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 
 // Validate environment variables at build time
 import './env';
@@ -55,13 +57,44 @@ const nextConfig: NextConfig = {
     cpus: Math.max(1, Math.floor(cpus().length / 2)),
     // Disable server minification for easier performance profiling
     serverMinification: false,
+    // Disable server source maps to prevent esbuild errors in OpenNext/Cloudflare builds
+    serverSourceMaps: false,
+    // Optimize webpack memory usage (reduces max memory, may slightly increase build time)
+    webpackMemoryOptimizations: true,
   },
   // Performance profiling - disable webpack minification for better debugging
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     // Only disable minification in development for easier profiling
     if (process.env.NODE_ENV === 'development') {
       config.optimization.minimize = false;
     }
+    
+    // Ignore .map files to prevent esbuild errors in OpenNext/Cloudflare builds
+    // This prevents webpack from trying to process source map files
+    if (isServer) {
+      // Only apply to server-side builds (where OpenNext/esbuild processes files)
+      config.module.rules.push({
+        test: /\.map$/,
+        type: 'asset/source',
+        generator: {
+          emit: false, // Don't emit .map files
+        },
+      });
+      
+      // Ignore .map files in module resolution
+      config.resolve.extensions = config.resolve.extensions.filter(
+        (ext: string) => ext !== '.map'
+      );
+      
+      // Add ignore plugin to completely skip .map files
+      const { IgnorePlugin } = require('webpack');
+      config.plugins.push(
+        new IgnorePlugin({
+          resourceRegExp: /\.map$/,
+        })
+      );
+    }
+    
     return config;
   },
   // Add headers for API endpoints
@@ -118,5 +151,4 @@ const nextConfig: NextConfig = {
 
 export default withContentlayer(nextConfig);
 
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 initOpenNextCloudflareForDev();

@@ -31,6 +31,15 @@
   "images": {
     "binding": "IMAGES",
   },
+  // KV namespaces (shared across environments for local dev)
+  // initOpenNextCloudflareForDev() reads from root level during next dev
+  "kv_namespaces": [
+    {
+      "binding": "KV_QUICKBOOKS",
+      "id": "b58a50d9090b46a181322eb96d0c8c90",
+      "preview_id": "b58a50d9090b46a181322eb96d0c8c90",
+    },
+  ],
 
   // Observability (full sampling for both dev and prod)
   "observability": {

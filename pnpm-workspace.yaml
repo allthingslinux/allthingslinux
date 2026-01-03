@@ -1,4 +1,5 @@
 onlyBuiltDependencies:
+  - '@depot/cli'
   - '@tailwindcss/oxide'
   - contentlayer2
   - esbuild
