@@ -194,9 +194,9 @@ const MobileFooter = () => (
       href="https://github.com/allthingslinux/allthingslinux"
       target="_blank"
       rel="noopener noreferrer"
-      className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+      className="text-sm text-muted-foreground hover:text-primary flex items-center gap-2 transition-colors"
     >
-      <IoIosArrowUp className="size-4 -rotate-45" />
+      <FaGitAlt className="size-5" />
       <span>View Source</span>
     </a>
   </div>
@@ -215,7 +215,7 @@ const DesktopCopyright = () => (
       rel="noopener noreferrer"
       className="text-sm text-muted-foreground hover:text-primary flex items-center gap-2 transition-colors"
     >
-      <FaGitAlt className="size-4" />
+      <FaGitAlt className="size-5" />
       <span>View Source</span>
     </a>
   </div>

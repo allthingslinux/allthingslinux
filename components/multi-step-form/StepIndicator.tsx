@@ -66,7 +66,7 @@ function StepItem({
     'flex h-6 w-6 items-center justify-center rounded-full mr-2',
     {
       'bg-destructive text-destructive-foreground': hasError,
-      'bg-primary text-white': isComplete && !hasError,
+      'bg-primary text-primary-foreground': isComplete && !hasError,
       'border border-primary text-primary':
         isCurrent && !isComplete && !hasError,
       'border border-border text-muted-foreground':

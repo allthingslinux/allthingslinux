@@ -35,10 +35,10 @@ export default function About() {
 
             {/* Content blocks */}
             <div className="mx-auto max-w-3xl text-left mb-6 sm:mb-8 font-sans">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 sm:mb-4 text-white">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 sm:mb-4 text-foreground">
                 About Our Organization
               </h1>
-              <p className="text-base sm:text-md md:text-lg lg:text-xl text-white/80">
+              <p className="text-base sm:text-md md:text-lg lg:text-xl text-foreground/80">
                 Fostering a vibrant community of Linux enthusiasts through
                 education, collaboration, and support.
               </p>

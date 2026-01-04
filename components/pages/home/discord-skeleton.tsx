@@ -21,16 +21,16 @@ const ChannelList = memo(() => {
   ];
 
   return (
-    <div className="w-56 bg-[#2f3136] p-4 hidden sm:block">
+    <div className="w-56 bg-card p-4 hidden sm:block">
       <div>
-        <h3 className="text-[#8e9297] font-semibold mb-2 uppercase text-xs tracking-wide">
+        <h3 className="text-muted-foreground font-semibold mb-2 uppercase text-xs tracking-wide">
           Text Channels
         </h3>
         <div className="space-y-1">
           {channels.map((channel) => (
             <ChannelItem key={channel} name={channel} />
           ))}
-          <div className="flex items-center text-[#8e9297] hover:text-foreground cursor-pointer mt-3">
+          <div className="flex items-center text-muted-foreground hover:text-foreground cursor-pointer mt-3">
             <ChevronRight className="w-4 h-4 mr-1" />
             <span className="text-sm">plus many more!</span>
           </div>
@@ -42,7 +42,7 @@ const ChannelList = memo(() => {
 
 // Individual channel item
 const ChannelItem = memo(({ name }: { name: string }) => (
-  <div className="flex items-center text-[#8e9297] hover:text-foreground py-1">
+  <div className="flex items-center text-muted-foreground hover:text-foreground py-1">
     <Hash className="w-4 h-4 mr-2 opacity-70" />
     <span className="text-sm">{name}</span>
   </div>
@@ -59,13 +59,13 @@ const MessageSkeleton = memo(
   }) => (
     <div className="flex items-start space-x-4">
       <Skeleton
-        className={`w-${avatarSize} h-${avatarSize} rounded-full bg-[#2f3136]`}
+        className={`w-${avatarSize} h-${avatarSize} rounded-full bg-muted`}
       />
       <div className="space-y-2 flex-1">
         {contentConfig.map((config, index) => (
           <Skeleton
             key={index}
-            className={`h-${config.height} ${config.width} bg-[#2f3136]`}
+            className={`h-${config.height} ${config.width} bg-muted`}
           />
         ))}
       </div>
@@ -212,7 +212,7 @@ const Description = memo(() => (
 const DiscordSkeleton = memo(() => {
   return (
     <>
-      <Card className="w-full max-w-3xl mx-auto bg-[#36393f] text-foreground shadow-lg overflow-hidden">
+      <Card className="w-full max-w-3xl mx-auto bg-card text-foreground shadow-lg overflow-hidden">
         <div className="relative z-10 flex">
           <ChannelList />
           <CentralContent />

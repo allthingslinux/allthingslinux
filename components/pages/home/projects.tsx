@@ -111,7 +111,7 @@ function StatusBadge({ status }: { status: ProjectStatus }) {
     return (
       <Badge
         variant="outline"
-        className="absolute top-3 right-3 text-xs font-medium bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30"
+        className="absolute top-3 right-3 text-xs font-medium bg-purple-500/20 text-white border-purple-500/30"
       >
         {status}
       </Badge>
@@ -121,23 +121,23 @@ function StatusBadge({ status }: { status: ProjectStatus }) {
   const statusConfig: Record<string, { label: string; className: string }> = {
     active: {
       label: 'Active',
-      className: 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30',
+      className: 'bg-green-500/20 text-white border-green-500/30',
     },
     beta: {
       label: 'Beta',
-      className: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/30',
+      className: 'bg-orange-500/20 text-white border-orange-500/30',
     },
     development: {
       label: 'In Development',
-      className: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30',
+      className: 'bg-blue-500/20 text-white border-blue-500/30',
     },
     paused: {
       label: 'Paused',
-      className: 'bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30',
+      className: 'bg-gray-500/20 text-white border-gray-500/30',
     },
     'coming soon': {
       label: 'Coming Soon',
-      className: 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30',
+      className: 'bg-amber-500/20 text-white border-amber-500/30',
     },
   };
 

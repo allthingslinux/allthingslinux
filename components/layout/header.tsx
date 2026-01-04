@@ -28,7 +28,7 @@ const navItems = [
 // Logo component
 const Logo = () => (
   <Link href="/" className="flex items-center mr-6">
-    <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary/90 to-primary">
+    <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight text-foreground">
       All Things Linux
     </span>
   </Link>
@@ -146,7 +146,7 @@ const MobileNavigation = () => {
       <SheetContent side="right" className="w-[280px]">
         <SheetHeader className="mb-8 pb-4 border-b">
           <SheetTitle className="text-left">
-            <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary/90 to-primary">
+            <span className="font-bold text-foreground">
               All Things Linux
             </span>
           </SheetTitle>
