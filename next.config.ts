@@ -135,6 +135,14 @@ const nextConfig: NextConfig = {
         protocol: 'https' as const,
         hostname: 'discord.gg',
       },
+      {
+        protocol: 'https' as const,
+        hostname: 'i.imgur.com',
+      },
+      {
+        protocol: 'https' as const,
+        hostname: 'sprut.ai',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment' as const,
