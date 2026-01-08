@@ -113,7 +113,7 @@
     "@typescript-eslint/eslint-plugin": "^8.51.0",
     "@typescript-eslint/parser": "^8.51.0",
     "concurrently": "^9.2.1",
-    "dotenv": "^16.6.1",
+    "dotenv": "^17.0.0",
     "eslint-config-next": "^15.5.9",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-mdx": "^3.6.2",
