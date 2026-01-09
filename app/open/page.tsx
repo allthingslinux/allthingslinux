@@ -5,7 +5,7 @@ import { getPageMetadata } from '../metadata';
 import { formatCurrency } from '@/lib/utils';
 import type { Metadata } from 'next';
 import type { QuickBooksTransaction } from '@/lib/integrations/quickbooks';
-import { fetchQuickBooksTransactions, getCloudflareEnv } from '@/lib/integrations/quickbooks';
+import { fetchQuickBooksTransactions, fetchQuickBooksFinancialSummary, getCloudflareEnv } from '@/lib/integrations/quickbooks';
 import { TransactionsList } from './transactions-list';
 import { MetricsSection } from './metrics-section';
 import { UpdatesSection } from './updates-section';
@@ -96,15 +96,15 @@ interface TransactionStats {
   total: number;
   income: number;
   expenses: number;
+  netIncome: number;
 }
 
 
 function SummaryStats({ stats }: { stats: TransactionStats }) {
-  const netAmount = stats.income - stats.expenses;
-  const netIsPositive = netAmount >= 0;
+  const netIsPositive = stats.netIncome >= 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 px-6 pt-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-6 pt-6">
       <Card className="relative overflow-hidden border-2 hover:shadow-lg transition-shadow">
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
@@ -119,7 +119,7 @@ function SummaryStats({ stats }: { stats: TransactionStats }) {
             {stats.total.toLocaleString()}
           </div>
           <div className="text-xs text-muted-foreground mt-2">
-            All-time record
+            Recorded
           </div>
         </CardContent>
       </Card>
@@ -128,7 +128,7 @@ function SummaryStats({ stats }: { stats: TransactionStats }) {
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="text-sm font-medium text-muted-foreground">
-              Total Income
+              Gross Income
             </div>
             <div className="p-2 rounded-lg bg-green-500/20">
               <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-500" />
@@ -138,7 +138,7 @@ function SummaryStats({ stats }: { stats: TransactionStats }) {
             {formatCurrency(stats.income)}
           </div>
           <div className="text-xs text-muted-foreground mt-2">
-            Revenue received
+            Donated by Supporters
           </div>
         </CardContent>
       </Card>
@@ -157,7 +157,26 @@ function SummaryStats({ stats }: { stats: TransactionStats }) {
             {formatCurrency(stats.expenses)}
           </div>
           <div className="text-xs text-muted-foreground mt-2">
-            Costs incurred
+            Spent on our Mission
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className={`relative overflow-hidden border-2 ${netIsPositive ? 'border-blue-500/20 bg-blue-500/5' : 'border-orange-500/20 bg-orange-500/5'} hover:shadow-lg transition-shadow`}>
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="text-sm font-medium text-muted-foreground">
+              Net Income
+            </div>
+            <div className={`p-2 rounded-lg ${netIsPositive ? 'bg-blue-500/20' : 'bg-orange-500/20'}`}>
+              <TrendingUp className={`h-5 w-5 ${netIsPositive ? 'text-blue-600 dark:text-blue-500' : 'text-orange-600 dark:text-orange-500'}`} />
+            </div>
+          </div>
+          <div className={`text-3xl font-bold tracking-tight ${netIsPositive ? 'text-blue-600 dark:text-blue-500' : 'text-orange-600 dark:text-orange-500'}`}>
+            {formatCurrency(stats.netIncome)}
+          </div>
+          <div className="text-xs text-muted-foreground mt-2">
+            In the Bank
           </div>
         </CardContent>
       </Card>
@@ -170,20 +189,15 @@ async function TransactionsContent() {
   // This works better in Cloudflare Workers and avoids network issues
   // Works the same on both port 3000 (Next.js dev) and port 8787 (Wrangler dev)
   const cfEnv = await getCloudflareEnv();
-  const transactions = await fetchQuickBooksTransactions(cfEnv);
+  const [transactions, financialSummary] = await Promise.all([
+    fetchQuickBooksTransactions(cfEnv),
+    fetchQuickBooksFinancialSummary(cfEnv),
+  ]);
 
   if (transactions.length === 0) {
     return (
       <div className="text-center py-16 px-4">
         <div className="text-muted-foreground text-lg mb-2">No transactions found</div>
-        <div className="text-sm text-muted-foreground mb-4">
-          This could mean:
-        </div>
-        <ul className="text-sm text-muted-foreground text-left max-w-md mx-auto space-y-2 mb-4">
-          <li>• No transactions exist in QuickBooks</li>
-          <li>• QuickBooks credentials need to be refreshed</li>
-          <li>• Check server logs for authentication errors</li>
-        </ul>
         <div className="text-xs text-muted-foreground">
           If you see "invalid_grant" errors in the logs, you may need to re-authenticate via the admin setup route.
         </div>
@@ -191,19 +205,27 @@ async function TransactionsContent() {
     );
   }
 
-  // Calculate summary stats
-  const stats: TransactionStats = transactions.reduce(
-    (acc, transaction) => {
-      acc.total++;
-      if (transaction.amount >= 0) {
-        acc.income += transaction.amount;
-      } else {
-        acc.expenses += Math.abs(transaction.amount);
+  // Use financial summary from QuickBooks if available, otherwise calculate from transactions
+  const stats: TransactionStats = financialSummary
+    ? {
+        total: transactions.length,
+        income: financialSummary.income,
+        expenses: financialSummary.expenses,
+        netIncome: financialSummary.netIncome,
       }
-      return acc;
-    },
-    { total: 0, income: 0, expenses: 0 } as TransactionStats
-  );
+    : transactions.reduce(
+        (acc, transaction) => {
+          acc.total++;
+          if (transaction.amount >= 0) {
+            acc.income += transaction.amount;
+          } else {
+            acc.expenses += Math.abs(transaction.amount);
+          }
+          acc.netIncome = acc.income - acc.expenses;
+          return acc;
+        },
+        { total: 0, income: 0, expenses: 0, netIncome: 0 } as TransactionStats
+      );
 
   return (
     <div className="space-y-6">

@@ -1365,3 +1365,64 @@ export async function exchangeAuthorizationCode(
  * Helper function to escape HTML in template strings
  */
 export { saveTokens };
+
+/**
+ * Fetches Gross Profit and Total Expenses from QuickBooks Statement of Activity report
+ */
+export async function fetchQuickBooksFinancialSummary(
+  cfEnv?: QuickBooksCloudflareEnv
+): Promise<{ income: number; expenses: number; netIncome: number } | null> {
+  const tokens = await getStoredTokens(cfEnv);
+  if (!tokens.clientId || !tokens.clientSecret || !tokens.refreshToken || !tokens.realmId) {
+    return null;
+  }
+
+  const tokenResult = await getAccessToken(
+    tokens.clientId,
+    tokens.clientSecret,
+    tokens.refreshToken,
+    cfEnv,
+    tokens.environment
+  );
+  if (!tokenResult) return null;
+
+  const { accessToken, newRefreshToken } = tokenResult;
+  if (newRefreshToken && newRefreshToken !== tokens.refreshToken) {
+    await saveTokens({ ...tokens, refreshToken: newRefreshToken }, cfEnv);
+  }
+
+  const baseUrl = getQuickBooksApiBaseUrl(tokens.environment);
+  const reportUrl = `${baseUrl}/v3/company/${tokens.realmId}/reports/StatementOfActivity?minorversion=73`;
+
+  try {
+    const response = await fetch(reportUrl, {
+      headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(API_TIMEOUT_MS),
+    });
+
+    if (!response.ok) return null;
+
+    const report = await response.json() as any;
+    const rows = report.Rows?.Row || [];
+
+    let income = 0;
+    let expenses = 0;
+    let netIncome = 0;
+
+    for (const row of rows) {
+      if (row.type !== 'Section' || !row.Summary) continue;
+
+      const title = row.Header?.ColData?.[0]?.value?.toLowerCase() || '';
+      const value = parseFloat(row.Summary?.ColData?.find((col: any) => col.value)?.value || '0');
+
+      if (title.includes('gross profit')) income = value;
+      if (title.includes('total expenses')) expenses = Math.abs(value);
+      if (title.includes('net income') || title.includes('net revenue')) netIncome = value;
+    }
+
+    return { income, expenses, netIncome };
+  } catch (error) {
+    console.error('[QuickBooks] Error fetching financial summary:', error);
+    return null;
+  }
+}
