@@ -1255,10 +1255,15 @@ export async function fetchQuickBooksTransactions(
         (deposit) => {
           // Extract donor/entity name from deposit line details
           const depositLine = deposit.Line?.[0];
-          const entityName = depositLine?.DepositLineDetail?.Entity?.name ||
+          let entityName = depositLine?.DepositLineDetail?.Entity?.name ||
                             deposit.CustomerRef?.name ||
                             deposit.EntityRef?.name ||
                             'Unknown Donor';
+
+          // Remove "Individual Donation:" prefix if present
+          if (entityName.startsWith('Individual Donation:')) {
+            entityName = entityName.substring(20);
+          }
 
           // Get account category for description and strip "Income:" prefix
           let category = depositLine?.DepositLineDetail?.AccountRef?.name ||
