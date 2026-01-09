@@ -143,13 +143,21 @@ export interface QuickBooksEntity {
   };
   PrivateNote?: string;
   PaymentType?: string;
+  CustomerMemo?: {
+    value: string;
+  };
   Line?: Array<{
     DetailType?: string;
+    Description?: string;
     AccountBasedExpenseLineDetail?: {
       AccountRef?: {
         name: string;
       };
     };
+    LinkedTxn?: Array<{
+      TxnId?: string;
+      TxnType?: string;
+    }>;
   }>;
 }
 
@@ -1182,14 +1190,14 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Purchase',
         (purchase) => {
-          const category = purchase.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          const description = purchase.PrivateNote || purchase.Line?.[0]?.Description || 'No description';
           return {
             id: purchase.Id,
             txnDate: purchase.TxnDate,
             amount: -Math.abs(purchase.TotalAmt),
             type: 'Expense',
             vendorName: purchase.EntityRef?.name || 'not found',
-            description: category,
+            description: description,
             status: 'reconciled' as const,
           };
         }
@@ -1200,14 +1208,14 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Invoice',
         (invoice) => {
-          const category = invoice.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          const description = invoice.CustomerMemo?.value || invoice.Line?.[0]?.Description || 'No description';
           return {
             id: invoice.Id,
             txnDate: invoice.TxnDate,
             amount: invoice.TotalAmt,
             type: 'Invoice',
             customerName: invoice.CustomerRef?.name || 'not found',
-            description: category,
+            description: description,
             status: 'pending' as const,
           };
         }
@@ -1218,14 +1226,14 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Payment',
         (payment) => {
-          const category = payment.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          const description = payment.PrivateNote || payment.Line?.[0]?.Description || 'No description';
           return {
             id: payment.Id,
             txnDate: payment.TxnDate,
             amount: payment.TotalAmt,
             type: 'Payment',
             customerName: payment.CustomerRef?.name || 'not found',
-            description: category,
+            description: description,
             status: 'cleared' as const,
           };
         }
@@ -1236,14 +1244,15 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Deposit',
         (deposit) => {
-          const category = deposit.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          const description = deposit.PrivateNote || deposit.Line?.[0]?.Description || 'No description';
+          const entityName = deposit.Line?.[0]?.LinkedTxn?.[0]?.TxnId ? 'Customer Payment' : 'Bank Deposit';
           return {
             id: deposit.Id,
             txnDate: deposit.TxnDate,
             amount: deposit.TotalAmt,
             type: 'Deposit',
-            customerName: deposit.PrivateNote || 'Bank Deposit',
-            description: category,
+            customerName: entityName,
+            description: description,
             status: 'cleared' as const,
           };
         }
