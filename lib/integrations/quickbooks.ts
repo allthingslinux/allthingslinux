@@ -1413,13 +1413,42 @@ export async function fetchQuickBooksFinancialSummary(
     // Iterate through all rows looking for specific group attributes
     const processRow = (row: any) => {
       // Check if this is a Section type with a group attribute
-      if (row.type === 'Section' && row.group && row.Summary?.ColData) {
-        const lastCol = row.Summary.ColData[row.Summary.ColData.length - 1];
-        const value = parseFloat(lastCol?.value || '0');
+      if (row.type === 'Section' && row.group) {
+        // For sections with Summary, get the numeric value from ColData
+        if (row.Summary?.ColData) {
+          // Find the first column with a numeric value (skip the label column)
+          let value = 0;
+          for (const col of row.Summary.ColData) {
+            const parsed = parseFloat(col?.value || '0');
+            if (!isNaN(parsed) && col?.value && col.value !== '') {
+              value = parsed;
+              break;
+            }
+          }
 
-        if (row.group === 'GrossProfit') income = value;
-        if (row.group === 'TotalExpenses') expenses = Math.abs(value);
-        if (row.group === 'NetIncome') netIncome = value;
+          if (row.group === 'GrossProfit') income = value;
+          if (row.group === 'Expenses') expenses = Math.abs(value);
+          if (row.group === 'NetIncome') netIncome = value;
+        }
+
+        // Also check Rows within this section for the summary row
+        if (row.Rows?.Row) {
+          for (const subRow of row.Rows.Row) {
+            if (subRow.Summary?.ColData) {
+              const summaryLabel = subRow.Summary.ColData[0]?.value || '';
+              if (summaryLabel === 'Total Expenses') {
+                // Find numeric value in the Summary ColData
+                for (const col of subRow.Summary.ColData) {
+                  const parsed = parseFloat(col?.value || '0');
+                  if (!isNaN(parsed) && col?.value && col.value !== '') {
+                    expenses = Math.abs(parsed);
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
       }
 
       // Process nested rows
