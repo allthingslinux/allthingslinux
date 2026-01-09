@@ -1410,18 +1410,16 @@ export async function fetchQuickBooksFinancialSummary(
     let expenses = 0;
     let netIncome = 0;
 
-    // Iterate through all rows including nested ones
+    // Iterate through all rows looking for specific group attributes
     const processRow = (row: any) => {
-      const title = (row.Header?.ColData?.[0]?.value || '').trim();
-
-      // Get the summary value from the last column
-      if (row.Summary?.ColData) {
+      // Check if this is a Section type with a group attribute
+      if (row.type === 'Section' && row.group && row.Summary?.ColData) {
         const lastCol = row.Summary.ColData[row.Summary.ColData.length - 1];
         const value = parseFloat(lastCol?.value || '0');
 
-        if (title === 'Total Income') income = value;
-        if (title === 'Total Expenses') expenses = Math.abs(value);
-        if (title === 'Net Income') netIncome = value;
+        if (row.group === 'GrossProfit') income = value;
+        if (row.group === 'TotalExpenses') expenses = Math.abs(value);
+        if (row.group === 'NetIncome') netIncome = value;
       }
 
       // Process nested rows
