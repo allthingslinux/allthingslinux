@@ -122,7 +122,7 @@ export function TransactionsList({ transactions }: TransactionsListProps) {
                   Vendor / Type
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Description
+                  Category
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Amount

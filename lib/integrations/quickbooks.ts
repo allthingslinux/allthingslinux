@@ -1199,16 +1199,14 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Purchase',
         (purchase) => {
-          const category = purchase.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
-          const memo = purchase.PrivateNote || purchase.Line?.[0]?.Description || '';
-          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
+          const category = purchase.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'Uncategorized';
           return {
             id: purchase.Id,
             txnDate: purchase.TxnDate,
             amount: -Math.abs(purchase.TotalAmt),
             type: 'Expense',
             vendorName: purchase.EntityRef?.name || 'Unknown Vendor',
-            description: description,
+            description: category,
             status: 'reconciled' as const,
           };
         }
@@ -1219,16 +1217,14 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Invoice',
         (invoice) => {
-          const category = invoice.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
-          const memo = invoice.CustomerMemo?.value || invoice.Line?.[0]?.Description || '';
-          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
+          const category = invoice.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'Uncategorized';
           return {
             id: invoice.Id,
             txnDate: invoice.TxnDate,
             amount: invoice.TotalAmt,
             type: 'Invoice',
             customerName: invoice.CustomerRef?.name || 'Unknown Customer',
-            description: description,
+            description: category,
             status: 'pending' as const,
           };
         }
@@ -1239,16 +1235,14 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Payment',
         (payment) => {
-          const category = payment.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
-          const memo = payment.PrivateNote || payment.Line?.[0]?.Description || '';
-          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
+          const category = payment.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'Uncategorized';
           return {
             id: payment.Id,
             txnDate: payment.TxnDate,
             amount: payment.TotalAmt,
             type: 'Payment',
             customerName: payment.CustomerRef?.name || 'Unknown Customer',
-            description: description,
+            description: category,
             status: 'cleared' as const,
           };
         }
@@ -1266,11 +1260,14 @@ export async function fetchQuickBooksTransactions(
                             deposit.EntityRef?.name ||
                             'Unknown Donor';
 
-          // Get account category and memo for description
-          const category = depositLine?.DepositLineDetail?.AccountRef?.name ||
-                          depositLine?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
-          const memo = deposit.PrivateNote || depositLine?.Description || '';
-          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
+          // Get account category for description and strip "Income:" prefix
+          let category = depositLine?.DepositLineDetail?.AccountRef?.name ||
+                        depositLine?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'Uncategorized';
+
+          // Remove "Income:" prefix if present
+          if (category.startsWith('Income:')) {
+            category = category.substring(7);
+          }
 
           return {
             id: deposit.Id,
@@ -1278,7 +1275,7 @@ export async function fetchQuickBooksTransactions(
             amount: deposit.TotalAmt,
             type: 'Deposit',
             customerName: entityName,
-            description: description,
+            description: category,
             status: 'cleared' as const,
           };
         }
