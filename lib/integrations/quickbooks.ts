@@ -154,6 +154,15 @@ export interface QuickBooksEntity {
         name: string;
       };
     };
+    DepositLineDetail?: {
+      Entity?: {
+        name?: string;
+        type?: string;
+      };
+      AccountRef?: {
+        name?: string;
+      };
+    };
     LinkedTxn?: Array<{
       TxnId?: string;
       TxnType?: string;
@@ -1190,13 +1199,15 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Purchase',
         (purchase) => {
-          const description = purchase.PrivateNote || purchase.Line?.[0]?.Description || 'No description';
+          const category = purchase.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
+          const memo = purchase.PrivateNote || purchase.Line?.[0]?.Description || '';
+          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
           return {
             id: purchase.Id,
             txnDate: purchase.TxnDate,
             amount: -Math.abs(purchase.TotalAmt),
             type: 'Expense',
-            vendorName: purchase.EntityRef?.name || 'not found',
+            vendorName: purchase.EntityRef?.name || 'Unknown Vendor',
             description: description,
             status: 'reconciled' as const,
           };
@@ -1208,13 +1219,15 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Invoice',
         (invoice) => {
-          const description = invoice.CustomerMemo?.value || invoice.Line?.[0]?.Description || 'No description';
+          const category = invoice.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
+          const memo = invoice.CustomerMemo?.value || invoice.Line?.[0]?.Description || '';
+          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
           return {
             id: invoice.Id,
             txnDate: invoice.TxnDate,
             amount: invoice.TotalAmt,
             type: 'Invoice',
-            customerName: invoice.CustomerRef?.name || 'not found',
+            customerName: invoice.CustomerRef?.name || 'Unknown Customer',
             description: description,
             status: 'pending' as const,
           };
@@ -1226,13 +1239,15 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Payment',
         (payment) => {
-          const description = payment.PrivateNote || payment.Line?.[0]?.Description || 'No description';
+          const category = payment.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
+          const memo = payment.PrivateNote || payment.Line?.[0]?.Description || '';
+          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
           return {
             id: payment.Id,
             txnDate: payment.TxnDate,
             amount: payment.TotalAmt,
             type: 'Payment',
-            customerName: payment.CustomerRef?.name || 'not found',
+            customerName: payment.CustomerRef?.name || 'Unknown Customer',
             description: description,
             status: 'cleared' as const,
           };
@@ -1244,8 +1259,19 @@ export async function fetchQuickBooksTransactions(
         accessToken,
         'Deposit',
         (deposit) => {
-          const description = deposit.PrivateNote || deposit.Line?.[0]?.Description || 'No description';
-          const entityName = deposit.Line?.[0]?.LinkedTxn?.[0]?.TxnId ? 'Customer Payment' : 'Bank Deposit';
+          // Extract donor/entity name from deposit line details
+          const depositLine = deposit.Line?.[0];
+          const entityName = depositLine?.DepositLineDetail?.Entity?.name ||
+                            deposit.CustomerRef?.name ||
+                            deposit.EntityRef?.name ||
+                            'Unknown Donor';
+
+          // Get account category and memo for description
+          const category = depositLine?.DepositLineDetail?.AccountRef?.name ||
+                          depositLine?.AccountBasedExpenseLineDetail?.AccountRef?.name || '';
+          const memo = deposit.PrivateNote || depositLine?.Description || '';
+          const description = category ? `${category}${memo ? ' - ' + memo : ''}` : memo || 'No description';
+
           return {
             id: deposit.Id,
             txnDate: deposit.TxnDate,
