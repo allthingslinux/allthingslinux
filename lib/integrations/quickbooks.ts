@@ -1394,7 +1394,7 @@ export async function fetchQuickBooksFinancialSummary(
   const baseUrl = getQuickBooksApiBaseUrl(tokens.environment);
   // Pull from all time by setting start_date to a very early date and end_date to today
   const today = new Date().toISOString().split('T')[0];
-  const reportUrl = `${baseUrl}/v3/company/${tokens.realmId}/reports/StatementOfActivity?start_date=2000-01-01&end_date=${today}&minorversion=73`;
+  const reportUrl = `${baseUrl}/v3/company/${tokens.realmId}/reports/ProfitAndLoss?start_date=2000-01-01&end_date=${today}&minorversion=73`;
 
   try {
     const response = await fetch(reportUrl, {
@@ -1402,14 +1402,28 @@ export async function fetchQuickBooksFinancialSummary(
       signal: AbortSignal.timeout(API_TIMEOUT_MS),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error('[QuickBooks] Report fetch failed:', response.status);
+      return null;
+    }
 
     const report = await response.json() as any;
+
+    // Debug: Log the full report structure to see available fields
+    console.log('[QuickBooks] Report structure:', JSON.stringify(report, null, 2));
+
     const rows = report.Rows?.Row || [];
 
     let income = 0;
     let expenses = 0;
     let netIncome = 0;
+
+    // Log all section titles to understand the structure
+    for (const row of rows) {
+      if (row.type === 'Section' && row.Header?.ColData?.[0]?.value) {
+        console.log('[QuickBooks] Found section:', row.Header.ColData[0].value);
+      }
+    }
 
     for (const row of rows) {
       if (row.type !== 'Section' || !row.Summary) continue;
@@ -1417,12 +1431,24 @@ export async function fetchQuickBooksFinancialSummary(
       const title = (row.Header?.ColData?.[0]?.value || '').trim();
       const value = parseFloat(row.Summary?.ColData?.find((col: any) => col.value)?.value || '0');
 
-      // Match exact field names from Statement of Activity
-      if (title === 'Gross Profit') income = value;
-      if (title === 'Total for Expenses') expenses = Math.abs(value);
-      if (title === 'Net Income') netIncome = value;
+      console.log(`[QuickBooks] Checking section: "${title}" = ${value}`);
+
+      // Try different possible field names
+      if (title === 'Gross Profit' || title === 'Total Income' || title === 'Total Revenue') {
+        income = value;
+        console.log(`[QuickBooks] ✅ Found income: ${value}`);
+      }
+      if (title === 'Total Expenses' || title === 'Total for Expenses') {
+        expenses = Math.abs(value);
+        console.log(`[QuickBooks] ✅ Found expenses: ${value}`);
+      }
+      if (title === 'Net Income' || title === 'Net Operating Income') {
+        netIncome = value;
+        console.log(`[QuickBooks] ✅ Found net income: ${value}`);
+      }
     }
 
+    console.log('[QuickBooks] Final values:', { income, expenses, netIncome });
     return { income, expenses, netIncome };
   } catch (error) {
     console.error('[QuickBooks] Error fetching financial summary:', error);
