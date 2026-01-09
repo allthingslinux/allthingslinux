@@ -11,7 +11,7 @@ export interface QuickBooksCloudflareEnv {
 /**
  * Get Cloudflare environment context for QuickBooks operations
  * This helper is shared across QuickBooks API routes to avoid duplication
- * 
+ *
  * During `next dev`, bindings should be available via initOpenNextCloudflareForDev()
  * During `wrangler dev`, bindings are available via the Worker runtime
  */
@@ -26,7 +26,7 @@ export async function getCloudflareEnv(): Promise<QuickBooksCloudflareEnv | unde
       try {
         context = await getCloudflareContext({ async: true });
       } catch (asyncError) {
-        console.log('[QuickBooks getCloudflareEnv] getCloudflareContext() not available:', 
+        console.log('[QuickBooks getCloudflareEnv] getCloudflareContext() not available:',
           asyncError instanceof Error ? asyncError.message : String(asyncError));
         return undefined;
       }
@@ -45,7 +45,7 @@ export async function getCloudflareEnv(): Promise<QuickBooksCloudflareEnv | unde
   } catch (error) {
     // getCloudflareContext() throws if not in a request context or during SSG
     // This is expected and fine - we'll fall back to environment variables
-    console.log('[QuickBooks getCloudflareEnv] getCloudflareContext() error:', 
+    console.log('[QuickBooks getCloudflareEnv] getCloudflareContext() error:',
       error instanceof Error ? error.message : String(error));
   }
   return undefined;
@@ -143,6 +143,14 @@ export interface QuickBooksEntity {
   };
   PrivateNote?: string;
   PaymentType?: string;
+  Line?: Array<{
+    DetailType?: string;
+    AccountBasedExpenseLineDetail?: {
+      AccountRef?: {
+        name: string;
+      };
+    };
+  }>;
 }
 
 export interface QuickBooksTransaction {
@@ -1173,68 +1181,72 @@ export async function fetchQuickBooksTransactions(
         tokens.realmId,
         accessToken,
         'Purchase',
-        (purchase) => ({
-          id: purchase.Id,
-          txnDate: purchase.TxnDate,
-          amount: -Math.abs(purchase.TotalAmt),
-          type: 'Expense',
-          vendorName: purchase.EntityRef?.name,
-          description: purchase.PrivateNote || purchase.PaymentType || '',
-          status: 'reconciled' as const,
-        }),
-        0,
-        getFreshToken
+        (purchase) => {
+          const category = purchase.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          return {
+            id: purchase.Id,
+            txnDate: purchase.TxnDate,
+            amount: -Math.abs(purchase.TotalAmt),
+            type: 'Expense',
+            vendorName: purchase.EntityRef?.name || 'not found',
+            description: category,
+            status: 'reconciled' as const,
+          };
+        }
       ),
       fetchQuickBooksEntities(
         baseUrl,
         tokens.realmId,
         accessToken,
         'Invoice',
-        (invoice) => ({
-          id: invoice.Id,
-          txnDate: invoice.TxnDate,
-          amount: invoice.TotalAmt,
-          type: 'Invoice',
-          customerName: invoice.CustomerRef?.name,
-          description: invoice.PrivateNote || '',
-          status: 'pending' as const,
-        }),
-        0,
-        getFreshToken
+        (invoice) => {
+          const category = invoice.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          return {
+            id: invoice.Id,
+            txnDate: invoice.TxnDate,
+            amount: invoice.TotalAmt,
+            type: 'Invoice',
+            customerName: invoice.CustomerRef?.name || 'not found',
+            description: category,
+            status: 'pending' as const,
+          };
+        }
       ),
       fetchQuickBooksEntities(
         baseUrl,
         tokens.realmId,
         accessToken,
         'Payment',
-        (payment) => ({
-          id: payment.Id,
-          txnDate: payment.TxnDate,
-          amount: payment.TotalAmt,
-          type: 'Payment',
-          customerName: payment.CustomerRef?.name,
-          description: payment.PrivateNote || '',
-          status: 'cleared' as const,
-        }),
-        0,
-        getFreshToken
+        (payment) => {
+          const category = payment.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          return {
+            id: payment.Id,
+            txnDate: payment.TxnDate,
+            amount: payment.TotalAmt,
+            type: 'Payment',
+            customerName: payment.CustomerRef?.name || 'not found',
+            description: category,
+            status: 'cleared' as const,
+          };
+        }
       ),
       fetchQuickBooksEntities(
         baseUrl,
         tokens.realmId,
         accessToken,
         'Deposit',
-        (deposit) => ({
-          id: deposit.Id,
-          txnDate: deposit.TxnDate,
-          amount: deposit.TotalAmt,
-          type: 'Deposit',
-          customerName: deposit.PrivateNote || 'Bank Deposit',
-          description: deposit.PrivateNote || '',
-          status: 'cleared' as const,
-        }),
-        0,
-        getFreshToken
+        (deposit) => {
+          const category = deposit.Line?.[0]?.AccountBasedExpenseLineDetail?.AccountRef?.name || 'not found';
+          return {
+            id: deposit.Id,
+            txnDate: deposit.TxnDate,
+            amount: deposit.TotalAmt,
+            type: 'Deposit',
+            customerName: deposit.PrivateNote || 'Bank Deposit',
+            description: category,
+            status: 'cleared' as const,
+          };
+        }
       ),
     ]);
 
