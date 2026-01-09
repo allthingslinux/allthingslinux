@@ -1392,7 +1392,9 @@ export async function fetchQuickBooksFinancialSummary(
   }
 
   const baseUrl = getQuickBooksApiBaseUrl(tokens.environment);
-  const reportUrl = `${baseUrl}/v3/company/${tokens.realmId}/reports/StatementOfActivity?minorversion=73`;
+  // Pull from all time by setting start_date to a very early date and end_date to today
+  const today = new Date().toISOString().split('T')[0];
+  const reportUrl = `${baseUrl}/v3/company/${tokens.realmId}/reports/StatementOfActivity?start_date=2000-01-01&end_date=${today}&minorversion=73`;
 
   try {
     const response = await fetch(reportUrl, {
@@ -1412,12 +1414,13 @@ export async function fetchQuickBooksFinancialSummary(
     for (const row of rows) {
       if (row.type !== 'Section' || !row.Summary) continue;
 
-      const title = row.Header?.ColData?.[0]?.value?.toLowerCase() || '';
+      const title = (row.Header?.ColData?.[0]?.value || '').trim();
       const value = parseFloat(row.Summary?.ColData?.find((col: any) => col.value)?.value || '0');
 
-      if (title.includes('gross profit')) income = value;
-      if (title.includes('total expenses')) expenses = Math.abs(value);
-      if (title.includes('net income') || title.includes('net revenue')) netIncome = value;
+      // Match exact field names from Statement of Activity
+      if (title === 'Gross Profit') income = value;
+      if (title === 'Total for Expenses') expenses = Math.abs(value);
+      if (title === 'Net Income') netIncome = value;
     }
 
     return { income, expenses, netIncome };
