@@ -152,8 +152,9 @@ const nextConfig: NextConfig = {
     // Reduced device sizes for faster processing
     deviceSizes: [640, 828, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
-    // Disable image optimization in build for faster builds
-    unoptimized: process.env.NODE_ENV === 'development',
+    // Disable image optimization for Cloudflare Workers deployment
+    // Cloudflare Workers don't support Sharp, which is required for Next.js image optimization
+    unoptimized: true,
   },
 };
 
