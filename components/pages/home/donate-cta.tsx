@@ -11,7 +11,7 @@ const DonateCta = memo(() => {
       <div
         className="container relative overflow-hidden rounded-lg bg-cover bg-center"
         style={{
-          backgroundImage: 'url("/images/donatebg.png")',
+          backgroundImage: 'url("/images/donatebg.webp")',
         }}
       >
         <div className="absolute inset-0 bg-background opacity-40"></div>

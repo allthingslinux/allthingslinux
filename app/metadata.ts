@@ -134,7 +134,7 @@ export const defaultMetadata: Metadata = {
     //     media: '(prefers-color-scheme: dark)',
     //   },
     // ],
-    icon: '/images/logo.png',
+    icon: '/images/logo.webp',
   },
   manifest: '/site.webmanifest',
   metadataBase: new URL(siteConfig.url),

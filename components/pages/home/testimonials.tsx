@@ -89,7 +89,7 @@ export default function Testimonials() {
             {[...reviews, ...reviews].map((review, index) => (
               <CarouselItem key={index} className="pl-4 md:basis-[520px]">
                 <ReviewCard
-                  avatar={`/images/penguins/${avatars[index % avatars.length]}.svg`}
+                  avatar={`/images/penguins/${avatars[index % avatars.length]}.webp`}
                   {...review}
                   onMouseEnter={() => plugin.current.stop()}
                   onMouseLeave={() => plugin.current.play()}

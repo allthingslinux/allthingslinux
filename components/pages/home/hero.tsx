@@ -20,7 +20,7 @@ const Hero = memo(() => {
           {/* Left icons */}
           <div className="absolute right-[calc(100%+63px)] top-0 hidden size-[64px] rounded-2xl bg-[#4FAEC3] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/arch.png"
+              src="/images/hero/arch.webp"
               alt="Arch Linux"
               width={64}
               height={64}
@@ -30,7 +30,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute right-[calc(100%+195px)] top-[52px] hidden size-[64px] rounded-2xl bg-[#605191] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/gentoo.png"
+              src="/images/hero/gentoo.webp"
               alt="Gentoo Linux"
               width={64}
               height={64}
@@ -40,7 +40,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute right-[calc(100%+34px)] top-[144px] hidden size-[64px] rounded-2xl bg-[#8862ab] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/bazzite.png"
+              src="/images/hero/bazzite.webp"
               alt="Bazzite"
               width={64}
               height={64}
@@ -50,7 +50,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute right-[calc(100%+268px)] top-[164px] hidden size-[64px] rounded-2xl bg-[#A82248] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/debian.png"
+              src="/images/hero/debian.webp"
               alt="Debian"
               width={64}
               height={64}
@@ -60,7 +60,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute right-[calc(100%+156px)] top-[240px] hidden size-[64px] rounded-2xl bg-[#2B816F] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/cachy.png"
+              src="/images/hero/cachy.webp"
               alt="Cachy"
               width={64}
               height={64}
@@ -70,7 +70,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute right-[calc(100%+242px)] top-[340px] hidden size-[64px] rounded-2xl bg-[#2988CC] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/fedora.png"
+              src="/images/hero/fedora.webp"
               alt="Fedora"
               width={64}
               height={64}
@@ -80,7 +80,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute right-[calc(100%+66px)] top-[366px] hidden size-[64px] rounded-2xl bg-[#82C73C] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/mint.png"
+              src="/images/hero/mint.webp"
               alt="Mint"
               width={64}
               height={64}
@@ -91,7 +91,7 @@ const Hero = memo(() => {
           {/* Right icons */}
           <div className="absolute left-[calc(100%+53px)] top-0 hidden size-[64px] rounded-2xl bg-[#243742] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/bedrock.png"
+              src="/images/hero/bedrock.webp"
               alt="Bedrock Linux"
               width={64}
               height={64}
@@ -101,7 +101,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute left-[calc(100%+202px)] top-[34px] hidden size-[64px] rounded-2xl bg-[#B27180] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/asahi.png"
+              src="/images/hero/asahi.webp"
               alt="Asahi Linux"
               width={64}
               height={64}
@@ -111,7 +111,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute left-[calc(100%+97px)] top-[141px] hidden size-[64px] rounded-2xl bg-[#DD4814] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/ubuntu.png"
+              src="/images/hero/ubuntu.webp"
               alt="Ubuntu"
               width={64}
               height={64}
@@ -121,7 +121,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute left-[calc(100%+282px)] top-[138px] hidden size-[64px] rounded-2xl bg-[#30BA78] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/opensuse.png"
+              src="/images/hero/opensuse.webp"
               alt="openSUSE"
               width={64}
               height={64}
@@ -131,7 +131,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute left-[calc(100%+42px)] top-[262px] hidden size-[64px] rounded-2xl bg-[#4F73BC] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/nixos.png"
+              src="/images/hero/nixos.webp"
               alt="NixOS"
               width={64}
               height={64}
@@ -141,7 +141,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute left-[calc(100%+234px)] top-[282px] hidden size-[64px] rounded-2xl bg-[#E83341] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/redhat.png"
+              src="/images/hero/redhat.webp"
               alt="Red Hat"
               width={64}
               height={64}
@@ -151,7 +151,7 @@ const Hero = memo(() => {
           </div>
           <div className="absolute left-[calc(100%+112px)] top-[365px] hidden size-[64px] rounded-2xl bg-[#4962AE] ring-1 ring-inset ring-accent-foreground/10 md:block">
             <Image
-              src="/images/hero/slackware.png"
+              src="/images/hero/slackware.webp"
               alt="Slackware"
               width={64}
               height={64}
