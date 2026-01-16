@@ -140,7 +140,7 @@ const ServerInfo = memo(() => (
   <div className="flex flex-col items-center space-y-4 mb-8">
     <div className="bg-accent rounded-full w-16 h-16 flex items-center justify-center">
       <Image
-        src="/images/tux.gif"
+        src="/images/tux.webp"
         alt="Tux the penguin"
         width={40}
         height={40}
