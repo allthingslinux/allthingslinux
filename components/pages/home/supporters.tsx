@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 
 import Image from 'next/image';
 
@@ -70,7 +70,7 @@ const SupporterLogo = memo(({
 
   return (
     <div 
-      className="flex items-center justify-center px-12 py-6"
+      className="flex items-center justify-center px-6 md:px-12 py-6"
       role="presentation"
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
@@ -95,43 +95,57 @@ SupporterLogo.displayName = 'SupporterLogo';
 
 const Supporters = memo(() => {
   const [isHovering, setIsHovering] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsVisible(!document.hidden);
+    };
+
+    // Set initial visibility state
+    setIsVisible(!document.hidden);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   return (
-    <section className="py-4 md:py-6 relative overflow-hidden">
-      <div className="mx-auto max-w-7xl">
-        <div className="mx-auto max-w-2xl text-center mb-12">
-          <h2 className="mb-4 text-2xl font-semibold md:text-3xl">
-            Thank you to our supporters
-          </h2>
-          <p className="text-base text-muted-foreground">
-            We&apos;re grateful to these companies for their generous support through
-            discounted rates, donations, and special plans that help us serve our
-            community.
-          </p>
-        </div>
+    <>
+      <div className="mx-auto max-w-2xl text-center mb-12">
+        <h2 className="mb-4 text-2xl font-semibold md:text-3xl">
+          Thank you to our supporters
+        </h2>
+        <p className="text-base text-muted-foreground">
+          We&apos;re grateful to these companies for their generous support through
+          discounted rates, donations, and special plans that help us serve our
+          community.
+        </p>
+      </div>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-background to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-20 bg-linear-to-l from-background to-transparent z-10 pointer-events-none" />
-          
-          <div className={isHovering ? '**:[animation-play-state:paused]' : ''}>
-            <Marquee
-              className="[--duration:40s] gap-8"
-              repeat={3}
-              aria-label="Supporters logos"
-            >
-              {SUPPORTERS.map((supporter) => (
-                <SupporterLogo 
-                  key={supporter.name} 
-                  {...supporter}
-                  onHover={setIsHovering}
-                />
-              ))}
-            </Marquee>
-          </div>
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-20 bg-linear-to-l from-background to-transparent z-10 pointer-events-none" />
+        
+        <div className={isHovering || !isVisible ? '**:[animation-play-state:paused]' : ''}>
+          <Marquee
+            className="[--duration:40s] gap-4 md:gap-8"
+            repeat={3}
+            aria-label="Supporters logos"
+          >
+            {SUPPORTERS.map((supporter) => (
+              <SupporterLogo 
+                key={supporter.name} 
+                {...supporter}
+                onHover={setIsHovering}
+              />
+            ))}
+          </Marquee>
         </div>
       </div>
-    </section>
+    </>
   );
 });
 
