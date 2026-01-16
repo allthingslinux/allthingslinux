@@ -96,19 +96,56 @@ SupporterLogo.displayName = 'SupporterLogo';
 const Supporters = memo(() => {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [marqueeKey, setMarqueeKey] = useState(0);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const handleVisibilityChange = () => {
-      setIsVisible(!document.hidden);
+      const visible = !document.hidden;
+      setIsVisible(visible);
+      
+      // Reset marquee when tab becomes visible to prevent glitches
+      if (visible) {
+        // Clear any pending timeout
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        // Small delay to ensure browser has processed the visibility change
+        timeoutId = setTimeout(() => {
+          setMarqueeKey((prev) => prev + 1);
+        }, 100);
+      }
+    };
+
+    const handleFocus = () => {
+      setIsVisible(true);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        setMarqueeKey((prev) => prev + 1);
+      }, 100);
+    };
+
+    const handleBlur = () => {
+      setIsVisible(false);
     };
 
     // Set initial visibility state
     setIsVisible(!document.hidden);
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
     
     return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
     };
   }, []);
 
@@ -131,6 +168,7 @@ const Supporters = memo(() => {
         
         <div className={isHovering || !isVisible ? '**:[animation-play-state:paused]' : ''}>
           <Marquee
+            key={marqueeKey}
             className="[--duration:40s] gap-4 md:gap-8"
             repeat={3}
             aria-label="Supporters logos"
