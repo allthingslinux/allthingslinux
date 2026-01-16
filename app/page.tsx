@@ -2,6 +2,7 @@ import DonateCta from '@/components/pages/home/donate-cta';
 import Hero from '@/components/pages/home/hero';
 import Projects from '@/components/pages/home/projects';
 import Stats from '@/components/pages/home/stats';
+import Supporters from '@/components/pages/home/supporters';
 import Testimonials from '@/components/pages/home/testimonials';
 import { getPageMetadata } from './metadata';
 import type { Metadata } from 'next';
@@ -39,6 +40,13 @@ export default function Home() {
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] [background-size:40px_40px] opacity-10"></div>
           <div className="container mx-auto px-4 relative z-10">
             <Stats />
+          </div>
+        </section>
+
+        {/* Supporters - regular background */}
+        <section className="py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <Supporters />
           </div>
         </section>
 

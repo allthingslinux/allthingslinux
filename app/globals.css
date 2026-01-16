@@ -145,6 +145,24 @@
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - 1rem));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - 1rem));
+  }
+}
+
 @layer utilities {
   .animate-typing {
     animation:
@@ -156,6 +174,14 @@
   .animate-type-once {
     animation: typing 2.5s steps(30, end) forwards;
     width: 0;
+  }
+
+  .animate-marquee {
+    animation: marquee var(--duration, 20s) linear infinite;
+  }
+
+  .animate-marquee-vertical {
+    animation: marquee-vertical var(--duration, 20s) linear infinite;
   }
 }
 
