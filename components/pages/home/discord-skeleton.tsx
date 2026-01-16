@@ -23,9 +23,9 @@ const ChannelList = memo(() => {
   return (
     <div className="w-56 bg-card p-4 hidden sm:block">
       <div>
-        <h3 className="text-muted-foreground font-semibold mb-2 uppercase text-xs tracking-wide">
+        <div className="text-muted-foreground font-semibold mb-2 uppercase text-xs tracking-wide">
           Text Channels
-        </h3>
+        </div>
         <div className="space-y-1">
           {channels.map((channel) => (
             <ChannelItem key={channel} name={channel} />
@@ -145,7 +145,6 @@ const ServerInfo = memo(() => (
         width={40}
         height={40}
         className="w-10 h-10"
-        unoptimized
         priority
       />
     </div>
@@ -175,7 +174,7 @@ const OnlineStatus = memo(() => (
 // Join button component
 const JoinButton = memo(() => (
   <Link href="https://discord.gg/linux" passHref>
-    <Button className="w-full bg-[#5865F2] hover:bg-[#EB459E] hover:scale-105 text-foreground transition-all font-bold py-5 mt-3 rounded-2xl">
+    <Button className="w-full bg-[#5865F2] hover:bg-[#EB459E] hover:scale-105 text-white transition-all font-bold py-5 mt-3 rounded-2xl">
       Join Server
     </Button>
   </Link>
