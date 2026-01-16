@@ -1,10 +1,8 @@
 'use client';
 
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, useRef } from 'react';
 
 import Image from 'next/image';
-
-import Marquee from '@/components/ui/marquee';
 
 const SUPPORTERS = [
   {
@@ -43,12 +41,10 @@ const SUPPORTERS = [
 
 const SupporterLogo = memo(({ 
   name, 
-  logo, 
-  onHover 
+  logo
 }: { 
   name: string; 
   logo: string;
-  onHover: (hovering: boolean) => void;
 }) => {
   const isSvg = logo.endsWith('.svg');
   const isMonday = name === 'Monday';
@@ -72,8 +68,6 @@ const SupporterLogo = memo(({
     <div 
       className="flex items-center justify-center px-6 md:px-12 py-6"
       role="presentation"
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
     >
       <Image
         src={logo}
@@ -94,58 +88,57 @@ const SupporterLogo = memo(({
 SupporterLogo.displayName = 'SupporterLogo';
 
 const Supporters = memo(() => {
-  const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [marqueeKey, setMarqueeKey] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const positionRef = useRef(0);
+  const speedRef = useRef(0.5); // pixels per frame
+  const setWidthRef = useRef(0);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const handleVisibilityChange = () => {
-      const visible = !document.hidden;
-      setIsVisible(visible);
-      
-      // Reset marquee when tab becomes visible to prevent glitches
-      if (visible) {
-        // Clear any pending timeout
-        if (timeoutId) {
-          clearTimeout(timeoutId);
+    // Calculate set width once
+    const firstSet = container.firstElementChild as HTMLElement;
+    if (firstSet) {
+      setWidthRef.current = firstSet.offsetWidth;
+    }
+
+    const animate = () => {
+      if (isVisible && !document.hidden) {
+        positionRef.current -= speedRef.current;
+        
+        // Reset position when we've scrolled one full set (seamless loop)
+        if (setWidthRef.current > 0 && Math.abs(positionRef.current) >= setWidthRef.current) {
+          positionRef.current = 0;
         }
-        // Small delay to ensure browser has processed the visibility change
-        timeoutId = setTimeout(() => {
-          setMarqueeKey((prev) => prev + 1);
-        }, 100);
+        
+        container.style.transform = `translateX(${positionRef.current}px)`;
+      }
+      
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
+  }, [isVisible]);
 
-    const handleFocus = () => {
-      setIsVisible(true);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      timeoutId = setTimeout(() => {
-        setMarqueeKey((prev) => prev + 1);
-      }, 100);
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsVisible(!document.hidden);
     };
 
-    const handleBlur = () => {
-      setIsVisible(false);
-    };
-
-    // Set initial visibility state
     setIsVisible(!document.hidden);
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
     
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('blur', handleBlur);
     };
   }, []);
 
@@ -166,21 +159,22 @@ const Supporters = memo(() => {
         <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute inset-y-0 right-0 w-20 bg-linear-to-l from-background to-transparent z-10 pointer-events-none" />
         
-        <div className={isHovering || !isVisible ? '**:[animation-play-state:paused]' : ''}>
-          <Marquee
-            key={marqueeKey}
-            className="[--duration:40s] gap-4 md:gap-8 p-0 [&>div]:gap-4 [&>div]:md:gap-8"
-            repeat={3}
-            aria-label="Supporters logos"
-          >
-            {SUPPORTERS.map((supporter) => (
-              <SupporterLogo 
-                key={supporter.name} 
-                {...supporter}
-                onHover={setIsHovering}
-              />
-            ))}
-          </Marquee>
+        <div 
+          ref={containerRef}
+          className="flex gap-4 md:gap-8"
+          style={{ willChange: 'transform' }}
+        >
+          {/* Render multiple sets for seamless loop */}
+          {Array.from({ length: 3 }).map((_, setIndex) => (
+            <div key={`set-${setIndex}`} className="flex shrink-0 gap-4 md:gap-8">
+              {SUPPORTERS.map((supporter) => (
+                <SupporterLogo 
+                  key={`${setIndex}-${supporter.name}`}
+                  {...supporter}
+                />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </>
