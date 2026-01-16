@@ -7,35 +7,35 @@ import Image from 'next/image';
 const SUPPORTERS = [
   {
     name: 'Canva',
-    logo: '/images/supporters/canva.svg',
+    logo: '/images/supporters/canva.webp',
   },
   {
     name: 'Cloudflare',
-    logo: '/images/supporters/cloudflare.svg',
+    logo: '/images/supporters/cloudflare.webp',
   },
   {
     name: 'TechSoup',
-    logo: '/images/supporters/techsoup.svg',
+    logo: '/images/supporters/techsoup.webp',
   },
   {
     name: 'Fibery',
-    logo: '/images/supporters/fibery.svg',
+    logo: '/images/supporters/fibery.webp',
   },
   {
     name: 'Monday',
-    logo: '/images/supporters/monday.png',
+    logo: '/images/supporters/monday.webp',
   },
   {
     name: 'Okta',
-    logo: '/images/supporters/okta.svg',
+    logo: '/images/supporters/okta.webp',
   },
   {
     name: 'GitHub',
-    logo: '/images/supporters/github.png',
+    logo: '/images/supporters/github.webp',
   },
   {
     name: 'Sentry',
-    logo: '/images/supporters/sentry.svg',
+    logo: '/images/supporters/sentry.webp',
   },
 ] as const;
 
@@ -46,14 +46,15 @@ const SupporterLogo = memo(({
   name: string; 
   logo: string;
 }) => {
-  const isSvg = logo.endsWith('.svg');
   const isMonday = name === 'Monday';
   const isGitHub = name === 'GitHub';
   const isTechSoup = name === 'TechSoup';
 
   let logoClassName = 'h-12 w-auto object-contain transition-all duration-300 opacity-95 hover:opacity-100 hover:scale-105';
+  
+  // Apply invert filter to make logos visible on dark background, except TechSoup which has its own colors
   const logoStyle: React.CSSProperties = {
-    filter: isSvg && !isTechSoup ? 'brightness(0) saturate(100%) invert(1)' : 'none',
+    filter: !isTechSoup ? 'brightness(0) saturate(100%) invert(1)' : 'none',
   };
 
   if (isMonday) {
@@ -76,7 +77,6 @@ const SupporterLogo = memo(({
         height={80}
         className={logoClassName}
         style={logoStyle}
-        unoptimized={isSvg}
         onError={(e) => {
           console.error(`Failed to load logo: ${logo}`, e);
         }}
