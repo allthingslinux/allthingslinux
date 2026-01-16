@@ -15,8 +15,8 @@ importers:
         specifier: ^11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.3))(@types/react@19.2.7)(react@19.2.3)
       '@hookform/resolvers':
-        specifier: 3.9.1
-        version: 3.9.1(react-hook-form@7.69.0(react@19.2.3))
+        specifier: 3.10.0
+        version: 3.10.0(react-hook-form@7.69.0(react@19.2.3))
       '@mdx-js/loader':
         specifier: ^3.1.1
         version: 3.1.1(webpack@5.104.1(esbuild@0.27.2))
@@ -2146,8 +2146,8 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hookform/resolvers@3.9.1':
-    resolution: {integrity: sha512-ud2HqmGBM0P0IABqoskKWI6PEf6ZDDBZkFqe2Vnl+mTHCEHzr3ISjjZyCwTjC/qpL25JC9aIDkloQejvMeq0ug==}
+  '@hookform/resolvers@3.10.0':
+    resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
     peerDependencies:
       react-hook-form: ^7.0.0
 
@@ -11411,7 +11411,7 @@ snapshots:
     dependencies:
       hono: 4.11.3
 
-  '@hookform/resolvers@3.9.1(react-hook-form@7.69.0(react@19.2.3))':
+  '@hookform/resolvers@3.10.0(react-hook-form@7.69.0(react@19.2.3))':
     dependencies:
       react-hook-form: 7.69.0(react@19.2.3)
 
