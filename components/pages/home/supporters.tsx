@@ -52,9 +52,9 @@ const SupporterLogo = memo(({
 
   let logoClassName = 'h-12 w-auto object-contain transition-all duration-300 opacity-95 hover:opacity-100 hover:scale-105';
   
-  // Apply invert filter to make logos visible on dark background, except TechSoup which has its own colors
+  // Apply invert filter to make logos visible on dark background, except TechSoup and Monday which have their own colors
   const logoStyle: React.CSSProperties = {
-    filter: !isTechSoup ? 'brightness(0) saturate(100%) invert(1)' : 'none',
+    filter: !isTechSoup && !isMonday ? 'brightness(0) saturate(100%) invert(1)' : 'none',
   };
 
   if (isMonday) {
