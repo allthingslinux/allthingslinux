@@ -169,7 +169,7 @@ const Supporters = memo(() => {
         <div className={isHovering || !isVisible ? '**:[animation-play-state:paused]' : ''}>
           <Marquee
             key={marqueeKey}
-            className="[--duration:40s] gap-4 md:gap-8"
+            className="[--duration:40s] gap-4 md:gap-8 p-0 [&>div]:gap-4 [&>div]:md:gap-8"
             repeat={3}
             aria-label="Supporters logos"
           >
