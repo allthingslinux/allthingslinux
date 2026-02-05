@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { LinkIcon } from 'lucide-react';
 import Link from 'next/link';
 
 import { BsOpencollective } from 'react-icons/bs';
@@ -27,9 +26,8 @@ const DonateCta = memo(() => {
               lights on and provide more services to the community.
             </p>
             <div className="mt-8">
-              <Link href="https://opencollective.com/allthingslinux">
-                <Button variant="secondary" size="lg" className="flex items-center gap-2">
-                  <LinkIcon />
+              <Link href="/contribute">
+                <Button variant="secondary" size="lg">
                   Donate Now
                 </Button>
               </Link>

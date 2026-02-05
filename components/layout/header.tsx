@@ -23,6 +23,7 @@ const navItems = [
   { name: 'Wiki', href: 'https://atl.wiki' },
   { name: 'Tools', href: 'https://atl.tools' },
   { name: 'Open', href: '/open' },
+  { name: 'Get Involved', href: '/get-involved' },
 ];
 
 // Logo component
@@ -77,7 +78,7 @@ const DesktopNavigation = () => (
 
 // CTA button component
 const CTAButton = ({ className }: { className?: string }) => (
-  <Link href="/get-involved">
+  <Link href="/contribute">
     <Button
       variant="default"
       size="default"
@@ -87,7 +88,7 @@ const CTAButton = ({ className }: { className?: string }) => (
         className
       )}
     >
-      Get Involved
+      Contribute & Donate
     </Button>
   </Link>
 );
@@ -146,9 +147,7 @@ const MobileNavigation = () => {
       <SheetContent side="right" className="w-[280px]">
         <SheetHeader className="mb-8 pb-4 border-b">
           <SheetTitle className="text-left">
-            <span className="font-bold text-foreground">
-              All Things Linux
-            </span>
+            <span className="font-bold text-foreground">All Things Linux</span>
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col gap-8">

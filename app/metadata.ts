@@ -189,6 +189,11 @@ export const getPageMetadata = (page: string): Metadata => {
       description:
         'Learn how to get involved with All Things Linux and contribute to our projects.',
     },
+    contribute: {
+      title: 'Contribute',
+      description:
+        'Support All Things Linux through donations, code contributions, volunteering, or community support.',
+    },
     open: {
       title: 'Open',
       description: 'View our public financial reports and insights.',
