@@ -81,15 +81,16 @@ export default function ContributePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <Button asChild className="w-full">
                 <Link
                   href="https://opencollective.com/allthingslinux"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
                   <SiOpencollective size={16} />
-                  Open Collective
+                  <span>Open Collective</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -97,9 +98,10 @@ export default function ContributePage() {
                   href="https://paypal.com/donate/?hosted_button_id=9R5Y3RDAMF6D8"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
                   <SiPaypal size={16} />
-                  PayPal
+                  <span>PayPal</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -107,9 +109,10 @@ export default function ContributePage() {
                   href="https://donate.stripe.com/bJe8wQf5O2ZccHW06u1wY07"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
                   <SiStripe size={16} />
-                  Stripe (Monthly)
+                  <span>Stripe (Monthly)</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -117,9 +120,10 @@ export default function ContributePage() {
                   href="https://every.org/allthingslinux/donate/crypto"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
                   <SiBitcoin size={16} />
-                  Every.org (Crypto)
+                  <span>Every.org (Crypto)</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -127,9 +131,10 @@ export default function ContributePage() {
                   href="https://cash.app/$allthingslinux"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
                   <SiCashapp size={16} />
-                  Cash App
+                  <span>Cash App</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -137,9 +142,10 @@ export default function ContributePage() {
                   href="https://donate.stripe.com/28EbJ27Dm9nAcHWdXk1wY06"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
                   <SiStripe size={16} />
-                  Stripe (One-Time)
+                  <span>Stripe (One-Time)</span>
                 </Link>
               </Button>
             </div>
