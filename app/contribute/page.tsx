@@ -73,10 +73,10 @@ export default function ContributePage() {
                   has the lowest fees but every.org provides more currency
                   options.
                 </i>{' '}
-                <b>
+                <strong>
                   For larger donations or more details on how the fees work you
                   can click the "Learn More" button above.
-                </b>
+                </strong>  
               </span>
             </CardDescription>
           </CardHeader>
@@ -190,7 +190,7 @@ export default function ContributePage() {
                 </CardTitle>
               </div>
               <CardDescription className="text-lg">
-                Share your knowledge by contributing editing or writing articles
+                Share your knowledge by contributing, editing or writing articles
                 and guides.
               </CardDescription>
             </CardHeader>
