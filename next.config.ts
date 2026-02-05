@@ -68,7 +68,7 @@ const nextConfig: NextConfig = {
     if (process.env.NODE_ENV === 'development') {
       config.optimization.minimize = false;
     }
-    
+
     // Ignore .map files to prevent esbuild errors in OpenNext/Cloudflare builds
     // This prevents webpack from trying to process source map files
     if (isServer) {
@@ -80,12 +80,12 @@ const nextConfig: NextConfig = {
           emit: false, // Don't emit .map files
         },
       });
-      
+
       // Ignore .map files in module resolution
       config.resolve.extensions = config.resolve.extensions.filter(
         (ext: string) => ext !== '.map'
       );
-      
+
       // Add ignore plugin to completely skip .map files
       const { IgnorePlugin } = require('webpack');
       config.plugins.push(
@@ -94,7 +94,7 @@ const nextConfig: NextConfig = {
         })
       );
     }
-    
+
     return config;
   },
   // Add headers for API endpoints
@@ -112,6 +112,17 @@ const nextConfig: NextConfig = {
               'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
           },
         ],
+      },
+    ];
+  },
+
+  // Add redirects
+  async redirects() {
+    return [
+      {
+        source: '/donate',
+        destination: '/contribute',
+        permanent: true,
       },
     ];
   },
