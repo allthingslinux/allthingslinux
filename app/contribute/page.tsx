@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { getPageMetadata } from '../metadata';
 import type { Metadata } from 'next';
 import {
-  Heart,
   Code,
   Users,
   DollarSign,
@@ -19,6 +18,13 @@ import {
   MessageSquare,
   BookOpen,
 } from 'lucide-react';
+import {
+  SiOpencollective,
+  SiPaypal,
+  SiStripe,
+  SiBitcoin,
+  SiCashapp,
+} from 'react-icons/si';
 import { FinancialSupportDialog } from '@/components/pages/contribute/financial-support-dialog';
 
 export const metadata: Metadata = getPageMetadata('contribute');
@@ -74,71 +80,71 @@ export default function ContributePage() {
               </span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <Button asChild className="w-full" size="lg">
-              <Link
-                href="https://opencollective.com/allthingslinux"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open Collective
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <div className="grid grid-cols-2 gap-3">
-              <Button asChild className="w-full" size="lg" variant="outline">
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3">
+              <Button asChild className="w-full">
                 <Link
-                  href="https://donate.stripe.com/28EbJ27Dm9nAcHWdXk1wY06"
+                  href="https://opencollective.com/allthingslinux"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Stripe (One-Time)
-                  <ExternalLink className="ml-2 h-4 w-4" />
+                  <SiOpencollective size={16} />
+                  Open Collective
                 </Link>
               </Button>
-              <Button asChild className="w-full" size="lg" variant="outline">
+              <Button asChild className="w-full" variant="outline">
+                <Link
+                  href="https://paypal.com/donate/?hosted_button_id=9R5Y3RDAMF6D8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <SiPaypal size={16} />
+                  PayPal
+                </Link>
+              </Button>
+              <Button asChild className="w-full" variant="outline">
                 <Link
                   href="https://donate.stripe.com/bJe8wQf5O2ZccHW06u1wY07"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  <SiStripe size={16} />
                   Stripe (Monthly)
-                  <ExternalLink className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild className="w-full" variant="outline">
+                <Link
+                  href="https://every.org/allthingslinux/donate/crypto"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <SiBitcoin size={16} />
+                  Every.org (Crypto)
+                </Link>
+              </Button>
+              <Button asChild className="w-full" variant="outline">
+                <Link
+                  href="https://cash.app/$allthingslinux"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <SiCashapp size={16} />
+                  Cash App
+                </Link>
+              </Button>
+              <Button asChild className="w-full" variant="outline">
+                <Link
+                  href="https://donate.stripe.com/28EbJ27Dm9nAcHWdXk1wY06"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <SiStripe size={16} />
+                  Stripe (One-Time)
                 </Link>
               </Button>
             </div>
-            <Button asChild className="w-full" size="lg" variant="outline">
-              <Link
-                href="https://paypal.com/donate/?hosted_button_id=9R5Y3RDAMF6D8"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                PayPal
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild className="w-full" size="lg" variant="outline">
-              <Link
-                href="https://every.org/allthingslinux/donate/crypto"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Every.org (Crypto)
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild className="w-full" size="lg" variant="outline">
-              <Link
-                href="https://cash.app/$allthingslinux"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Cash App
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="secondary" className="w-full" size="lg">
-              <Link href="/open">View our Financial Records!</Link>
+            <Button asChild variant="secondary" className="w-full mt-4">
+              <Link href="/open">View our Financial Records</Link>
             </Button>
           </CardContent>
         </Card>
