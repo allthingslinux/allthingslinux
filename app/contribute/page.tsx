@@ -14,9 +14,10 @@ import {
   Users,
   DollarSign,
   Github,
-  ExternalLink,
   MessageSquare,
   BookOpen,
+  FileText,
+  BarChart3,
 } from 'lucide-react';
 import {
   SiOpencollective,
@@ -34,7 +35,7 @@ export default function ContributePage() {
     <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-20 max-w-6xl">
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-xl border border-primary/10 mb-12 sm:mb-16">
-        <div className="absolute inset-0 bg-[radial-gradient(#333_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(#333_1px,transparent_1px)] bg-size-[20px_20px] opacity-20"></div>
 
         <div className="relative py-4 sm:py-5 md:py-6 px-6 sm:px-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -43,7 +44,7 @@ export default function ContributePage() {
             </h1>
 
             <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-              Help us build the most welcoming Linux community. Whether through
+              Help us build the most welcoming and passionateLinux community. Whether through
               donations, code contributions, or volunteering your time, every
               contribution makes a difference.
             </p>
@@ -60,24 +61,11 @@ export default function ContributePage() {
               <div className="p-2 rounded-lg bg-green-500/10">
                 <DollarSign className="h-6 w-6 text-green-600 dark:text-green-500" />
               </div>
-              <CardTitle className="text-2xl">Financial Support</CardTitle>
-              <FinancialSupportDialog />
+              <CardTitle className="text-2xl">Donate financially</CardTitle>
             </div>
             <CardDescription className="text-lg">
               Your donations help us maintain infrastructure, run events, and
               grow our community.
-              <span className="block mt-2 text-sm">
-                <i>
-                  In general Open Collective is the best platform to donate on.
-                  However for Amex, PayPal has lower fees. For Crypto, Stripe
-                  has the lowest fees but every.org provides more currency
-                  options.
-                </i>{' '}
-                <strong>
-                  For larger donations or more details on how the fees work you
-                  can click the "Learn More" button above.
-                </strong>  
-              </span>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -87,10 +75,10 @@ export default function ContributePage() {
                   href="https://opencollective.com/allthingslinux"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 leading-none"
                 >
-                  <SiOpencollective size={16} />
-                  <span>Open Collective</span>
+                  <SiOpencollective className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">Open Collective</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -98,10 +86,10 @@ export default function ContributePage() {
                   href="https://paypal.com/donate/?hosted_button_id=9R5Y3RDAMF6D8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 leading-none"
                 >
-                  <SiPaypal size={16} />
-                  <span>PayPal</span>
+                  <SiPaypal className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">PayPal</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -109,10 +97,10 @@ export default function ContributePage() {
                   href="https://donate.stripe.com/bJe8wQf5O2ZccHW06u1wY07"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 leading-none"
                 >
-                  <SiStripe size={16} />
-                  <span>Stripe (Monthly)</span>
+                  <SiStripe className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">Stripe (Monthly)</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -120,10 +108,10 @@ export default function ContributePage() {
                   href="https://every.org/allthingslinux/donate/crypto"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 leading-none"
                 >
-                  <SiBitcoin size={16} />
-                  <span>Every.org (Crypto)</span>
+                  <SiBitcoin className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">Every.org (Crypto)</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -131,10 +119,10 @@ export default function ContributePage() {
                   href="https://cash.app/$allthingslinux"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 leading-none"
                 >
-                  <SiCashapp size={16} />
-                  <span>Cash App</span>
+                  <SiCashapp className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">Cash App</span>
                 </Link>
               </Button>
               <Button asChild className="w-full" variant="outline">
@@ -142,51 +130,66 @@ export default function ContributePage() {
                   href="https://donate.stripe.com/28EbJ27Dm9nAcHWdXk1wY06"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 leading-none"
                 >
-                  <SiStripe size={16} />
-                  <span>Stripe (One-Time)</span>
+                  <SiStripe className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">Stripe (One-Time)</span>
                 </Link>
               </Button>
             </div>
             <Button asChild variant="secondary" className="w-full mt-4">
-              <Link href="/open">View our Financial Records</Link>
+              <Link
+                href="/open"
+                className="flex items-center justify-center gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                View our Financial Records
+              </Link>
             </Button>
+            <div className="mt-3 flex justify-center">
+              <FinancialSupportDialog />
+            </div>
           </CardContent>
         </Card>
 
-        {/* Volunteer and Wiki - Second Row */}
-        <div className="grid md:grid-cols-2 gap-6">
+        {/* Volunteer, Wiki, Code, Community */}
+        <div className="grid sm:grid-cols-2 gap-6">
           {/* Volunteer Your Time */}
-          <Card className="border-2 hover:shadow-lg transition-all">
-            <CardHeader>
+          <Card className="border-2 hover:shadow-lg transition-all flex flex-col h-full">
+            <CardHeader className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 rounded-lg bg-purple-500/10">
                   <Users className="h-6 w-6 text-purple-600 dark:text-purple-500" />
                 </div>
-                <CardTitle className="text-2xl">Volunteer Your Time</CardTitle>
+                <CardTitle className="text-2xl">Volunteer your time</CardTitle>
               </div>
               <CardDescription className="text-lg">
                 Join our team and help manage the community, create content, and
                 organize events.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full" size="lg">
-                <Link href="/apply">Browse Open Roles</Link>
+            <CardContent className="mt-auto">
+              <Button asChild className="w-full" size="lg" variant="default">
+                <Link
+                  href="/apply"
+                  className="flex items-center justify-center gap-2"
+                >
+                  <Users className="h-4 w-4" />
+                  Browse Open Roles
+                </Link>
               </Button>
             </CardContent>
           </Card>
 
           {/* Contribute to Wiki */}
-          <Card className="border-2 hover:shadow-lg transition-all">
-            <CardHeader>
+          <Card className="border-2 hover:shadow-lg transition-all flex flex-col h-full">
+            <CardHeader className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 rounded-lg bg-cyan-500/10">
                   <BookOpen className="h-6 w-6 text-cyan-600 dark:text-cyan-500" />
                 </div>
                 <CardTitle className="text-2xl">
-                  Contribute to the Wiki
+                  Contribute your knowledge
                 </CardTitle>
               </div>
               <CardDescription className="text-lg">
@@ -194,75 +197,74 @@ export default function ContributePage() {
                 and guides.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full" size="lg">
+            <CardContent className="mt-auto">
+              <Button asChild className="w-full" size="lg" variant="default">
                 <Link
                   href="https://atl.wiki"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
+                  <BookOpen className="h-4 w-4" />
                   Visit Wiki
-                  <ExternalLink className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </CardContent>
           </Card>
-        </div>
 
-        {/* Code Contributions and Community Support - Third Row */}
-        <div className="grid md:grid-cols-2 gap-6">
           {/* Code Contributions */}
-          <Card className="border-2 hover:shadow-lg transition-all">
-            <CardHeader>
+          <Card className="border-2 hover:shadow-lg transition-all flex flex-col h-full">
+            <CardHeader className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 rounded-lg bg-blue-500/10">
                   <Code className="h-6 w-6 text-blue-600 dark:text-blue-500" />
                 </div>
-                <CardTitle className="text-2xl">Code Contributions</CardTitle>
+                <CardTitle className="text-2xl">Contribute your code</CardTitle>
               </div>
               <CardDescription className="text-lg">
                 Help us build and improve our open-source projects and
                 infrastructure.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Button asChild className="w-full" size="lg">
+            <CardContent className="space-y-3 mt-auto">
+              <Button asChild className="w-full" size="lg" variant="default">
                 <Link
                   href="https://github.com/allthingslinux"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
-                  <Github className="mr-2 h-4 w-4" />
+                  <Github className="h-4 w-4" />
                   View on GitHub
-                  <ExternalLink className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </CardContent>
           </Card>
 
           {/* Community Support */}
-          <Card className="border-2 hover:shadow-lg transition-all">
-            <CardHeader>
+          <Card className="border-2 hover:shadow-lg transition-all flex flex-col h-full">
+            <CardHeader className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 rounded-lg bg-orange-500/10">
                   <MessageSquare className="h-6 w-6 text-orange-600 dark:text-orange-500" />
                 </div>
-                <CardTitle className="text-2xl">Community Support</CardTitle>
+                <CardTitle className="text-2xl">Help and support</CardTitle>
               </div>
               <CardDescription className="text-lg">
                 Help others learn Linux, answer questions, and share your
                 knowledge.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full" size="lg">
+            <CardContent className="mt-auto">
+              <Button asChild className="w-full" size="lg" variant="default">
                 <Link
-                  href="https://discord.gg/allthingslinux"
+                  href="https://discord.gg/linux"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
+                  <MessageSquare className="h-4 w-4" />
                   Join Our Discord
-                  <ExternalLink className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </CardContent>
@@ -277,18 +279,18 @@ export default function ContributePage() {
             Why Contribute?
           </CardTitle>
           <CardDescription className="text-center text-lg">
-            Your contributions help us achieve our mission
+            Your contributions help us achieve our mission and vision.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-primary">20k+</div>
-              <p className="text-sm text-muted-foreground">Community Members</p>
+              <div className="text-4xl font-bold text-primary">20+</div>
+              <p className="text-sm text-muted-foreground">Dedicated Volunteers</p>
             </div>
             <div className="text-center space-y-2">
               <div className="text-4xl font-bold text-primary">100%</div>
-              <p className="text-sm text-muted-foreground">Open Source</p>
+              <p className="text-sm text-muted-foreground">Open Source and Non-Profit</p>
             </div>
             <div className="text-center space-y-2">
               <div className="text-4xl font-bold text-primary">24/7</div>
@@ -306,8 +308,11 @@ export default function ContributePage() {
               transparency. We publish all our financials in real-time and share
               all of our decisions openly with the community.
             </p>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/open">View Our Finances</Link>
+          <Button asChild variant="outline" size="lg">
+            <Link href="/open" className="flex items-center justify-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              View Our Finances
+            </Link>
             </Button>
           </div>
         </CardContent>
