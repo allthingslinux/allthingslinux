@@ -7,7 +7,6 @@ import {
   FaRss,
 } from 'react-icons/fa';
 import { BsOpencollective } from 'react-icons/bs';
-import { IoIosArrowUp } from 'react-icons/io';
 
 import { Separator } from '@/components/ui/separator';
 import { Privacy, Cookies, Terms, Security } from '@/components/consent';
@@ -21,12 +20,13 @@ const sections = [
       { name: 'Code of Conduct', href: '/code-of-conduct' },
       { name: 'Blog', href: '/blog' },
       { name: 'Apply', href: '/apply' },
+      { name: 'Contribute', href: '/contribute' },
     ],
   },
   {
     title: 'Projects',
     links: [
-      { name: 'tux', href: 'https://tux.atl.tools' },
+      { name: 'tux', href: 'https://github.com/allthingslinux/tux' },
       { name: 'atl.wiki', href: 'https://atl.wiki' },
       { name: 'atl.tools', href: 'https://atl.tools' },
       { name: 'atl.chat', href: 'https://atl.chat' },
@@ -115,8 +115,8 @@ const FooterSection = ({
   <div>
     <h3 className="mb-4 font-bold">{title}</h3>
     <ul className="space-y-4 text-muted-foreground">
-      {links.map((link, linkIdx) => (
-        <FooterLink key={linkIdx} name={link.name} href={link.href} />
+      {links.map((link) => (
+        <FooterLink key={link.name} name={link.name} href={link.href} />
       ))}
     </ul>
   </div>
@@ -144,9 +144,9 @@ const SocialSection = () => (
   <div>
     <h3 className="mb-4 font-bold md:block hidden">Social</h3>
     <ul className="flex items-center justify-center md:justify-start space-x-6 text-muted-foreground">
-      {socialLinks.map((social, idx) => (
+      {socialLinks.map((social) => (
         <SocialIcon
-          key={idx}
+          key={social.label}
           Icon={social.icon}
           href={social.href}
           label={social.label}
@@ -162,15 +162,23 @@ const SocialSection = () => (
         admin@allthingslinux.org
       </a>
     </div>
+    <div className="mt-5 text-center md:text-left">
+      <a
+        href="/open"
+        className="text-xl font-bold text-muted-foreground hover:text-primary transition-colors"
+      >
+        /open
+      </a>
+    </div>
   </div>
 );
 
 // Main sections grid
 const FooterSections = () => (
   <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-    {sections.map((section, sectionIdx) => (
+    {sections.map((section) => (
       <FooterSection
-        key={sectionIdx}
+        key={section.title}
         title={section.title}
         links={section.links}
       />
@@ -206,8 +214,7 @@ const MobileFooter = () => (
 const DesktopCopyright = () => (
   <div className="hidden md:flex justify-between items-center">
     <p className="text-sm text-muted-foreground">
-      © {new Date().getFullYear()} All Things Linux • Made with ❤️ • All Rights
-      Reserved
+      All Things Linux • Made with ☕ & 💛
     </p>
     <a
       href="https://github.com/allthingslinux/allthingslinux"
