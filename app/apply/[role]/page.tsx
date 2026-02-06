@@ -182,7 +182,7 @@ export default function RoleApplicationPage() {
         <div className="w-full max-w-[800px]">
           {/* Back button */}
           <div className="mb-6">
-            <Link href="/get-involved" passHref>
+            <Link href="/apply" passHref>
               <Button
                 variant="ghost"
                 size="sm"

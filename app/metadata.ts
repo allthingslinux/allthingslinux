@@ -184,10 +184,10 @@ export const getPageMetadata = (page: string): Metadata => {
       description:
         'Stay updated with the latest news, tutorials, and insights about Linux and open source software.',
     },
-    'get-involved': {
-      title: 'Get Involved',
+    apply: {
+      title: 'Apply',
       description:
-        'Learn how to get involved with All Things Linux and contribute to our projects.',
+        'Apply to join All Things Linux and contribute to our community projects.',
     },
     contribute: {
       title: 'Contribute',

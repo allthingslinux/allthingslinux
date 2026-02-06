@@ -173,7 +173,7 @@ export default function ContributePage() {
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full" size="lg">
-                <Link href="/get-involved">Browse Open Roles</Link>
+                <Link href="/apply">Browse Open Roles</Link>
               </Button>
             </CardContent>
           </Card>

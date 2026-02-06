@@ -37,7 +37,7 @@ const Hero = memo(({ roleCount }: { roleCount: number }) => (
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6">
-          Get Involved
+          Apply
         </h1>
 
         <p className="text-base sm:text-lg md:text-xl text-center text-muted-foreground mb-8">
@@ -100,6 +100,7 @@ const SearchInput = memo(
 
           {value && (
             <button
+              type="button"
               onClick={handleClear}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground/80 p-1.5 z-10"
               aria-label="Clear search"
@@ -111,6 +112,7 @@ const SearchInput = memo(
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
+                <title>Clear search</title>
                 <path
                   d="M18 6L6 18M6 6L18 18"
                   stroke="currentColor"
@@ -195,7 +197,7 @@ const DepartmentSection = memo(
       <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8 flex-wrap sm:flex-nowrap gap-2">
         <div className="flex items-center gap-2 sm:gap-4 w-full">
           <h2 className="text-xl sm:text-2xl font-semibold">{department}</h2>
-          <div className="h-[1px] bg-border flex-grow hidden sm:block"></div>
+          <div className="h-px bg-border grow hidden sm:block"></div>
         </div>
         <Badge
           variant="outline"

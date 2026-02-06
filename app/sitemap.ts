@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/about',
     '/code-of-conduct',
     '/blog',
-    '/get-involved',
+    '/apply',
     // Add all other static routes here
   ].map((route) => ({
     url: `${baseUrl}${route}`,

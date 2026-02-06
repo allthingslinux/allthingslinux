@@ -124,6 +124,11 @@ const nextConfig: NextConfig = {
         destination: '/contribute',
         permanent: true,
       },
+      {
+        source: '/get-involved',
+        destination: '/apply',
+        permanent: true,
+      },
     ];
   },
 
