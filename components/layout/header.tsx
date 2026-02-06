@@ -24,7 +24,6 @@ const navItems = [
   { name: 'Tools', href: 'https://atl.tools' },
   { name: 'Open', href: '/open' },
   { name: 'Apply', href: '/apply' },
-  { name: 'Contribute', href: '/contribute' },
 ];
 
 // Logo component
