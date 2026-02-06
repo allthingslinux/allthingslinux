@@ -6,8 +6,8 @@ import { Card } from '@/components/ui/card';
 // Stats data with minimal information
 const statsData = [
   { id: 1, value: '10M+', description: 'messages' },
-  { id: 2, value: '18K+', description: 'members' },
-  { id: 3, value: '68K+', description: 'voice hours' },
+  { id: 2, value: '20K+', description: 'members' },
+  { id: 3, value: '70K+', description: 'voice hours' },
   { id: 4, value: '40+', description: 'volunteers and staff' },
   { id: 5, value: '2K+', description: 'solved support posts' },
   { id: 6, value: '10+', description: 'projects in development' },
