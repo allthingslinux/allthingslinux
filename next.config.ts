@@ -101,6 +101,13 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+        ],
+      },
+      {
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
@@ -126,6 +133,16 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/get-involved',
+        destination: '/apply',
+        permanent: true,
+      },
+      {
+        source: '/roles',
+        destination: '/apply',
+        permanent: true,
+      },
+      {
+        source: '/careers',
         destination: '/apply',
         permanent: true,
       },
