@@ -20,7 +20,7 @@ const sections = [
       { name: 'About', href: '/about' },
       { name: 'Code of Conduct', href: '/code-of-conduct' },
       { name: 'Blog', href: '/blog' },
-      { name: 'Get Involved', href: '/get-involved' },
+      { name: 'Apply', href: '/apply' },
     ],
   },
   {
