@@ -137,15 +137,6 @@ export default function ContributePage() {
                 </Link>
               </Button>
             </div>
-            <Button asChild variant="secondary" className="w-full mt-4">
-              <Link
-                href="/open"
-                className="flex items-center justify-center gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                View our Financial Records
-              </Link>
-            </Button>
             <div className="mt-3 flex justify-center">
               <FinancialSupportDialog />
             </div>
