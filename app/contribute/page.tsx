@@ -44,7 +44,7 @@ export default function ContributePage() {
             </h1>
 
             <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-              Help us build the most welcoming and passionateLinux community. Whether through
+              Help us build the most welcoming and passionate Linux community. Whether through
               donations, code contributions, or volunteering your time, every
               contribution makes a difference.
             </p>
