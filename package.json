@@ -124,7 +124,7 @@
     "tailwindcss": "^4.1.18",
     "ts-node": "^10.9.2",
     "typescript-eslint": "^8.51.0",
-    "vitest": "^3.2.4",
+    "vitest": "^4.0.0",
     "wrangler": "^4.54.0"
   }
 }
