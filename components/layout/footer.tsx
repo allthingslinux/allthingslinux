@@ -195,8 +195,7 @@ const MobileFooter = () => (
   <div className="flex flex-col items-center space-y-4 md:hidden">
     <SocialSection />
     <p className="text-sm text-center text-muted-foreground">
-      © {new Date().getFullYear()} All Things Linux • Made with ❤️ • All Rights
-      Reserved
+      All Things Linux • Made with ☕ & 💛
     </p>
     <a
       href="https://github.com/allthingslinux/allthingslinux"
