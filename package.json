@@ -118,7 +118,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-mdx": "^3.6.2",
     "eslint-plugin-prettier": "^5.5.4",
-    "open": "^10.2.0",
+    "open": "^11.0.0",
     "prettier-eslint": "^16.4.2",
     "remark-cli": "^12.0.1",
     "tailwindcss": "^4.1.18",
